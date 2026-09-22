@@ -9,36 +9,40 @@ export function useAdminRole() {
 
     const checkAdminRole = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!active) return;
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
+        if (!active) return;
         if (!user) {
           setIsAdmin(false);
           return;
         }
 
         const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
+          .from('admin_users')
+          .select('user_id')
+          .eq('user_id', user.id)
           .maybeSingle();
 
         if (!active) return;
         if (error) {
-          console.error('Admin rolü kontrol edilemedi:', error);
+          console.error('Admin üyeliği kontrol edilemedi:', error);
           setIsAdmin(false);
           return;
         }
 
-        setIsAdmin(data?.role === 'admin');
+        setIsAdmin(Boolean(data?.user_id));
       } catch (error) {
-        console.error('Admin rolü kontrol edilemedi:', error);
+        console.error('Admin üyeliği kontrol edilemedi:', error);
         if (active) setIsAdmin(false);
       }
     };
 
     void checkAdminRole();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       void checkAdminRole();
     });
 
