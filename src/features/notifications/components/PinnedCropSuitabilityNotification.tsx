@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ChevronDown,
+  ChevronLeft,
   ChevronRight,
   CircleAlert,
   Leaf,
@@ -29,6 +29,8 @@ import {
 
 const NOTIFICATION_LIST_SELECTOR =
   'dialog.tp-home-quick-sheet[open][aria-label="Bildirimler"] .tp-home-quick-list';
+
+type ModalView = 'overview' | 'comparison' | 'varieties';
 
 type FieldRow = {
   id: string | number;
@@ -68,19 +70,27 @@ function shortFactorLabel(key: string, fallback: string) {
 export default function PinnedCropSuitabilityNotification() {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [field, setField] = useState<FieldRow | null>(null);
+  const [view, setView] = useState<ModalView>('overview');
+
   const [fields, setFields] = useState<FieldRow[]>([]);
-  const [suitability, setSuitability] = useState<CropSuitabilityResponse | null>(null);
+  const [field, setField] = useState<FieldRow | null>(null);
+
+  const [suitability, setSuitability] =
+    useState<CropSuitabilityResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [gaez, setGaez] = useState<GaezSuitabilityEvidenceResponse | null>(null);
+
+  const [gaez, setGaez] =
+    useState<GaezSuitabilityEvidenceResponse | null>(null);
   const [gaezLoading, setGaezLoading] = useState(false);
-  const [comparisonOpen, setComparisonOpen] = useState(false);
-  const [comparison, setComparison] = useState<CropSuitabilityComparisonResponse | null>(null);
+
+  const [comparison, setComparison] =
+    useState<CropSuitabilityComparisonResponse | null>(null);
   const [comparisonLoading, setComparisonLoading] = useState(false);
   const [comparisonError, setComparisonError] = useState('');
-  const [varietyOpen, setVarietyOpen] = useState(false);
-  const [ttsm, setTtsm] = useState<TtsmVarietySourceResponse | null>(null);
+
+  const [ttsm, setTtsm] =
+    useState<TtsmVarietySourceResponse | null>(null);
   const [ttsmLoading, setTtsmLoading] = useState(false);
   const [ttsmError, setTtsmError] = useState('');
 
@@ -123,7 +133,10 @@ export default function PinnedCropSuitabilityNotification() {
     document.body.style.overflow = 'hidden';
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setModalOpen(false);
+      if (event.key === 'Escape') {
+        if (view !== 'overview') setView('overview');
+        else setModalOpen(false);
+      }
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -132,26 +145,31 @@ export default function PinnedCropSuitabilityNotification() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [modalOpen]);
+  }, [modalOpen, view]);
+
+  const fieldOptions = useMemo(
+    () => fields.filter((item) => item.id != null),
+    [fields],
+  );
 
   const loadField = async (nextField: FieldRow) => {
     setField(nextField);
+    setView('overview');
+    setLoading(true);
+    setError('');
     setSuitability(null);
     setGaez(null);
     setComparison(null);
-    setComparisonOpen(false);
     setComparisonError('');
     setTtsm(null);
-    setVarietyOpen(false);
     setTtsmError('');
-    setLoading(true);
-    setError('');
 
     try {
       const result = await fetchFieldCropSuitability(
         nextField.id,
         nextField.crop,
       );
+
       setSuitability(result);
 
       setGaezLoading(true);
@@ -182,6 +200,7 @@ export default function PinnedCropSuitabilityNotification() {
     if (dialog instanceof HTMLDialogElement) dialog.close();
 
     setModalOpen(true);
+    setView('overview');
     setLoading(true);
     setError('');
 
@@ -218,16 +237,20 @@ export default function PinnedCropSuitabilityNotification() {
   const loadComparison = async () => {
     if (!field || comparisonLoading) return;
 
-    setComparisonOpen(true);
-    if (comparison) return;
+    setView('comparison');
+    if (comparison?.comparisons?.length) return;
 
     setComparisonLoading(true);
     setComparisonError('');
 
     try {
-      setComparison(
-        await fetchFieldCropSuitabilityComparison(field.id),
-      );
+      const result = await fetchFieldCropSuitabilityComparison(field.id);
+
+      if (!result.comparisons?.length) {
+        throw new Error('Karşılaştırılabilir ürün sonucu bulunamadı.');
+      }
+
+      setComparison(result);
     } catch (cause) {
       setComparisonError(
         cause instanceof Error
@@ -242,7 +265,7 @@ export default function PinnedCropSuitabilityNotification() {
   const loadVarieties = async () => {
     if (!field || ttsmLoading) return;
 
-    setVarietyOpen(true);
+    setView('varieties');
     if (ttsm) return;
 
     setTtsmLoading(true);
@@ -266,15 +289,15 @@ export default function PinnedCropSuitabilityNotification() {
     }
   };
 
+  const closeModal = () => {
+    setModalOpen(false);
+    setView('overview');
+  };
+
   const screening = suitability?.screening;
   const cropLabel = suitability?.crop?.label ?? field?.crop ?? 'Ürün';
-  const gaezSample = gaez?.samples?.find((item) => item.sample?.ok);
   const currentCropKey = suitability?.crop?.key ?? null;
-
-  const fieldOptions = useMemo(
-    () => fields.filter((item) => item.id != null),
-    [fields],
-  );
+  const gaezSample = gaez?.samples?.find((item) => item.sample?.ok);
 
   const card = portalTarget
     ? createPortal(
@@ -285,16 +308,19 @@ export default function PinnedCropSuitabilityNotification() {
           aria-label="Ürün uygunluğu analizini aç"
         >
           <span className="tp-pinned-crop-suitability-dot" aria-hidden="true" />
+
           <span className="tp-pinned-crop-suitability-icon" aria-hidden="true">
             <Leaf size={17} strokeWidth={2} />
           </span>
+
           <span className="tp-pinned-crop-suitability-copy">
             <span className="tp-pinned-crop-suitability-title-row">
               <strong>Ürün Uygunluğu</strong>
               <em>SABİT</em>
             </span>
-            <small>Skor, karşılaştırma, kaynaklar ve çeşitler</small>
+            <small>Skor, nedenler, karşılaştırma ve çeşitler</small>
           </span>
+
           <ChevronRight
             className="tp-pinned-crop-suitability-chevron"
             size={17}
@@ -311,7 +337,7 @@ export default function PinnedCropSuitabilityNotification() {
           className="tp-crop-modal-backdrop"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setModalOpen(false);
+            if (event.target === event.currentTarget) closeModal();
           }}
         >
           <section
@@ -321,23 +347,42 @@ export default function PinnedCropSuitabilityNotification() {
             aria-labelledby="tp-crop-modal-title"
           >
             <header className="tp-crop-modal-head">
-              <div>
-                <small>PUSULA ANALİZİ</small>
-                <h2 id="tp-crop-modal-title">Ürün Uygunluğu</h2>
-                <span>{field?.name ?? 'Seçili tarla'}</span>
+              <div className="tp-crop-modal-head-left">
+                {view !== 'overview' ? (
+                  <button
+                    type="button"
+                    className="tp-crop-modal-back"
+                    onClick={() => setView('overview')}
+                    aria-label="Ürün uygunluğuna dön"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                ) : null}
+
+                <div>
+                  <small>PUSULA ANALİZİ</small>
+                  <h2 id="tp-crop-modal-title">
+                    {view === 'comparison'
+                      ? 'Ürün Karşılaştırması'
+                      : view === 'varieties'
+                        ? 'Çeşit Kaynakları'
+                        : 'Ürün Uygunluğu'}
+                  </h2>
+                  <span>{field?.name ?? 'Seçili tarla'}</span>
+                </div>
               </div>
 
               <button
                 type="button"
                 className="tp-crop-modal-close"
-                onClick={() => setModalOpen(false)}
+                onClick={closeModal}
                 aria-label="Kapat"
               >
                 <X size={20} />
               </button>
             </header>
 
-            {fieldOptions.length > 1 ? (
+            {view === 'overview' && fieldOptions.length > 1 ? (
               <label className="tp-crop-modal-field-select">
                 <span>Tarla</span>
                 <select
@@ -359,162 +404,250 @@ export default function PinnedCropSuitabilityNotification() {
             ) : null}
 
             <div className="tp-crop-modal-scroll">
-              {loading ? (
-                <div className="tp-crop-modal-state">
-                  <LoaderCircle className="tp-crop-spin" size={24} />
-                  <span>Tarla verileri karşılaştırılıyor…</span>
-                </div>
-              ) : error ? (
-                <div className="tp-crop-modal-error">
-                  <CircleAlert size={20} />
-                  <div>
-                    <strong>Analiz hazırlanamadı</strong>
-                    <span>{error}</span>
+              {view === 'overview' ? (
+                loading ? (
+                  <div className="tp-crop-modal-state">
+                    <LoaderCircle className="tp-crop-spin" size={24} />
+                    <span>Tarla verileri karşılaştırılıyor…</span>
                   </div>
-                  {field ? (
-                    <button type="button" onClick={() => void loadField(field)}>
-                      <RefreshCw size={15} /> Yenile
-                    </button>
-                  ) : null}
-                </div>
-              ) : suitability?.status === 'unsupported_crop' ? (
-                <div className="tp-crop-modal-unsupported">
-                  <strong>{field?.crop || 'Bu ürün'} için kaynaklı paket henüz yok.</strong>
-                  <span>Desteklenen ürünlerle aynı tarla verisini karşılaştırabilirsin.</span>
-                  <button type="button" onClick={() => void loadComparison()}>
-                    Başka ürünle karşılaştır
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="tp-crop-modal-summary">
-                    <div className="tp-crop-modal-score">
-                      <strong>{scoreText(screening?.score)}</strong>
-                      <span>/100</span>
+                ) : error ? (
+                  <div className="tp-crop-modal-error">
+                    <CircleAlert size={20} />
+                    <div>
+                      <strong>Analiz hazırlanamadı</strong>
+                      <span>{error}</span>
                     </div>
-                    <div className="tp-crop-modal-summary-copy">
-                      <small>{cropLabel}</small>
-                      <strong>{screening?.label ?? 'Veri hazırlanıyor'}</strong>
-                      <span>
-                        {screening?.limitingFactor
-                          ? `Sınırlayıcı: ${screening.limitingFactor.label}`
-                          : 'Sınırlayıcı faktör belirlenmedi'}
-                      </span>
-                    </div>
-                    <div className="tp-crop-modal-confidence">
-                      <span>Güven</span>
-                      <strong>{confidenceLabel(screening?.confidence)}</strong>
-                    </div>
-                  </div>
-
-                  <div className="tp-crop-modal-factors">
-                    {(screening?.factors ?? []).map((factor) => (
-                      <article key={factor.key}>
-                        <span>{shortFactorLabel(factor.key, factor.label)}</span>
-                        <strong>{scoreText(factor.score)}<small>/100</small></strong>
-                        <div><i style={{ width: `${Math.max(0, Math.min(100, Number(factor.score ?? 0)))}%` }} /></div>
-                        <small>
-                          {factor.value == null ? 'Veri yok' : `${factor.value} ${factor.unit}`}
-                        </small>
-                      </article>
-                    ))}
-                  </div>
-
-                  <div className="tp-crop-modal-evidence">
-                    <div className="tp-crop-modal-evidence-head">
-                      <ShieldCheck size={17} />
-                      <strong>Kaynaklar / Neden?</strong>
-                    </div>
-                    <div className="tp-crop-modal-chips">
-                      <span>FAO ECOCROP</span>
-                      <span>NASA POWER</span>
-                      <span>SoilGrids</span>
-                      <span>{gaezLoading ? 'GAEZ kontrol ediliyor' : 'FAO GAEZ · bağımsız kanıt'}</span>
-                    </div>
-                    {gaezSample?.interpretation?.derived_class ? (
-                      <p>
-                        GAEZ çapraz kontrolü: <strong>{gaezSample.interpretation.derived_class.label}</strong>.
-                        Bu sonuç ana skora katılmıyor.
-                      </p>
+                    {field ? (
+                      <button
+                        type="button"
+                        onClick={() => void loadField(field)}
+                      >
+                        <RefreshCw size={15} /> Yenile
+                      </button>
                     ) : null}
                   </div>
-
-                  <div className="tp-crop-modal-actions">
-                    <button type="button" onClick={() => void loadComparison()}>
+                ) : suitability?.status === 'unsupported_crop' ? (
+                  <div className="tp-crop-modal-unsupported">
+                    <strong>
+                      {field?.crop || 'Bu ürün'} için kaynaklı paket henüz yok.
+                    </strong>
+                    <span>
+                      Aynı tarla verisini desteklenen ürünlerle karşılaştırabilirsin.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => void loadComparison()}
+                    >
                       Başka ürünle karşılaştır
-                      <ChevronDown size={15} className={comparisonOpen ? 'is-open' : ''} />
-                    </button>
-                    <button type="button" onClick={() => void loadVarieties()}>
-                      Çeşitleri incele
-                      <ChevronDown size={15} className={varietyOpen ? 'is-open' : ''} />
                     </button>
                   </div>
-                </>
-              )}
+                ) : (
+                  <>
+                    <div className="tp-crop-modal-summary">
+                      <div className="tp-crop-modal-score">
+                        <strong>{scoreText(screening?.score)}</strong>
+                        <span>/100</span>
+                      </div>
 
-              {comparisonOpen ? (
-                <section className="tp-crop-modal-section">
-                  <div className="tp-crop-modal-section-head">
-                    <div>
-                      <small>AYNI TARLA · AYNI VERİ</small>
-                      <strong>Ürün karşılaştırması</strong>
-                    </div>
-                    <button type="button" onClick={() => setComparisonOpen(false)}>Kapat</button>
-                  </div>
+                      <div className="tp-crop-modal-summary-copy">
+                        <small>{cropLabel}</small>
+                        <strong>{screening?.label ?? 'Veri hazırlanıyor'}</strong>
+                        <span>
+                          {screening?.limitingFactor
+                            ? `Sınırlayıcı: ${screening.limitingFactor.label}`
+                            : 'Sınırlayıcı faktör belirlenmedi'}
+                        </span>
+                      </div>
 
-                  {comparisonLoading ? (
-                    <div className="tp-crop-modal-inline-loading">
-                      <LoaderCircle className="tp-crop-spin" size={18} />
-                      Ürünler karşılaştırılıyor…
+                      <div className="tp-crop-modal-confidence">
+                        <span>Güven</span>
+                        <strong>{confidenceLabel(screening?.confidence)}</strong>
+                      </div>
                     </div>
-                  ) : comparisonError ? (
-                    <p className="tp-crop-modal-inline-error">{comparisonError}</p>
-                  ) : (
-                    <div className="tp-crop-modal-comparison-list">
-                      {(comparison?.comparisons ?? []).map((item, index) => (
-                        <article
-                          key={item.crop.key}
-                          className={item.crop.key === currentCropKey ? 'is-current' : ''}
-                        >
-                          <span>{index + 1}</span>
+
+                    <div className="tp-crop-modal-factors">
+                      {(screening?.factors ?? []).map((factor) => (
+                        <article key={factor.key}>
+                          <span>{shortFactorLabel(factor.key, factor.label)}</span>
+                          <strong>
+                            {scoreText(factor.score)}
+                            <small>/100</small>
+                          </strong>
                           <div>
-                            <strong>{item.crop.label}</strong>
-                            <small>
-                              {item.crop.key === currentCropKey
-                                ? 'Mevcut ürün'
-                                : item.screening.limitingFactor?.label ?? item.screening.label}
-                            </small>
+                            <i
+                              style={{
+                                width: `${Math.max(
+                                  0,
+                                  Math.min(100, Number(factor.score ?? 0)),
+                                )}%`,
+                              }}
+                            />
                           </div>
-                          <b>{scoreText(item.screening.score)}</b>
+                          <small>
+                            {factor.value == null
+                              ? 'Veri yok'
+                              : `${factor.value} ${factor.unit}`}
+                          </small>
                         </article>
                       ))}
                     </div>
-                  )}
-                  <p className="tp-crop-modal-note">
-                    Bu sıralama ön-eleme karşılaştırmasıdır; ekim tavsiyesi değildir.
-                  </p>
-                </section>
+
+                    <div className="tp-crop-modal-sources">
+                      <div className="tp-crop-modal-sources-head">
+                        <ShieldCheck size={17} />
+                        <strong>Kaynaklar / Neden?</strong>
+                      </div>
+
+                      <div className="tp-crop-modal-source-chips">
+                        <span>FAO ECOCROP</span>
+                        <span>NASA POWER</span>
+                        <span>SoilGrids</span>
+                        <span>
+                          {gaezLoading
+                            ? 'GAEZ kontrol ediliyor'
+                            : 'FAO GAEZ · bağımsız kontrol'}
+                        </span>
+                      </div>
+
+                      {gaezSample?.interpretation?.derived_class ? (
+                        <p>
+                          GAEZ çapraz kontrolü: <strong>
+                            {gaezSample.interpretation.derived_class.label}
+                          </strong>. Bu kanıt ana skora katılmıyor.
+                        </p>
+                      ) : (
+                        <p>
+                          Bu sonuç ön uygunluk analizidir; ekim tavsiyesi değildir.
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="tp-crop-modal-actions">
+                      <button
+                        type="button"
+                        onClick={() => void loadComparison()}
+                      >
+                        <span>
+                          <strong>Başka ürünle karşılaştır</strong>
+                          <small>Aynı tarla koşullarında tüm desteklenen ürünleri gör</small>
+                        </span>
+                        <ChevronRight size={18} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => void loadVarieties()}
+                      >
+                        <span>
+                          <strong>Çeşitleri incele</strong>
+                          <small>TTSM kayıt ve çeşit kaynaklarını aç</small>
+                        </span>
+                        <ChevronRight size={18} />
+                      </button>
+                    </div>
+                  </>
+                )
               ) : null}
 
-              {varietyOpen ? (
-                <section className="tp-crop-modal-section">
-                  <div className="tp-crop-modal-section-head">
-                    <div>
-                      <small>TTSM · RESMÎ KAYNAKLAR</small>
-                      <strong>Çeşit belgeleri</strong>
+              {view === 'comparison' ? (
+                <div className="tp-crop-comparison-view">
+                  <div className="tp-crop-comparison-intro">
+                    <strong>Aynı tarla, farklı ürünler</strong>
+                    <span>
+                      Sıcaklık, yıllık yağış ve toprak pH aynı tutulur. Bu liste ekim tavsiyesi değil, ön uygunluk karşılaştırmasıdır.
+                    </span>
+                  </div>
+
+                  {comparisonLoading ? (
+                    <div className="tp-crop-modal-state">
+                      <LoaderCircle className="tp-crop-spin" size={22} />
+                      <span>Ürünler karşılaştırılıyor…</span>
                     </div>
-                    <button type="button" onClick={() => setVarietyOpen(false)}>Kapat</button>
+                  ) : comparisonError ? (
+                    <div className="tp-crop-modal-error tp-crop-comparison-error">
+                      <CircleAlert size={20} />
+                      <div>
+                        <strong>Karşılaştırma hazırlanamadı</strong>
+                        <span>{comparisonError}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setComparison(null);
+                          void loadComparison();
+                        }}
+                      >
+                        <RefreshCw size={15} /> Tekrar dene
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="tp-crop-modal-comparison-list">
+                      {(comparison?.comparisons ?? []).map((item, index) => {
+                        const isCurrent = item.crop.key === currentCropKey;
+
+                        return (
+                          <article
+                            key={item.crop.key}
+                            className={isCurrent ? 'is-current' : ''}
+                          >
+                            <span className="tp-crop-comparison-rank">
+                              {index + 1}
+                            </span>
+
+                            <div className="tp-crop-comparison-copy">
+                              <div>
+                                <strong>{item.crop.label}</strong>
+                                {isCurrent ? <em>MEVCUT</em> : null}
+                              </div>
+                              <small>
+                                {item.screening.limitingFactor?.label
+                                  ? `Sınırlayıcı: ${item.screening.limitingFactor.label}`
+                                  : item.screening.label}
+                              </small>
+                            </div>
+
+                            <b>{scoreText(item.screening.score)}</b>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              {view === 'varieties' ? (
+                <div className="tp-crop-variety-view">
+                  <div className="tp-crop-comparison-intro">
+                    <strong>{cropLabel} · çeşit kaynakları</strong>
+                    <span>
+                      TTSM kayıt ve tescil kaynaklarıdır; doğrudan çeşit tavsiyesi değildir.
+                    </span>
                   </div>
 
                   {ttsmLoading ? (
-                    <div className="tp-crop-modal-inline-loading">
-                      <LoaderCircle className="tp-crop-spin" size={18} />
-                      Resmî belgeler aranıyor…
+                    <div className="tp-crop-modal-state">
+                      <LoaderCircle className="tp-crop-spin" size={22} />
+                      <span>TTSM kaynakları hazırlanıyor…</span>
                     </div>
                   ) : ttsmError ? (
-                    <p className="tp-crop-modal-inline-error">{ttsmError}</p>
+                    <div className="tp-crop-modal-error">
+                      <CircleAlert size={20} />
+                      <div>
+                        <strong>Çeşit kaynakları alınamadı</strong>
+                        <span>{ttsmError}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTtsm(null);
+                          void loadVarieties();
+                        }}
+                      >
+                        <RefreshCw size={15} /> Tekrar dene
+                      </button>
+                    </div>
                   ) : ttsm?.relevant_documents?.length ? (
-                    <div className="tp-crop-modal-docs">
+                    <div className="tp-crop-variety-list">
                       {ttsm.relevant_documents.map((document, index) => (
                         <a
                           key={`${document.url}-${index}`}
@@ -522,23 +655,27 @@ export default function PinnedCropSuitabilityNotification() {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          <span>{document.kind === 'catalog' ? 'Katalog' : 'Tescil raporu'}</span>
-                          <strong>{document.title}</strong>
-                          <ChevronRight size={15} />
+                          <span>
+                            <strong>{document.title || 'TTSM belgesi'}</strong>
+                            <small>
+                              {document.kind === 'registration_report'
+                                ? 'Tescil / kayıt raporu'
+                                : document.kind === 'catalog'
+                                  ? 'Çeşit kataloğu'
+                                  : 'Resmî kaynak'}
+                            </small>
+                          </span>
+                          <ChevronRight size={17} />
                         </a>
                       ))}
                     </div>
                   ) : (
-                    <p className="tp-crop-modal-note">
-                      Bu ürün için eşleşen TTSM belgesi bulunamadı; veri uydurulmadı.
-                    </p>
+                    <div className="tp-crop-empty-state">
+                      Bu ürün için eşleşen TTSM belgesi bulunamadı.
+                    </div>
                   )}
-                </section>
+                </div>
               ) : null}
-
-              <p className="tp-crop-modal-disclaimer">
-                Bu çıktı ürün için ön uygunluk taramasıdır; verim tahmini veya ekim tavsiyesi değildir.
-              </p>
             </div>
           </section>
         </div>,
@@ -546,10 +683,5 @@ export default function PinnedCropSuitabilityNotification() {
       )
     : null;
 
-  return (
-    <>
-      {card}
-      {modal}
-    </>
-  );
+  return <>{card}{modal}</>;
 }
