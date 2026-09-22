@@ -1,0 +1,31 @@
+html body .tp-calendar-page .tp-week-plan {
+  margin: 14px 0 18px;
+  padding: 18px 14px 14px;
+  border: 1px solid #d7dce2;
+  border-radius: 21px;
+  background: #fff;
+  color: #222831;
+  box-shadow: 0 7px 22px #20252b0b;
+}
+.tp-week-plan-heading { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+.tp-week-plan-icon { width: 40px; height: 40px; display: grid; place-items: center; flex: 0 0 40px; border-radius: 12px; background: #eef1f4; color: #303942; }
+.tp-week-plan-heading small { color: #56616e; font-size: 10px; font-weight: 750; letter-spacing: .06em; }
+.tp-week-plan-heading h2 { margin: 3px 0 0; color: #20252b; font-size: 21px; line-height: 1.15; }
+.tp-week-plan-fields, .tp-week-plan-days { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: thin; padding-bottom: 7px; }
+.tp-week-plan-fields { margin-bottom: 11px; }
+html body .tp-calendar-page .tp-week-plan-fields button { flex: 0 0 auto; min-height: 35px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #d9dee3; border-radius: 999px; padding: 6px 13px; background: #f5f6f8; color: #303942; font-size: 12px; font-weight: 650; }
+html body .tp-calendar-page .tp-week-plan-fields button.is-active, html body .tp-calendar-page .tp-week-plan-days button.is-active { border-color: #303942; background: #303942; color: #fff; }
+html body .tp-calendar-page .tp-week-plan-days button { flex: 0 0 60px; display: grid; place-items: center; gap: 3px; min-height: 76px; padding: 7px 3px; border: 1px solid #d9dee3; border-radius: 14px; background: #f5f6f8; color: #303942; }
+.tp-week-plan-days button span { font-size: 11px; font-weight: 600; }
+.tp-week-plan-days button strong { font-size: 20px; }
+.tp-week-plan-days button i { font-size: 12px; font-style: normal; font-weight: 700; }
+.tp-week-plan-detail { min-height: 102px; padding: 12px; border: 1px solid #e5e8eb; border-radius: 14px; background: #f7f8fa; }
+.tp-week-plan-detail > strong { display: block; color: #20252b; font-size: 14px; text-transform: capitalize; }
+.tp-week-plan-detail p { margin: 14px 0 3px; color: #56616e; font-size: 13px; }
+.tp-week-plan-detail ul { display: grid; gap: 11px; margin: 10px 0 0; padding: 0; list-style: none; }
+.tp-week-plan-detail li { display: grid; grid-template-columns: 65px minmax(0,1fr); align-items: start; gap: 9px; color: #20252b; font-size: 13px; }
+.tp-week-plan-task-time { font-weight: 750; color: #39434e; }
+.tp-week-plan-detail li b, .tp-week-plan-detail li small { display: block; overflow-wrap: anywhere; }
+.tp-week-plan-detail li small { margin-top: 2px; color: #56616e; font-size: 11px; }
+html body .tp-calendar-page .tp-week-plan-add { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 44px; margin-top: 11px; border: 1px solid #cbd2d9; border-radius: 12px; background: #eef1f4; color: #20252b; font-size: 13px; font-weight: 750; }
+.tp-week-plan button:focus-visible { outline: 2px solid #303942; outline-offset: 2px; }

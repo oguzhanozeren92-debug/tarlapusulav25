@@ -1,0 +1,717 @@
+/* Two compact entries beside the tractor; the map remains the first content. */
+html body .tp-v1 .tp-map-first-shell .tp-field-toolbar {
+  grid-template-columns: 38px minmax(0,1fr) repeat(4,38px) !important;
+  gap: 5px !important;
+}
+
+html body .tp-v1 .tp-map-first-shell .tp-mf-quick-action {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dce1e6 !important;
+  border-radius: 10px;
+  background: #f7f8fa !important;
+  color: #303942 !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.tp-mf-quick-action:focus-visible {
+  outline: 2px solid #39434e;
+  outline-offset: 2px;
+}
+
+.tp-mf-notification-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc3545;
+  box-shadow: 0 0 0 2px #f7f8fa;
+}
+
+/* Remove the preceding cards' height from the first screen and grow the map. */
+html body .tp-v1 .tp-map-first-shell .tp-map-stage {
+  height: clamp(510px, 68dvh, 720px) !important;
+  min-height: clamp(510px, 68dvh, 720px) !important;
+}
+
+@media (max-width: 350px) {
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar {
+    grid-template-columns: 34px minmax(0,1fr) repeat(4,34px) !important;
+    gap: 3px !important;
+  }
+
+  html body .tp-v1 .tp-map-first-shell .tp-mf-quick-action,
+  html body .tp-v1 .tp-map-first-shell .tp-mf-operation-toolbar,
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar .tp-add-field-3d {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+}
+
+.tp-home-quick-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  box-sizing: border-box;
+  width: min(100%, 480px);
+  max-width: 480px;
+  max-height: min(78dvh, 700px);
+  margin: 0 auto;
+  padding: 0 16px max(20px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  border: 1px solid #e2e6ea;
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+  color: #20252b;
+  box-shadow: 0 -12px 40px #20252b22;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.tp-home-quick-sheet::backdrop {
+  background: #20252b66;
+}
+
+.tp-home-quick-sheet-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 78px;
+  border-bottom: 1px solid #e5e8eb;
+  background: #fff;
+}
+
+.tp-home-quick-sheet-head > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.tp-home-quick-sheet-head small {
+  color: #697586;
+  font-size: 11px;
+}
+
+.tp-home-quick-sheet-head h2 {
+  margin: 3px 0 0;
+  color: #20252b;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.tp-home-quick-sheet-icon,
+.tp-home-quick-close,
+.tp-home-quick-back {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+  background: #f7f8fa;
+  color: #303942;
+}
+
+.tp-home-quick-close,
+.tp-home-quick-back {
+  cursor: pointer;
+}
+
+.tp-home-quick-list {
+  display: grid;
+  gap: 7px;
+  padding-top: 12px;
+}
+
+.tp-home-quick-item {
+  display: grid;
+  grid-template-columns: 40px minmax(0,1fr) 14px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e8eb;
+  border-radius: 14px;
+  background: #f7f8fa;
+  color: #20252b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tp-home-quick-decision-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  justify-self: center;
+  border: 1px solid #dfe3e7;
+  border-radius: 11px;
+  background: #fff;
+  color: #303942;
+}
+
+.tp-home-quick-decision-icon svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.tp-home-quick-item > span:nth-child(2) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tp-home-quick-item small {
+  color: #697586;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tp-home-quick-item strong {
+  color: #20252b;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tp-home-quick-description {
+  color: #56616e;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.tp-home-quick-item > span:last-child {
+  color: #697586;
+  font-size: 22px;
+}
+
+.tp-home-quick-detail {
+  padding: 17px 2px 0;
+}
+
+.tp-home-quick-detail p {
+  margin: 0 0 12px;
+  color: #303942;
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.tp-home-quick-detail small {
+  color: #697586;
+  line-height: 1.5;
+}
+
+.tp-home-quick-detail dl {
+  display: grid;
+  gap: 9px;
+  margin: 12px 0;
+}
+
+.tp-home-quick-detail dl div {
+  padding: 10px;
+  border: 1px solid #e5e8eb;
+  border-radius: 12px;
+  background: #f7f8fa;
+}
+
+.tp-home-quick-detail dt {
+  color: #20252b;
+  font-weight: 750;
+}
+
+.tp-home-quick-detail dd {
+  margin: 4px 0 0;
+  color: #56616e;
+  line-height: 1.5;
+}
+
+.tp-home-quick-notification {
+  display: grid;
+  grid-template-columns: 6px minmax(0,1fr);
+  gap: 8px;
+  padding: 8px 9px;
+  border: 1px solid #e5e8eb;
+  border-radius: 11px;
+  background: #f7f8fa;
+}
+
+.tp-home-quick-notification strong {
+  color: #20252b;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.tp-home-quick-notification p {
+  margin: 2px 0 0;
+  color: #56616e;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.tp-home-quick-severity {
+  width: 6px;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: #87919c;
+}
+
+.tp-home-quick-severity.is-warning {
+  background: #bb851d;
+}
+
+.tp-home-quick-severity.is-danger {
+  background: #d43838;
+}
+
+.tp-home-quick-empty {
+  margin: 10px 0;
+  color: #697586;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.tp-home-quick-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 46px;
+  margin: 15px 0 4px;
+  padding: 10px 13px;
+  border: 1px solid #dce1e6;
+  border-radius: 12px;
+  background: #f7f8fa;
+  color: #20252b;
+  font-weight: 750;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tp-home-quick-sheet button:focus-visible {
+  outline: 2px solid #39434e;
+  outline-offset: 2px;
+}
+
+/* Bildirim içinde görev gösterimi */
+.tp-home-quick-notification.is-task {
+  grid-template-columns: 6px minmax(0,1fr);
+  border-color: #d7dde3;
+  background: #fff;
+}
+
+.tp-home-quick-severity.is-task {
+  background: #20252b;
+}
+
+.tp-home-quick-notification-copy {
+  min-width: 0;
+}
+
+.tp-home-quick-task-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.tp-home-quick-task-head > span {
+  color: #697586;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+/* Pusula puanı: siyah rozet + net beyaz yazı */
+.tp-home-quick-task-head > b {
+  min-width: 40px;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border: 1px solid #171b1f;
+  border-radius: 999px;
+  background: #171b1f !important;
+  color: #fff !important;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  box-shadow: none;
+}
+
+.tp-home-quick-task-action {
+  min-height: 32px;
+  margin-top: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid #171b1f;
+  border-radius: 9px;
+  background: #171b1f;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.tp-home-quick-task-action span {
+  color: #fff;
+}
+/* =========================================================
+   BİLDİRİM GÖREV KARTLARI — TARLAPUSULA KLASİK DÜZEN
+   ========================================================= */
+
+/* Puan + üç nokta aynı hizada, aynı görsel ağırlıkta. */
+.tp-home-quick-task-tools {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.tp-home-quick-points {
+  height: 26px !important;
+  min-height: 26px !important;
+  min-width: 44px !important;
+  padding: 0 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #20252b !important;
+  border-radius: 999px !important;
+  background: #20252b !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -.01em !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+
+/* Koyu zemin kuralı: puan metni her durumda beyaz. */
+.tp-home-quick-points,
+.tp-home-quick-points * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.tp-home-quick-task-menu-button {
+  width: 26px !important;
+  min-width: 26px !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border: 1px solid #d8dde2 !important;
+  border-radius: 10px !important;
+  background: #f7f8fa !important;
+  color: #20252b !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.tp-home-quick-task-menu-button svg {
+  width: 15px;
+  height: 15px;
+  color: #20252b !important;
+  stroke: currentColor;
+}
+
+.tp-home-quick-task-menu-button:hover,
+.tp-home-quick-task-menu-button[aria-expanded='true'] {
+  border-color: #c7cdd3 !important;
+  background: #eef1f3 !important;
+}
+
+/* Göreve git: ana aksiyon, klasik koyu buton. */
+.tp-home-quick-task-action {
+  min-height: 29px !important;
+  margin-top: 6px !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  border: 1px solid #20252b !important;
+  border-radius: 10px !important;
+  background: #20252b !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.tp-home-quick-task-action,
+.tp-home-quick-task-action span,
+.tp-home-quick-task-action svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.tp-home-quick-task-action:hover {
+  background: #111519 !important;
+}
+
+/*
+ * Üç nokta menüsü artık eski tablo/list görünümünde değil.
+ * İki bağımsız klasik buton olarak görünür.
+ */
+.tp-home-quick-task-menu {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px !important;
+  margin-top: 6px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tp-home-quick-task-menu-option {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 31px !important;
+  padding: 0 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: 1px solid #d8dde2 !important;
+  border-radius: 10px !important;
+  background: #f7f8fa !important;
+  color: #20252b !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  text-align: center !important;
+  cursor: pointer !important;
+}
+
+.tp-home-quick-task-menu-option svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: #20252b !important;
+  stroke: currentColor;
+}
+
+.tp-home-quick-task-menu-option > span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tp-home-quick-task-menu-option strong {
+  color: #20252b !important;
+  -webkit-text-fill-color: #20252b !important;
+  font-size: 9px !important;
+  font-weight: 850 !important;
+  line-height: 1.1 !important;
+  white-space: nowrap;
+}
+
+/* Alt açıklama eski dropdown hissini veriyordu; aksiyonu sade tut. */
+.tp-home-quick-task-menu-option small {
+  display: none !important;
+}
+
+.tp-home-quick-task-menu-option:hover {
+  border-color: #c7cdd3 !important;
+  background: #eef1f3 !important;
+}
+
+.tp-home-quick-task-menu-option:disabled {
+  opacity: .5 !important;
+  cursor: wait !important;
+}
+
+@media (max-width: 390px) {
+  .tp-home-quick-points {
+    min-width: 42px !important;
+    padding: 0 7px !important;
+  }
+
+  .tp-home-quick-task-menu {
+    gap: 6px !important;
+  }
+
+  .tp-home-quick-task-menu-option {
+    padding: 0 7px !important;
+  }
+
+  .tp-home-quick-task-menu-option strong {
+    font-size: 8.5px !important;
+  }
+}
+
+
+/* =========================================================
+   BILDIRIMLER — TEK SATIR / BASINCA ACILAN KOMPAKT DUZEN
+   ========================================================= */
+.tp-home-quick-list {
+  gap: 6px !important;
+  padding-top: 10px !important;
+}
+
+.tp-home-quick-notification {
+  grid-template-columns: 6px minmax(0,1fr) !important;
+  align-items: center !important;
+  gap: 7px !important;
+  min-height: 38px !important;
+  padding: 5px 7px !important;
+  border-radius: 10px !important;
+}
+
+.tp-home-quick-notification.is-task {
+  grid-template-columns: 6px minmax(0,1fr) !important;
+}
+
+.tp-home-quick-notification.is-expanded {
+  align-items: start !important;
+  padding-top: 7px !important;
+  padding-bottom: 8px !important;
+}
+
+.tp-home-quick-severity {
+  width: 5px !important;
+  height: 5px !important;
+  margin-top: 0 !important;
+  align-self: center !important;
+}
+
+.tp-home-quick-notification.is-expanded > .tp-home-quick-severity {
+  align-self: start !important;
+  margin-top: 10px !important;
+}
+
+.tp-home-quick-notification-copy {
+  min-width: 0 !important;
+}
+
+.tp-home-quick-compact-row {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) auto !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.tp-home-quick-notification-toggle {
+  min-width: 0 !important;
+  min-height: 28px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) 16px !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #20252b !important;
+  font: inherit !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+
+.tp-home-quick-notification-toggle strong {
+  display: block !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: #20252b !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.tp-home-quick-chevron {
+  width: 15px !important;
+  height: 15px !important;
+  color: #697586 !important;
+  transition: transform .18s ease !important;
+}
+
+.tp-home-quick-notification-toggle[aria-expanded='true'] .tp-home-quick-chevron {
+  transform: rotate(180deg) !important;
+}
+
+.tp-home-quick-task-tools {
+  gap: 4px !important;
+}
+
+.tp-home-quick-points {
+  height: 24px !important;
+  min-height: 24px !important;
+  min-width: 42px !important;
+  padding: 0 7px !important;
+  font-size: 9px !important;
+}
+
+.tp-home-quick-task-menu-button {
+  width: 24px !important;
+  min-width: 24px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  border-radius: 8px !important;
+}
+
+.tp-home-quick-task-menu-button svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.tp-home-quick-notification-detail {
+  margin-top: 5px !important;
+  padding: 7px 2px 1px !important;
+  border-top: 1px solid #e8ebee !important;
+}
+
+.tp-home-quick-notification-detail p {
+  margin: 0 !important;
+  color: #56616e !important;
+  font-size: 11px !important;
+  line-height: 1.38 !important;
+}
+
+.tp-home-quick-task-action {
+  min-height: 28px !important;
+  margin-top: 7px !important;
+  padding: 0 9px !important;
+  border-radius: 8px !important;
+  font-size: 9.5px !important;
+}
+
+.tp-home-quick-task-menu {
+  margin-top: 5px !important;
+}
+
+.tp-home-quick-link {
+  min-height: 40px !important;
+  margin-top: 10px !important;
+  padding: 8px 11px !important;
+  font-size: 12px !important;
+}

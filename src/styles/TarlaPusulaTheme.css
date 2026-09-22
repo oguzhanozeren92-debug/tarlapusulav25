@@ -1,0 +1,1137 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* =========================================================
+   TARLAPUSULA GLOBAL DESIGN SYSTEM
+   OBSIDIAN + CATEGORY ACCENTS
+   ========================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* =======================================================
+     TYPOGRAPHY
+     ======================================================= */
+
+  --tp-font-display:
+    'Cinzel',
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  --tp-font-ui:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+
+  /* =======================================================
+     CANVAS
+     ======================================================= */
+
+  --tp-bg: #050607;
+  --tp-bg-soft: #080a0c;
+  --tp-bg-deep: #020304;
+
+  /* =======================================================
+     NEUTRAL SURFACES
+     ======================================================= */
+
+  --tp-surface-0: #07090b;
+  --tp-surface-1: #0b0e11;
+  --tp-surface-2: #0f1317;
+  --tp-surface-3: #14191f;
+  --tp-surface-4: #1a2027;
+
+  /* =======================================================
+     TEXT
+     ======================================================= */
+
+  --tp-text: #f4f2eb;
+  --tp-text-strong: #fffdf7;
+  --tp-text-soft: #c5cbd0;
+  --tp-muted: #8d98a1;
+  --tp-muted-2: #65717a;
+
+  /* =======================================================
+     GLOBAL TECH ACCENT
+     ======================================================= */
+
+  --tp-primary: #65d8ee;
+  --tp-primary-strong: #92e8f8;
+  --tp-primary-soft: #36aac1;
+  --tp-primary-dark: #123944;
+
+  --tp-cyan: #65d8ee;
+  --tp-cyan-strong: #92e8f8;
+  --tp-cyan-soft: #36aac1;
+
+  /* =======================================================
+     DATA DOMAIN COLORS
+
+     Bunlar veri ailelerinin kimliği.
+     Yüzey rengi olarak kullanılmayacak.
+     ======================================================= */
+
+  --tp-health: #4ade80;
+  --tp-health-soft: rgba(74, 222, 128, 0.13);
+  --tp-health-line: rgba(74, 222, 128, 0.42);
+
+  --tp-moisture: #35c2d6;
+  --tp-moisture-soft: rgba(53, 194, 214, 0.13);
+  --tp-moisture-line: rgba(53, 194, 214, 0.42);
+
+  --tp-vegetation: #9a86f7;
+  --tp-vegetation-soft: rgba(154, 134, 247, 0.13);
+  --tp-vegetation-line: rgba(154, 134, 247, 0.42);
+
+  --tp-water: #538cff;
+  --tp-water-soft: rgba(83, 140, 255, 0.13);
+  --tp-water-line: rgba(83, 140, 255, 0.42);
+
+  --tp-soil: #ba7058;
+  --tp-soil-soft: rgba(186, 112, 88, 0.13);
+  --tp-soil-line: rgba(186, 112, 88, 0.42);
+
+  --tp-climate: #cf73a6;
+  --tp-climate-soft: rgba(207, 115, 166, 0.13);
+  --tp-climate-line: rgba(207, 115, 166, 0.42);
+
+  /* =======================================================
+     STATUS
+     ======================================================= */
+
+  --tp-success: #4ade80;
+  --tp-warning: #efa84d;
+  --tp-danger: #ef6473;
+  --tp-info: #65d8ee;
+
+  /* =======================================================
+     BORDER
+     ======================================================= */
+
+  --tp-border: #252b31;
+
+  --tp-line:
+    rgba(255, 255, 255, 0.10);
+
+  --tp-line-soft:
+    rgba(255, 255, 255, 0.055);
+
+  --tp-line-active:
+    rgba(101, 216, 238, 0.45);
+
+  --tp-line-cyan:
+    rgba(101, 216, 238, 0.30);
+
+  /* =======================================================
+     LEGACY COMPATIBILITY
+     ======================================================= */
+
+  --tp-green:
+    var(--tp-health);
+
+  --tp-green-strong:
+    #72e99b;
+
+  --tp-green-soft:
+    #31b968;
+
+  --tp-green-dark:
+    #164d2c;
+
+  --tp-gold:
+    #b8c0c6;
+
+  --tp-gold-strong:
+    #f4f2eb;
+
+  --tp-gold-soft:
+    #7f8a92;
+
+  /* =======================================================
+     RADIUS
+     ======================================================= */
+
+  --tp-radius-xs: 8px;
+  --tp-radius-sm: 11px;
+  --tp-radius-md: 15px;
+  --tp-radius-lg: 21px;
+  --tp-radius-xl: 26px;
+  --tp-radius-pill: 999px;
+
+  /* =======================================================
+     SHADOWS
+     ======================================================= */
+
+  --tp-shadow-xs:
+    0 3px 10px
+    rgba(0, 0, 0, 0.30);
+
+  --tp-shadow-sm:
+    0 8px 24px
+    rgba(0, 0, 0, 0.38);
+
+  --tp-shadow-md:
+    0 16px 38px
+    rgba(0, 0, 0, 0.45);
+
+  --tp-shadow-lg:
+    0 26px 60px
+    rgba(0, 0, 0, 0.56);
+
+  --tp-transition:
+    180ms ease;
+}
+
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+html {
+  min-height: 100%;
+  background: var(--tp-bg-deep) !important;
+}
+
+
+body {
+  min-height: 100%;
+  margin: 0;
+
+  color:
+    var(--tp-text);
+
+  font-family:
+    var(--tp-font-ui);
+
+  background:
+    radial-gradient(
+      circle at 50% -12%,
+      rgba(101, 216, 238, 0.022),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #07090b 0%,
+      #050607 45%,
+      #020304 100%
+    ) !important;
+}
+
+
+#root {
+  min-height: 100%;
+  color: var(--tp-text);
+  background: transparent !important;
+}
+
+
+/* =========================================================
+   HOME CANVAS
+   ========================================================= */
+
+body .tp-v1 {
+  min-height: 100vh;
+
+  color:
+    var(--tp-text);
+
+  background:
+    linear-gradient(
+      180deg,
+      #07090a 0%,
+      #050607 36%,
+      #020304 100%
+    ) !important;
+}
+
+
+body .tp-v1 .tp-main {
+  position: relative;
+  background: transparent !important;
+}
+
+
+body .tp-v1 .tp-v1-header {
+  color-scheme: dark;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.06) !important;
+}
+
+
+/* =========================================================
+   TOP CARDS
+   ========================================================= */
+
+body .tp-v1 .tp-home-today-reference,
+body .tp-v1 .tp-home-notifications-reference {
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0d1013,
+      #080a0d
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.022),
+
+    0 18px 42px
+    rgba(0, 0, 0, 0.36) !important;
+}
+
+
+body .tp-v1 .tp-home-today-bg {
+  opacity: 0.30 !important;
+
+  filter:
+    saturate(0.15)
+    brightness(0.43)
+    contrast(1.08) !important;
+}
+
+
+body .tp-v1 .tp-home-notifications-bg {
+  opacity: 0.25 !important;
+
+  filter:
+    saturate(0.08)
+    brightness(0.40)
+    contrast(1.08) !important;
+}
+
+
+body .tp-v1 .tp-home-today-shade,
+body .tp-v1 .tp-home-notifications-shade {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 10, 13, 0.99),
+      rgba(10, 13, 16, 0.94) 50%,
+      rgba(8, 10, 13, 0.80) 100%
+    ) !important;
+}
+
+
+body .tp-v1 .tp-home-today-title h2,
+body .tp-v1 .tp-home-notifications-title strong {
+  color:
+    var(--tp-text-strong) !important;
+}
+
+
+body .tp-v1 .tp-home-today-subtitle,
+body .tp-v1 .tp-home-notifications-subtitle {
+  color:
+    var(--tp-muted) !important;
+}
+
+
+/* =========================================================
+   TODAY ACTIONS
+   ========================================================= */
+
+body .tp-v1 .tp-home-today-action {
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #14181d,
+      #0b0e12
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.025) !important;
+}
+
+
+body .tp-v1 .tp-home-today-action.irrigation {
+  border-color:
+    rgba(53, 194, 214, 0.30) !important;
+}
+
+
+body .tp-v1 .tp-home-today-action.irrigation
+.tp-home-today-action-copy small {
+  color:
+    var(--tp-moisture) !important;
+}
+
+
+body .tp-v1 .tp-home-today-action.spraying {
+  border-color:
+    rgba(239, 168, 77, 0.28) !important;
+}
+
+
+body .tp-v1 .tp-home-today-action.spraying
+.tp-home-today-action-copy small {
+  color:
+    var(--tp-warning) !important;
+}
+
+
+body .tp-v1 .tp-home-today-action-copy strong {
+  color:
+    var(--tp-text) !important;
+}
+
+
+body .tp-v1 .tp-home-today-action-copy em {
+  color:
+    var(--tp-muted) !important;
+}
+
+
+/* =========================================================
+   MAP CARD
+   ========================================================= */
+
+body .tp-v1 .tp-home-field {
+  position: relative;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.085) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0b0e11,
+      #07090b
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.018),
+
+    0 24px 56px
+    rgba(0, 0, 0, 0.44) !important;
+}
+
+
+body .tp-v1 .tp-home-field::before {
+  display: none !important;
+  content: none !important;
+}
+
+
+/* =========================================================
+   MAP HEADER
+   ========================================================= */
+
+body .tp-v1 .tp-field-head {
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.06) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f1317,
+      #0a0d10
+    ) !important;
+}
+
+
+body .tp-v1 .tp-field-head::before {
+  opacity: 0.08 !important;
+}
+
+
+body .tp-v1 .tp-map-heading-icon {
+  border:
+    1px solid
+    rgba(101, 216, 238, 0.22) !important;
+
+  background:
+    #0d1216 !important;
+
+  box-shadow:
+    none !important;
+}
+
+
+body .tp-v1 .tp-map-heading-icon svg {
+  color:
+    var(--tp-primary) !important;
+
+  filter:
+    drop-shadow(
+      0 0 5px
+      rgba(101, 216, 238, 0.18)
+    ) !important;
+}
+
+
+body .tp-v1 .tp-map-heading-copy h2 {
+  color:
+    var(--tp-text-strong) !important;
+}
+
+
+body .tp-v1 .tp-map-heading-copy p {
+  color:
+    var(--tp-muted) !important;
+}
+
+
+/* =========================================================
+   FIELD SELECT + BUTTONS
+   ========================================================= */
+
+body .tp-v1 .tp-field-select-box,
+body .tp-v1 .tp-map-fullscreen-btn,
+body .tp-v1 .tp-add-field-3d {
+  color:
+    var(--tp-text) !important;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.09) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #14191e,
+      #0b0e12
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.022) !important;
+}
+
+
+body .tp-v1 .tp-field-pin,
+body .tp-v1 .tp-field-chevron,
+body .tp-v1 .tp-map-fullscreen-btn svg,
+body .tp-v1 .tp-add-field-3d svg {
+  color:
+    var(--tp-primary) !important;
+}
+
+
+/* =========================================================
+   CATEGORY TAB SHELL
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary) {
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07) !important;
+
+  background:
+    #0a0d10 !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut {
+  position: relative;
+
+  color:
+    rgba(225, 231, 235, 0.58) !important;
+
+  background:
+    transparent !important;
+
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:hover {
+  color:
+    #ffffff !important;
+
+  background:
+    rgba(255, 255, 255, 0.025) !important;
+}
+
+
+/* =========================================================
+   1 — SAĞLIK
+   GREEN
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(1).active {
+  color:
+    #e9fff0 !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(74, 222, 128, 0.16),
+      rgba(74, 222, 128, 0.07)
+    ) !important;
+
+  box-shadow:
+    inset 0 -2px 0
+    var(--tp-health) !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(1).active::before {
+  background:
+    var(--tp-health) !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(74, 222, 128, 0.30) !important;
+}
+
+
+/* =========================================================
+   2 — NEMLİ ALANLAR
+   AQUA
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(2).active {
+  color:
+    #e9fcff !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(53, 194, 214, 0.16),
+      rgba(53, 194, 214, 0.07)
+    ) !important;
+
+  box-shadow:
+    inset 0 -2px 0
+    var(--tp-moisture) !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(2).active::before {
+  background:
+    var(--tp-moisture) !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(53, 194, 214, 0.30) !important;
+}
+
+
+/* =========================================================
+   3 — YÜZEY & BİTKİ FARKI
+   VIOLET
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(3).active {
+  color:
+    #f1edff !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(154, 134, 247, 0.16),
+      rgba(154, 134, 247, 0.07)
+    ) !important;
+
+  box-shadow:
+    inset 0 -2px 0
+    var(--tp-vegetation) !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(3).active::before {
+  background:
+    var(--tp-vegetation) !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(154, 134, 247, 0.30) !important;
+}
+
+
+/* =========================================================
+   4 — SU BİRİKİMİ RİSKİ
+   BLUE
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(4).active {
+  color:
+    #edf3ff !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(83, 140, 255, 0.17),
+      rgba(83, 140, 255, 0.07)
+    ) !important;
+
+  box-shadow:
+    inset 0 -2px 0
+    var(--tp-water) !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(4).active::before {
+  background:
+    var(--tp-water) !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(83, 140, 255, 0.30) !important;
+}
+
+
+/* =========================================================
+   5 — TOPRAK
+   TERRACOTTA
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(5).active {
+  color:
+    #fff1eb !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(186, 112, 88, 0.17),
+      rgba(186, 112, 88, 0.07)
+    ) !important;
+
+  box-shadow:
+    inset 0 -2px 0
+    var(--tp-soil) !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(5).active::before {
+  background:
+    var(--tp-soil) !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(186, 112, 88, 0.27) !important;
+}
+
+
+/* =========================================================
+   6 — İKLİM
+   MUTED MAGENTA
+   ========================================================= */
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(6).active {
+  color:
+    #ffeff8 !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(207, 115, 166, 0.17),
+      rgba(207, 115, 166, 0.07)
+    ) !important;
+
+  box-shadow:
+    inset 0 -2px 0
+    var(--tp-climate) !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts:not(.tp-map-shortcuts-secondary)
+.tp-map-shortcut:nth-child(6).active::before {
+  background:
+    var(--tp-climate) !important;
+
+  box-shadow:
+    0 0 10px
+    rgba(207, 115, 166, 0.27) !important;
+}
+
+
+/* =========================================================
+   SECONDARY MAP TABS
+   ========================================================= */
+
+body .tp-v1 .tp-map-shortcuts-secondary {
+  border-color:
+    rgba(255, 255, 255, 0.065) !important;
+
+  background:
+    #080b0e !important;
+}
+
+
+body .tp-v1
+.tp-map-shortcuts-secondary
+.tp-map-shortcut {
+  color:
+    var(--tp-muted) !important;
+
+  border-color:
+    rgba(255, 255, 255, 0.06) !important;
+
+  background:
+    #0c1013 !important;
+}
+
+
+/* =========================================================
+   MAP STAGE
+   ========================================================= */
+
+body .tp-v1 .tp-map-stage {
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.075) !important;
+
+  background:
+    #07090b !important;
+
+  box-shadow:
+    0 16px 36px
+    rgba(0, 0, 0, 0.34) !important;
+}
+
+
+/* Decorative sci-fi frame removed */
+
+body .tp-v1 .tp-map-stage::after {
+  display: none !important;
+  content: none !important;
+}
+
+
+body .tp-v1 .tp-map-frame-corner,
+body .tp-v1 .tp-map-frame-corner::before,
+body .tp-v1 .tp-map-frame-corner::after {
+  display: none !important;
+  content: none !important;
+}
+
+
+/* =========================================================
+   MAP OVERLAY CARDS
+   ========================================================= */
+
+body .tp-v1 .tp-map-control-rail,
+body .tp-v1 .tp-map-data-badge,
+body .tp-v1 .tp-ndvi-legend-card,
+body .tp-v1 .tp-real-home-legend,
+body .tp-v1 .tp-home-general-metric {
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.085) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(14, 18, 21, 0.95),
+      rgba(7, 9, 11, 0.94)
+    ) !important;
+
+  box-shadow:
+    0 12px 28px
+    rgba(0, 0, 0, 0.32) !important;
+}
+
+
+/* =========================================================
+   NDVI
+
+   Veri renklerine dokunmuyoruz.
+   ========================================================= */
+
+body .tp-v1 .tp-ndvi-live-summary {
+  border-top-color:
+    rgba(255, 255, 255, 0.065) !important;
+}
+
+
+body .tp-v1 .tp-ndvi-live-summary span {
+  color:
+    var(--tp-muted) !important;
+}
+
+
+body .tp-v1 .tp-ndvi-live-summary strong {
+  color:
+    #ffffff !important;
+
+  text-shadow:
+    none !important;
+}
+
+
+/* =========================================================
+   BOTTOM NAV
+   ========================================================= */
+
+body .tp-v1 .tp-bottom {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(18, 22, 26, 0.985),
+      rgba(5, 7, 9, 0.995)
+    ) !important;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.065) !important;
+
+  box-shadow:
+    0 -14px 34px
+    rgba(0, 0, 0, 0.50) !important;
+
+  backdrop-filter:
+    blur(18px);
+
+  -webkit-backdrop-filter:
+    blur(18px);
+}
+
+
+/* =========================================================
+   GENERIC THEME
+   ========================================================= */
+
+.tp-theme-page {
+  min-height: 100vh;
+
+  color:
+    var(--tp-text);
+
+  background:
+    var(--tp-bg);
+}
+
+
+.tp-theme-surface,
+.tp-card,
+.tp-panel,
+.tp-surface {
+  color:
+    var(--tp-text);
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--tp-surface-2),
+      var(--tp-surface-1)
+    );
+
+  border:
+    1px solid
+    var(--tp-line);
+
+  border-radius:
+    var(--tp-radius-lg);
+
+  box-shadow:
+    var(--tp-shadow-md);
+}
+
+
+.tp-theme-surface-soft {
+  color:
+    var(--tp-text);
+
+  background:
+    var(--tp-surface-1);
+
+  border:
+    1px solid
+    var(--tp-line-soft);
+
+  border-radius:
+    var(--tp-radius-md);
+}
+
+
+.tp-theme-surface-elevated {
+  color:
+    var(--tp-text);
+
+  background:
+    var(--tp-surface-3);
+
+  border:
+    1px solid
+    var(--tp-line);
+
+  border-radius:
+    var(--tp-radius-lg);
+
+  box-shadow:
+    var(--tp-shadow-lg);
+}
+
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+.font-serif-brand,
+.tp-theme-display,
+.tp-display-title,
+.tp-card-title,
+.tp-section-title {
+  font-family:
+    var(--tp-font-display);
+}
+
+
+.font-sans-app {
+  font-family:
+    var(--tp-font-ui);
+}
+
+
+.tp-theme-display {
+  color:
+    var(--tp-text-strong);
+}
+
+
+.tp-theme-text {
+  color:
+    var(--tp-text);
+}
+
+
+.tp-theme-soft {
+  color:
+    var(--tp-text-soft);
+}
+
+
+.tp-theme-muted {
+  color:
+    var(--tp-muted);
+}
+
+
+.tp-theme-primary {
+  color:
+    var(--tp-primary);
+}
+
+
+.tp-theme-cyan {
+  color:
+    var(--tp-cyan);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+* {
+  scrollbar-color:
+    rgba(101, 216, 238, 0.16)
+    rgba(4, 5, 6, 0.72);
+}
+
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+
+*::-webkit-scrollbar-track {
+  background:
+    rgba(4, 5, 6, 0.74);
+}
+
+
+*::-webkit-scrollbar-thumb {
+  background:
+    rgba(101, 216, 238, 0.14);
+
+  border:
+    2px solid
+    rgba(4, 5, 6, 0.82);
+
+  border-radius:
+    999px;
+}
+
+
+*::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(101, 216, 238, 0.28);
+}
+
+
+/* =========================================================
+   MAP SAFETY
+   ========================================================= */
+
+.maplibregl-map,
+.maplibregl-canvas-container,
+.maplibregl-canvas {
+  filter:
+    none !important;
+
+  opacity:
+    1 !important;
+}
+
+
+.maplibregl-canvas {
+  background:
+    transparent !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 720px) {
+  :root {
+    --tp-radius-lg:
+      18px;
+
+    --tp-radius-xl:
+      22px;
+  }
+}

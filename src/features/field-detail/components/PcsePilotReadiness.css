@@ -1,0 +1,9 @@
+.tp-pcse-readiness { margin: 14px 0; padding: 16px; border: 1px solid #d9dee3; border-radius: 18px; background: #f7f8fa; color: #20252b; }
+.tp-pcse-readiness > small { color: #39434e; font-size: 10px; font-weight: 800; letter-spacing: .09em; }
+.tp-pcse-readiness h3 { margin: 7px 0 9px; font-size: 17px; line-height: 1.3; }
+.tp-pcse-readiness p, .tp-pcse-readiness li { color: #4b5563; font-size: 13px; line-height: 1.5; }
+.tp-pcse-readiness p { margin: 0; }
+.tp-pcse-readiness ul { margin: 10px 0 0; padding-left: 18px; }
+.tp-pcse-readiness li + li { margin-top: 6px; }
+.tp-pcse-readiness button { margin-top: 13px; min-height: 40px; padding: 0 13px; border: 1px solid #cbd2d9; border-radius: 12px; background: #eef1f4; color: #20252b; font-size: 12px; font-weight: 800; cursor: pointer; }
+.tp-pcse-readiness button:focus-visible { outline: 2px solid #39434e; outline-offset: 3px; }

@@ -1,0 +1,23 @@
+.tp-knowledge-page,
+.tp-knowledge-page * {
+  box-sizing: border-box;
+}
+
+.tp-knowledge-page {
+  min-height: 100vh;
+  min-height: 100svh;
+  background: #fff;
+  color: #111;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.tp-knowledge-canvas {
+  width: min(100%, 1180px);
+  min-height: calc(100svh - 150px);
+  margin: 0 auto;
+  padding: 18px 16px 108px;
+}
+
+.tp-knowledge-empty {
+  min-height: 62vh;
+}

@@ -1,0 +1,23 @@
+.tp-season-model-inputs { margin: 16px 0; padding: 18px; border: 1px solid #d9dee3; border-radius: 20px; background: #f7f8fa; color: #20252b; }
+.tp-season-model-inputs summary { display: flex; justify-content: space-between; gap: 12px; align-items: center; cursor: pointer; color: #20252b; font-size: 15px; font-weight: 800; list-style: none; }
+.tp-season-model-inputs summary::-webkit-details-marker { display: none; }
+.tp-season-model-inputs summary span { color: #4b5563; transition: transform .2s; }
+.tp-season-model-inputs details[open] summary span { transform: rotate(180deg); }
+.tp-season-model-inputs summary:focus-visible { outline: 2px solid #39434e; outline-offset: 4px; border-radius: 4px; }
+.tp-season-model-inputs-body { padding-top: 18px; }
+.tp-season-model-inputs-body > small { color: #39434e; font-weight: 800; letter-spacing: .08em; }
+.tp-season-model-inputs h3 { font-size: 18px; margin: 8px 0; }
+.tp-season-model-inputs p, .tp-season-model-inputs li { font-size: 13px; line-height: 1.5; color: #4b5563; }
+.tp-season-model-inputs ul { padding-left: 18px; }
+.tp-season-model-inputs li + li { margin-top: 7px; }
+.tp-season-model-inputs label { display: grid; gap: 6px; margin: 14px 0; color: #39434e; font-size: 13px; }
+.tp-season-model-inputs select { min-height: 42px; padding: 9px; border: 1px solid #cbd2d9; border-radius: 10px; background: #fff; color: #20252b; font: inherit; color-scheme: light; }
+.tp-season-model-inputs button { min-height: 40px; padding: 8px 14px; border: 1px solid #cbd2d9; border-radius: 10px; background: #eef1f4; color: #20252b; cursor: pointer; font: inherit; }
+.tp-season-model-inputs button:disabled { opacity: .55; cursor: not-allowed; }
+.tp-season-model-inputs-result { margin-top: 14px; padding: 12px; border: 1px solid #d9dee3; border-radius: 12px; background: #fff; overflow-wrap: anywhere; }
+.tp-season-model-inputs-result strong { font-size: 14px; }
+.tp-season-model-inputs-result p:last-child { margin-bottom: 0; }
+.tp-season-model-heat { display: grid; gap: 5px; margin-block: 12px; padding: 12px; border: 1px solid #d9dee3; border-radius: 12px; background: #eef1f4; }
+.tp-season-model-heat small { color: #39434e; font-size: 11px; font-weight: 750; }
+.tp-season-model-heat strong { color: #20252b; font-size: 22px; }
+.tp-season-model-heat p { margin: 0; }

@@ -1,0 +1,9 @@
+-- Live migration history marker.
+-- This migration was superseded minutes later by
+-- 20260915174303_sync_model_readiness_tasks_v3.sql after validation found
+-- that the PCSE crop mapping relation name used in the intermediate function
+-- did not match the canonical schema.
+--
+-- Intentionally no-op in source control so fresh environments do not install
+-- the known-bad intermediate function. The following migration installs the
+-- corrected final definition.

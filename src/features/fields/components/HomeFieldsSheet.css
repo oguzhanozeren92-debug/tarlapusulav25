@@ -1,0 +1,194 @@
+.tp-fields-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 5, 2, .70);
+  backdrop-filter: blur(7px);
+}
+
+.tp-fields-sheet {
+  box-sizing: border-box;
+  width: min(100%, 480px);
+  max-height: min(78dvh, 720px);
+  overflow: auto;
+  padding: 23px 18px calc(24px + env(safe-area-inset-bottom));
+  border: 1px solid #1e3a24;
+  border-bottom: 0;
+  border-radius: 26px 26px 0 0;
+  background: linear-gradient(160deg, #092012, #020804 72%);
+  color: #e5f5e8;
+  box-shadow: 0 -15px 55px rgba(0, 0, 0, .6), 0 -2px 20px rgba(34, 197, 94, .12);
+}
+
+.tp-fields-sheet-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.tp-fields-sheet-head small { color: #7fbc8d; font-size: 10px; letter-spacing: .14em; }
+.tp-fields-sheet-head h2 { margin: 5px 0 0; color: #e5f5e8; font-size: 25px; }
+.tp-fields-sheet-close {
+  width: 42px; height: 42px; border: 1px solid #34523a; border-radius: 13px;
+  background: #0b1d10; color: #e5f5e8; font-size: 27px; line-height: 1; cursor: pointer;
+}
+.tp-fields-sheet-list { display: grid; gap: 9px; max-height: 48dvh; overflow: auto; }
+.tp-fields-sheet-field {
+  display: flex; align-items: center; width: 100%; min-height: 69px; gap: 7px;
+  padding: 10px 12px; border: 1px solid #1e3a24; border-radius: 16px;
+  background: rgba(6, 19, 8, .85); color: #e5f5e8; text-align: left;
+}
+.tp-fields-sheet-field.is-selected { border-color: #22c55e; background: rgba(20, 65, 32, .5); }
+.tp-fields-sheet-field-select {
+  display: flex; align-items: center; flex: 1; min-width: 0; gap: 12px; padding: 0;
+  border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer;
+}
+.tp-fields-sheet-detail {
+  flex: 0 0 auto; min-height: 44px; padding: 0 11px;
+  border: 1px solid #348548; border-radius: 11px; background: #123a20;
+  color: #e5f5e8; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer;
+}
+.tp-fields-sheet-field-select:focus-visible,.tp-fields-sheet-detail:focus-visible {
+  outline: 2px solid #86efac; outline-offset: 3px;
+}
+.tp-fields-sheet-delete {
+  flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 8px;
+  border: 1px solid #8d4444; border-radius: 11px;
+  background: #341b1b; color: #ffc5c5; font: inherit;
+  font-size: 12px; font-weight: 800; cursor: pointer;
+}
+.tp-fields-sheet-delete:focus-visible { outline: 2px solid #ffc5c5; outline-offset: 3px; }
+.tp-fields-sheet-field-icon {
+  display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid #356947;
+  border-radius: 12px; background: #0a2916; color: #57dc82; box-shadow: inset 0 0 12px rgba(34, 197, 94, .12);
+}
+.tp-fields-sheet-field-copy { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.tp-fields-sheet-field-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.tp-fields-sheet-field-copy small { color: #99a99c; font-size: 11px; }
+.tp-fields-sheet-field-status { flex: 0 0 auto; color: #75ce90; font-size: 11px; }
+.tp-fields-sheet-empty { color: #aebcaf; padding: 15px 3px; }
+.tp-fields-sheet-add {
+  display: block; width: 100%; min-height: 48px; margin-top: 18px;
+  border: 1px solid #348548; border-radius: 14px; background: #133a20;
+  color: #e5f5e8; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+
+.tp-fields-delete-confirmation { padding: 4px 1px 2px; }
+.tp-fields-delete-kicker { color: #ffb5b5; font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.tp-fields-delete-confirmation h2 { margin: 9px 0 12px; color: #fff; font-size: 24px; }
+.tp-fields-delete-confirmation p { margin: 0 0 14px; color: #d7e3d7; font-size: 14px; line-height: 1.55; }
+.tp-fields-delete-confirmation .tp-fields-delete-warning {
+  padding: 12px; border: 1px solid #736036; border-radius: 12px;
+  background: #292315; color: #ffe2a3;
+}
+.tp-fields-delete-confirmation .tp-fields-delete-error { color: #ffc3c3; }
+.tp-fields-delete-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.tp-fields-delete-actions button {
+  min-height: 48px; padding: 8px; border: 1px solid #335840; border-radius: 12px;
+  background: #193023; color: #f2fff2; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer;
+}
+.tp-fields-delete-actions .danger { border-color: #bb5353; background: #973434; color: #fff; }
+.tp-fields-delete-actions button:disabled { opacity: .6; cursor: wait; }
+
+@media (max-width: 390px) {
+  .tp-fields-sheet { padding-right: 12px; padding-left: 12px; }
+  .tp-fields-sheet-field { gap: 6px; padding: 8px; }
+  .tp-fields-sheet-field-icon { flex-basis: 34px; height: 34px; }
+  .tp-fields-sheet-field-status { display: none; }
+}
+
+
+/* =========================================================
+   TARLALARIM — TUT / SÜRÜKLE SIRALAMA
+   ========================================================= */
+
+.tp-fields-sheet-sort-help {
+  display: block;
+  margin-top: 5px;
+  color: #79828d;
+  font: 750 9px/1.25 system-ui, sans-serif;
+}
+
+.tp-fields-sheet-drag {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #66717d;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tp-fields-sheet-drag:active,
+.tp-fields-sheet-field.is-dragging .tp-fields-sheet-drag {
+  cursor: grabbing;
+  background: #eef1f3;
+  color: #20262d;
+}
+
+.tp-fields-sheet-list.is-sorting {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tp-fields-sheet-field {
+  transition:
+    transform .14s ease,
+    box-shadow .14s ease,
+    border-color .14s ease,
+    opacity .14s ease;
+}
+
+.tp-fields-sheet-field.is-dragging {
+  position: relative;
+  z-index: 3;
+  transform: scale(1.015);
+  border-color: #8f98a3 !important;
+  background: #fff !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.14) !important;
+}
+
+.tp-fields-sheet-order-message,
+.tp-fields-sheet-order-error {
+  margin: -7px 0 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font: 800 9px/1.3 system-ui, sans-serif;
+}
+
+.tp-fields-sheet-order-message {
+  border: 1px solid #d9e4dc;
+  background: #f5faf6;
+  color: #33533d !important;
+}
+
+.tp-fields-sheet-order-error {
+  border: 1px solid #efd0d0;
+  background: #fff6f6;
+  color: #9a3a3a !important;
+}
+
+/* Beyaz tema ile tutarlı sürükleme kolu */
+html body .tp-fields-sheet .tp-fields-sheet-drag {
+  background: transparent !important;
+  border: 0 !important;
+  color: #64707c !important;
+  box-shadow: none !important;
+}
+
+html body .tp-fields-sheet .tp-fields-sheet-field.is-dragging {
+  background: #fff !important;
+  border-color: #939da8 !important;
+}
+
+@media (max-width: 390px) {
+  .tp-fields-sheet-drag {
+    flex-basis: 26px;
+    width: 26px;
+  }
+}

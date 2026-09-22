@@ -1,0 +1,86 @@
+/* Map readability hotfix — canonical monochrome map UI.
+   Loads after legacy/dark map styles. Scientific map/data colors are untouched. */
+
+   .tp-map-first-shell .tp-field-head { background:#fff!important; border-bottom:1px solid #e3e7eb!important; }
+   .tp-map-first-shell .tp-field-select-box,
+   .tp-map-first-shell .tp-field-toolbar .tp-add-field-3d,
+   .tp-map-first-shell .tp-mf-operation-toolbar { background:#f7f8f9!important; border-color:#d9dee3!important; color:#17202a!important; box-shadow:0 1px 2px rgba(15,23,42,.04)!important; }
+   .tp-map-first-shell .tp-field-select,
+   .tp-map-first-shell .tp-field-select option { color:#17202a!important; background:#fff!important; }
+   
+   /* Floating map controls */
+   .tp-map-first-shell .tp-mf-layer-trigger,
+   .tp-map-first-shell .tp-mf-sublayer-trigger,
+   .tp-map-first-shell .tp-map-control-btn { background:rgba(255,255,255,.97)!important; border-color:#d9dee3!important; color:#17202a!important; box-shadow:0 5px 16px rgba(15,23,42,.14)!important; backdrop-filter:blur(10px)!important; -webkit-backdrop-filter:blur(10px)!important; }
+   .tp-map-first-shell .tp-mf-layer-trigger small,
+   .tp-map-first-shell .tp-mf-sublayer-trigger small { color:#69727d!important; }
+   .tp-map-first-shell .tp-mf-layer-trigger strong,
+   .tp-map-first-shell .tp-mf-sublayer-trigger strong { color:#17202a!important; }
+   .tp-map-first-shell .tp-mf-layer-trigger svg,
+   .tp-map-first-shell .tp-map-control-btn svg { stroke:#17202a!important; }
+   .tp-map-first-shell .tp-real-home-map .maplibregl-ctrl-group { background:rgba(255,255,255,.97)!important; border:1px solid #d9dee3!important; box-shadow:0 5px 16px rgba(15,23,42,.14)!important; }
+   .tp-map-first-shell .tp-real-home-map .maplibregl-ctrl-group button { background-color:transparent!important; color:#111827!important; }
+   
+   /* NDVI legend/info panel: remove the legacy black slab. */
+   .tp-map-first-shell .tp-mf-ndvi.open,
+   .tp-map-first-shell .tp-mf-ndvi-body,
+   .tp-map-first-shell [class*="ndvi"][class*="legend"],
+   .tp-map-first-shell [class*="legend"][class*="ndvi"] { background:#fff!important; color:#111827!important; border-color:#d9dee3!important; box-shadow:0 8px 24px rgba(15,23,42,.14)!important; }
+   .tp-map-first-shell .tp-mf-ndvi.open strong,
+   .tp-map-first-shell .tp-mf-ndvi-body strong,
+   .tp-map-first-shell .tp-mf-ndvi-body span,
+   .tp-map-first-shell .tp-mf-ndvi-body small { color:#111827!important; }
+   
+   /* Pusula focus / selected tracking-point action strips.
+      Inline legacy styles are intentionally overridden here. */
+   .tp-map-first-shell [aria-label="Pusula odak modu"],
+   .tp-map-first-shell [aria-label="Seçili NDVI takip noktası"] { background:rgba(255,255,255,.98)!important; color:#111827!important; border:1px solid #d9dee3!important; box-shadow:0 7px 22px rgba(15,23,42,.14)!important; }
+   .tp-map-first-shell [aria-label="Pusula odak modu"] *,
+   .tp-map-first-shell [aria-label="Seçili NDVI takip noktası"] * { color:#111827!important; }
+   .tp-map-first-shell [aria-label="Pusula odak modu"] button,
+   .tp-map-first-shell [aria-label="Seçili NDVI takip noktası"] button { background:#fff!important; color:#111827!important; border-color:#d9dee3!important; box-shadow:none!important; }
+   .tp-map-first-shell [aria-label="Pusula odak modu"] button:hover,
+   .tp-map-first-shell [aria-label="Seçili NDVI takip noktası"] button:hover { background:#f3f4f6!important; color:#000!important; }
+   .tp-map-first-shell [aria-label="Pusula odak modu"] button svg,
+   .tp-map-first-shell [aria-label="Seçili NDVI takip noktası"] button svg { stroke:#111827!important; color:#111827!important; }
+   
+   /* Uydu geçmişi: özel pseudo SVG yok; gerçek Lucide Satellite ikonu kullanılır. */
+   .tp-map-first-shell .tp-map-history-label::before {
+     display:none!important;
+     content:none!important;
+   }
+   
+   .tp-map-first-shell .tp-map-history-label > svg {
+     display:block!important;
+     width:21px!important;
+     height:21px!important;
+     flex:0 0 21px!important;
+     stroke:#17202a!important;
+     stroke-width:1.9!important;
+     transform:none!important;
+   }
+   
+   .tp-map-first-shell .tp-map-history-label span {
+     display:none!important;
+   }
+   
+   /* Pusula summary */
+   .tp-home-map-pusula-strip { background:rgba(255,255,255,.985)!important; border-top:1px solid #e2e6ea!important; color:#17202a!important; box-shadow:0 -4px 14px rgba(15,23,42,.05)!important; backdrop-filter:blur(10px)!important; -webkit-backdrop-filter:blur(10px)!important; }
+   .tp-home-map-pusula-strip::before { background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.68),rgba(255,255,255,.98))!important; }
+   .tp-home-map-pusula-logo img { filter:none!important; }
+   .tp-home-map-pusula-kicker,
+   .tp-home-map-pusula-text,
+   .tp-home-map-pusula-strip.is-loading .tp-home-map-pusula-text,
+   .tp-home-map-pusula-strip.has-error .tp-home-map-pusula-text { color:#111827!important; }
+   .tp-home-map-pusula-kicker span { color:#66717d!important; }
+   .tp-home-map-pusula-actions button,
+   .tp-home-map-pusula-why,
+   .tp-home-map-pusula-show,
+   .tp-home-map-pusula-refresh { color:#17202a!important; }
+   .tp-home-map-pusula-actions button:hover { color:#000!important; background:#f1f3f5!important; }
+   .tp-home-map-pusula-signal.neutral { color:#56616c!important; }
+   .tp-home-map-pusula-signal.attention { border-color:#f3c8c8!important; background:#fff4f4!important; color:#b42318!important; }
+   .tp-home-map-pusula-signal.negative { border-color:#f0b7b7!important; background:#fff0f0!important; color:#b42318!important; }
+   
+   @media(max-width:520px){ .tp-home-map-pusula-strip{padding-left:10px!important;padding-right:10px!important}.tp-home-map-pusula-actions button{font-weight:850!important} }
+   

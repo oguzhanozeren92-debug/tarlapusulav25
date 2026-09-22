@@ -1,0 +1,18 @@
+.mapboxgl-ctrl-group {
+  background: #f8f9fb;
+  color: #252c35;
+  border: 1px solid #d6dae0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.mapboxgl-ctrl-group button {
+  width: 42px;
+  height: 42px;
+}
+.mapboxgl-ctrl-group button + button {
+  border-top: 1px solid #d6dae0;
+}
+.mapboxgl-ctrl-attrib {
+  color: #252c35;
+  background: rgba(255, 255, 255, .94);
+}

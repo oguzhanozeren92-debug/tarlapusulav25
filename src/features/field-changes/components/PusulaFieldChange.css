@@ -1,0 +1,36 @@
+.tp-field-change { position:relative; margin:0 16px 14px; padding:18px 16px 10px; background:#f0f2f4; color:#20252b; border:1px solid #cbd0d6; border-radius:20px; box-shadow:0 8px 24px #14181d12; animation:tp-field-change-drop .3s ease-out; }
+.tp-field-change-connector { position:absolute; top:-12px; left:calc(50% - 14px); display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:#fff; color:#242a31; border:1px solid #cbd0d6; }
+.tp-field-change .tp-field-change-message { display:flex; align-items:center; gap:14px; width:100%; padding:0; border:0; background:transparent; color:#20252b; text-align:left; }
+.tp-field-change-message > span { display:grid; gap:6px; flex:1; min-width:0; }
+.tp-field-change small,.tp-field-change-dialog small { font-size:10px; font-weight:750; letter-spacing:.07em; color:#505964; }
+.tp-field-change-message strong { font-size:17px; overflow-wrap:anywhere; }
+.tp-field-change-message span span { font-size:14px; line-height:1.55; }
+.tp-field-change .tp-field-change-later,.tp-field-change-dialog .tp-field-change-later { display:block; min-height:44px; margin:4px auto 0; border:0; background:transparent; color:#505964; font-size:14px; }
+.tp-field-change-dialog { width:calc(100% - 24px); max-width:440px; max-height:80dvh; box-sizing:border-box; margin:auto auto 12px; padding:22px; overflow:auto; border:1px solid #cbd0d6; border-radius:24px; background:#fff; color:#20252b; box-shadow:0 16px 64px #0003; }
+.tp-field-change-dialog::backdrop { background:#14181d66; backdrop-filter:blur(5px); }
+.tp-field-change-dialog-head { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
+.tp-field-change-dialog h2 { margin:8px 0 12px; font-size:22px; overflow-wrap:anywhere; color:#20252b; }
+.tp-field-change-dialog h3 { font-size:16px; color:#20252b; }
+.tp-field-change-dialog p,.tp-field-change-dialog li { font-size:15px; line-height:1.65; color:#424b56; }
+.tp-field-change-dialog li { margin-bottom:8px; }
+.tp-field-change-dialog-head button { display:grid; place-items:center; min-width:44px; height:44px; border:1px solid #cbd0d6; border-radius:14px; background:#f0f2f4; color:#20252b; }
+.tp-field-change-dialog .tp-field-change-map { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:48px; padding:12px 16px; border:1px solid #111; border-radius:14px; background:#111; color:#fff !important; font-weight:700; }
+@keyframes tp-field-change-drop { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { .tp-field-change { animation:none; } }
+
+/* Keep this dark action readable above the global monochrome theme. */
+html body #root .tp-field-change-dialog button.tp-field-change-map {
+  background: #111 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border-color: #111 !important;
+}
+
+html body #root .tp-field-change-dialog button.tp-field-change-map :is(span, svg) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+html body #root .tp-field-change-dialog button.tp-field-change-map svg {
+  stroke: currentColor !important;
+}

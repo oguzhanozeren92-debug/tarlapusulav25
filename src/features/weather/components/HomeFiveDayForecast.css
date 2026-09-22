@@ -1,0 +1,28 @@
+.tp-home-forecast {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(30, 58, 36, .9);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(8, 24, 15, .96), rgba(3, 12, 8, .98));
+  color: #e9f5ec;
+  text-align: left;
+  cursor: pointer;
+}
+.tp-home-forecast-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tp-home-forecast-heading strong { font-size: 13px; font-weight: 800; }
+.tp-home-forecast-heading > span { color: #8bd3a8; font-size: 11px; }
+.tp-home-forecast-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 10px; }
+.tp-home-forecast-day { display: grid; justify-items: center; gap: 4px; min-width: 0; padding: 6px 2px; border-right: 1px solid rgba(56, 108, 73, .28); }
+.tp-home-forecast-day:last-child { border-right: 0; }
+.tp-home-forecast-day > span { color: #a6c9ae; font-size: 11px; }
+.tp-home-forecast-day strong { color: #f0f6ed; font-size: 16px; }
+.tp-home-forecast-day small { color: #75c7c8; font-size: 10px; white-space: nowrap; }
+.tp-home-forecast-empty { display: block; margin-top: 10px; color: #aabeb0; font-size: 12px; }
+.tp-home-forecast:focus-visible { outline: 2px solid #7de9ae; outline-offset: 3px; }
+@media (max-width: 370px) {
+  .tp-home-forecast-day > span { font-size: 10px; }
+  .tp-home-forecast-day strong { font-size: 14px; }
+  .tp-home-forecast-day small { font-size: 9px; }
+}

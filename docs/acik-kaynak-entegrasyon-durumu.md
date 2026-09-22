@@ -1,0 +1,34 @@
+# GitHub kaynaklı araçlar: uygulama durumu
+
+Bu belge, planlanan açık kaynak projeler ile TarlaPusula reposunda çalışan kodu birbirinden ayırır. Bir yöntemi kendi kodumuzda kullanmamız, ilgili Python paketinin kurulduğu anlamına gelmez. Vercel'de çalışan uygulama Vite/React ön yüzüdür.
+
+> Not: Entegrasyon hazırlıkları artık ayrı bir hazırlık dalında ve `docs/integration-prep/` altında tutulacaktır. Çalışan uygulama koduna doğrudan dokunulmadan önce her aday için lisans, girdi/çıktı, adapter, veri gereksinimi, test ve kabul kriteri hazırlanacaktır.
+
+| Planlanan araç | Amaç | Bu repodaki durum |
+| --- | --- | --- |
+| [pyfao56](https://github.com/kthorp/pyfao56) | FAO-56 referans ET ve günlük su dengesi karşılaştırması | `tools/pyfao56-poc` içinde sentetik verili, bağımsız çalıştırılabilir pilot. Uygulama akışına bağlı değil. Ön yüzde mevcut `cropWaterUse.service.ts` ve `rootZoneWater.service.ts` kendi hesabını yapıyor. |
+| [sentinelhub-py](https://github.com/sentinel-hub/sentinelhub-py) + [eo-learn](https://github.com/sentinel-hub/eo-learn) | Uydu zaman serisi ve sapma analizi | Paketler repoda yok. Canlı `satellite-ndvi-timeseries` Edge işlevinin kaynağı Supabase'de incelendi: Copernicus Data Space Sentinel-2 L2A Statistical API'yi doğrudan kullanıyor. Şimdilik yeni Python kütüphanesine gerek yok. |
+| [PCSE](https://github.com/ajwdewit/pcse) | Bitki gelişimi/fenoloji araştırması | Paket repoda yok. `phenologyEngine.ts` kendi TypeScript fenoloji kurallarını uyguluyor. PCSE pilotunun günlük hava, ürün/toprak/site parametreleri ve tarla işlemleri için veri hazırlığı `tools/crop-model-readiness` ile kontrol edilebilir. |
+| [AgStack](https://github.com/agstack) OpenAgri / Asset Registry / AutoGeoBound | Tarla kimliği, sınır ve olay mimarisi | Uygulama entegrasyonu yok; araştırma aşamasında. |
+| [AquaCrop-OSPy](https://github.com/aquacropos/aquacrop) | Su/verim senaryoları | Repo bağımlılığı ve çalışan senaryo akışı yok. Yıllık bitkide tam sezon günlük hava, toprak/başlangıç suyu ve iki sulama senaryosunun veri hazırlığı `tools/crop-model-readiness` ile kontrol edilebilir; çok yıllık bahçe için bu pilot uygun değil. |
+| [AgML](https://github.com/Project-AgML/AgML) | Hastalık verisi ve model denemeleri | Repo bağımlılığı ve çalışan eğitim/çıkarım hattı yok. |
+| [FarmVibes.AI](https://github.com/microsoft/farmvibes-ai) | Ayrı analiz katmanı | Bu repoda entegrasyon yok; mevcut servislerin yerine geçmesi planlanmıyor. |
+
+## Sonraki doğrulanabilir adımlar
+
+1. `tools/pyfao56-poc/compare.py` ile aynı günlerin doğrulanmış meteorolojik girdilerini, uygulamanın o günkü ET₀ ve Kc değerlerini yan yana değerlendirmek. ASCE referans ET ile Open-Meteo FAO ET₀ metodolojisini çıktıda ayrı etiketlemek. Bu **yalnızca referans ET ve aynı Kc üzerinden hesaplanan ET karşılaştırmasıdır**, gerçek sulama kararı karşılaştırması değildir. Farkların kaynağı anlaşılmadan canlı sulama kararı üretmemek.
+2. `satellite-ndvi-timeseries` kaynağı doğrulandı: Sentinel-2 L2A B04/B08 bantlarından NDVI hesaplanıyor; SCL ile bulut/gölge/kar ve geçersiz pikseller çıkarılıyor; günlük parsel ortalaması yalnızca yeterli geçerli piksel varsa trende giriyor. En az 3 gözlem ve 12 günlük aralık olmadan yön üretilmiyor. İstemci ayrıca son gözlemi 30 günden eskiyse bu eğilimi güncel fenoloji yorumuna almıyor. Bu kapsam için Sentinel Hub / eo-learn eklenmeyecek; ihtiyaç ancak mevcut gözlem/karar kalitesiyle karşılaştırılarak değerlendirilecek.
+3. PCSE ve AquaCrop'un resmi örneklerindeki girdiler karşılaştırıldı; `tools/crop-model-readiness/check.py` çevrimdışı hazır/eksik veri raporu üretir. 2026-09-12 canlı proje kontrolünde 11 tarla kaydı ve 4 yıllık ürün vardı, fakat `field_seasons` kayıtları, toprak analizi ve sulama işlemi yoktu; yalnızca 4 tarlada koordinat vardı ve hava önbelleğinin en yeni kaydı 2026-08-27 idi. Bu veriyle saha fenolojisi veya sezon verimi doğrulaması yapılamaz. Önce aynı tarlaya ait tam sezon meteoroloji, tarihli ürün evreleri, doğrulanmış toprak ve işlem kayıtlarını elde etmek gerekir; ardından küçük, yıllık ürün pilotlarını çalıştırıp ölçümle karşılaştırmak. Mevcut Vercel ön yüzüne model bağımlılığı eklenmez.
+4. AgStack, AgML ve FarmVibes.AI'yi ayrı araştırma/analiz işleri olarak değerlendirmek; yalnızca doğrulanan çıktıları mevcut karar katmanına taşımak.
+
+Lisans notu: [PCSE EUPL 1.1](https://github.com/ajwdewit/pcse/blob/master/LICENSE), [AquaCrop-OSPy Apache 2.0](https://github.com/aquacropos/aquacrop/blob/master/LICENSE) lisanslı. Bunlar şu an uygulama bağımlılığı değil; üretim dağıtımında paket ve bağımlılık lisansları ayrıca incelenecek.
+
+Görünür uygulama değişikliği ancak pilot doğrulandıktan ve gerçekten bir ürün akışına bağlandıktan sonra Vercel'de görülecek. Bu belge ve pyfao56 örneği uygulamanın mevcut ekranlarını değiştirmez.
+
+2026-09-12 veri erişilebilirliği kontrolü: `fields` tablosunda 11 kayıt, bunların 4'ünde koordinat ve 4'ünde sulama durumu mevcut. `activities` tablosundaki tek kayıt sulama değil; doğrulanmış sulama miktarı/tarihi yok. `weather_cache` içindeki 3 kayıt 2026-08-27 tarihli; bu önbellekler pyfao56'nın bütün günlük meteorolojik girdileriyle güncel bir eşleşme sağlamıyor. Kullanıcının izniyle seçilen tarla için yalnızca ET₀ referans kıyaslaması yapıldı; özel koordinat, günlük hava yanıtı ve sonuçlar repoya konmadı. Gerçek sulama miktarı kıyaslaması henüz yapılamıyor. Kullanıcı verileri ve erişim anahtarları bu repoya eklenmedi.
+
+`tools/pyfao56-poc/prepare_open_meteo.py` ile **önceden kaydedilmiş yerel** Open-Meteo günlük/saatlik yanıtı dönüştürme tamamlandı. Genel örnek şehir koordinatındaki geçmiş model yanıtının üç günlük referans ET kıyaslaması çalıştı; bu örnek tarla verisi veya yerinde ölçüm değildir. Kc olmadığı için ürün ET kıyaslaması yapılmadı. Özel tarla konumunu bir dış servise otomatik gönderen bir işlev eklenmedi.
+
+Günlük Kc kaydı için `field_irrigation_kc_snapshots` tablosu açıldı. Hesap yapılabilen günlerde kullanıcıya ait tarlanın **yalnızca o günkü** Kc/evre/kaynak bilgisi kimliği doğrulanmış kullanıcıya özel kaydedilir. Uygulama ziyaret edilmeyen geçmiş günler doldurulmaz; sulama geçmişi hâlâ çiftçinin gerçek işlem kaydına bağlıdır. Mevcut "son 7 gün bitki tüketimi" bugünkü Kc'yi geriye dönük sabit varsaydığından geçmiş Kc ölçümü sayılmaz.
+
+Yıllık ürünün tarla detayındaki **Sezon verilerini kontrol et** bölümü artık elle başlatılan NASA POWER geçmiş hava sorgusundan ekim tarihinden seçili bitiş gününe kadar 10 °C tabanlı ısı birikimini de hesaplar: her gün `max(0, (Tmin + Tmax)/2 - 10)` ve tüm günler doluysa toplamı `°C·gün` olarak gösterir. Tek bir sıcaklık günü eksik veya tutarsızsa toplam gösterilmez. Bu genel karşılaştırma göstergesidir; ürün çeşidine özel taban sıcaklık, evre veya verim tahmini değildir ve PCSE/OpenAgri paketlerinin entegre edildiği anlamına gelmez. Tarla konumu ancak kullanıcının hava kontrol düğmesine basmasıyla NASA POWER'a gönderilir.

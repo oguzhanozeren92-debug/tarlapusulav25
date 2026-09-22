@@ -1,0 +1,16 @@
+/*
+ * TarlaPusula MASTER compass appearance.
+ * The source artwork stays local/original; the visible body is intentionally
+ * monochrome. The independently layered rotating needle keeps its own colors.
+ * Keep this rule centralized so screen-level CSS cannot bring the old green
+ * body back accidentally.
+ */
+ html body .tp-v1 .tp-brand-pusula-anchor > img:not(.tp-brand-pusula-needle),
+ html body .tp-global-pusula-anchor > img:not(.tp-global-pusula-needle),
+ html body .tp-pdg-compass .tp-pdg-body,
+ html body .pusula-guide .pusula-guide__body,
+ html body .tp-premium-drawer .tp-premium-drawer-brand-mark,
+ html body .tp-pusula-synthesis-anchor img {
+   filter: grayscale(1) brightness(.78) contrast(1.3) !important;
+ }
+ 

@@ -1,0 +1,87 @@
+dialog.tp-home-today-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(420px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(76dvh, 580px);
+  margin: auto;
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid rgba(83, 204, 141, .55);
+  border-radius: 22px;
+  background: linear-gradient(160deg, #102015, #06120c 70%);
+  color: #f1f4ec;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, .64), 0 0 25px rgba(58, 201, 112, .12);
+}
+
+dialog.tp-home-today-dialog.irrigation { border-color: rgba(59, 210, 215, .55); }
+dialog.tp-home-today-dialog::backdrop { background: rgba(0, 0, 0, .72); backdrop-filter: blur(4px); }
+
+.tp-home-today-dialog-content { padding: 20px; }
+.tp-home-today-dialog-head { display: flex; align-items: center; gap: 10px; }
+.tp-home-today-dialog-head img { width: 40px; height: 40px; object-fit: contain; }
+.tp-home-today-dialog-head span { color: #82dea5; font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.tp-home-today-dialog.irrigation .tp-home-today-dialog-head span { color: #76dfe3; }
+.tp-home-today-dialog-head button {
+  margin-left: auto;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(122, 194, 146, .35);
+  border-radius: 11px;
+  background: rgba(16, 46, 29, .8);
+  color: #f1f4ec;
+  font-size: 24px;
+  cursor: pointer;
+}
+.tp-home-today-dialog p.tp-home-today-dialog-field {
+  margin: 15px 0 0;
+  color: #a7bdb0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.tp-home-today-dialog-field strong { color: #f1f4ec; font-weight: 700; }
+.tp-home-today-dialog h2 {
+  margin: 18px 0 10px;
+  color: #f4efe3;
+  font: 500 26px/1.25 Georgia, 'Times New Roman', serif;
+  overflow-wrap: anywhere;
+}
+.tp-home-today-dialog p {
+  margin: 0;
+  color: #c5d4c7;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.tp-home-today-water-summary { display: grid; gap: 12px; }
+.tp-home-today-dialog .tp-home-today-water-summary p { margin: 0; }
+.tp-home-today-water-summary p strong { color: #76dfe3; }
+.tp-home-today-water-summary dl { margin: 0; display: grid; gap: 9px; }
+.tp-home-today-water-summary dl div { padding: 10px 12px; border: 1px solid rgba(59, 210, 215, .18); border-radius: 12px; background: rgba(14, 45, 43, .32); }
+.tp-home-today-water-summary dt { color: #76dfe3; font-size: 12px; font-weight: 800; }
+.tp-home-today-water-summary dd { margin: 4px 0 0; color: #d6e2d9; font-size: 14px; line-height: 1.45; }
+.tp-home-today-water-summary small { color: #9bb4a6; font-size: 11px; line-height: 1.4; }
+.tp-home-today-dialog-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px 14px;
+  border: 1px solid rgba(86, 184, 115, .45);
+  border-radius: 13px;
+  background: rgba(37, 102, 60, .25);
+  color: #b6efc4;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.tp-home-today-dialog.irrigation .tp-home-today-dialog-link {
+  border-color: rgba(59, 210, 215, .4);
+  background: rgba(23, 102, 108, .25);
+  color: #b0eff0;
+}
+.tp-home-today-dialog button:focus-visible,
+.tp-home-today-action:focus-visible { outline: 2px solid #7de9ae; outline-offset: 3px; }

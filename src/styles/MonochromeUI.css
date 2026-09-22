@@ -1,0 +1,240 @@
+/* Final UI color layer. Satellite imagery and agronomic map legends remain data. */
+:root {
+  --tp-green: #303942;
+  --tp-green-strong: #20252b;
+  --tp-green-soft: #e8ebee;
+  --tp-green-dark: #d9dee3;
+  --tp-health: #303942;
+  --tp-health-soft: #eef1f4;
+  --tp-health-line: #cbd2d9;
+  --tp-success: #39434e;
+  --soil-good: #39434e;
+}
+
+/* The legacy screens own different palettes. Give their actual UI, including
+   portals and floating dialogs, one readable light hierarchy. */
+html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page,
+  .tp-irrigation-detail-modal,.tp-home-quick-sheet,
+  .tp-market-ref-modal,.tp-support-news-modal,.tp-agri-news-modal,
+  .tp-field-gate-modal,.tp-modal-card,.tp-premium-drawer) {
+  color-scheme: light !important;
+  --pm-green: #303942;
+  --nutrition-good: #39434e;
+  --mpr-green: #303942;
+  --mpr-green-soft: #56616e;
+  --mpr-green-line: #d9dee3;
+  --news-green: #303942;
+  --pg-green: #303942;
+}
+
+html body :is(.tp-irrigation-detail-modal,.tp-home-quick-sheet,
+  .tp-market-ref-modal,.tp-support-news-modal,.tp-agri-news-modal,
+  .tp-field-gate-modal,.tp-modal-card) {
+  background: #fff !important;
+  border: 1px solid #d9dee3 !important;
+  color: #20252b !important;
+  box-shadow: 0 18px 48px #20252b29 !important;
+}
+
+/* Secondary routes contained their own forest-green hero and sidebar fills. */
+html body :is(.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page)
+  :is(section,article,aside,nav,header,footer,[class*='card'],[class*='panel']):not(.maplibregl-map) {
+  background: #f7f8fa !important;
+  border-color: #d9dee3 !important;
+  box-shadow: none !important;
+}
+html body :is(.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page)
+  :is(button,[role='button']):not([class*='danger']):not([class*='delete']) {
+  background: #eef1f4 !important;
+}
+
+html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page,
+  .tp-irrigation-detail-modal,.tp-home-quick-sheet,
+  .tp-market-ref-modal,.tp-support-news-modal,.tp-agri-news-modal,
+  .tp-field-gate-modal,.tp-modal-card,.tp-premium-drawer)
+  :is(h1,h2,h3,h4,h5,h6,strong,b,dt,label) {
+  color: #20252b !important;
+  text-shadow: none !important;
+}
+
+html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page,
+  .tp-irrigation-detail-modal,.tp-home-quick-sheet,
+  .tp-market-ref-modal,.tp-support-news-modal,.tp-agri-news-modal,
+  .tp-field-gate-modal,.tp-modal-card,.tp-premium-drawer)
+  :is(p,small,em,li,dd,summary) {
+  color: #4b5563 !important;
+  text-shadow: none !important;
+}
+
+/* Remove green on all interactive chrome, even where an old component writes
+   its own CSS or inline background. Preserve notification and danger indicators. */
+html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page,
+  .tp-irrigation-detail-modal,.tp-home-quick-sheet,
+  .tp-market-ref-modal,.tp-support-news-modal,.tp-agri-news-modal,
+  .tp-field-gate-modal,.tp-modal-card,.tp-premium-drawer)
+  :is(button,[role='button'],input,select,textarea):not(.maplibregl-ctrl-icon):not([class*='danger']):not([class*='delete']) {
+  color: #20252b !important;
+  border-color: #cbd2d9 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+html body :is(.tp-irrigation-detail-modal,.tp-market-ref-modal,
+  .tp-support-news-modal,.tp-agri-news-modal,.tp-field-gate-modal,.tp-modal-card)
+  :is(button,[role='button'],input,select,textarea):not([class*='danger']) {
+  background: #f1f3f5 !important;
+}
+html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+  .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-onboarding-page,.pt-page,
+  .tp-authv2,.tp-chat-shell,.tp-peststore-page,.tp-market-ref-page,
+  .tp-support-page,.tp-agri-news-page,.tp-nutrition-page,
+  .tp-producer-market-page,.tp-pest-guide-page,.tp-placeholder-page,
+  .tp-irrigation-detail-modal,.tp-home-quick-sheet)
+  :is(button,[role='button'],input,select,textarea):focus-visible {
+  outline: 2px solid #303942 !important;
+  outline-offset: 2px;
+}
+
+html body .tp-irrigation-detail-modal :is(.tp-irrigation-detail-mark,
+  .tp-irrigation-detail-pusula,.tp-irrigation-detail-grid > *,
+  .tp-irrigation-detail-status,.tp-irrigation-detail-rain,
+  .tp-irrigation-detail-reasons,.tp-irrigation-detail-actions) {
+  background: #f1f3f5 !important;
+  border-color: #d9dee3 !important;
+  box-shadow: none !important;
+}
+html body .tp-irrigation-detail-modal :is(span,small,em) { color: #39434e !important; }
+html body .tp-home-map-pusula-signal.positive,
+html body .tp-v1 .tp-home-map-pusula-signal.positive,
+html body .tp-home-data-status-dot.is-ready {
+  color: #303942 !important;
+  background: #e8ebee !important;
+  border-color: #cbd2d9 !important;
+  box-shadow: none !important;
+}
+
+/* Decorative icons only: the compass needle and map tile imagery are separate. */
+html body :is(.tp-v1,.tp-field-detail-page,.tp-home-quick-sheet,
+  .tp-premium-drawer) img[src*='/ui-icons/'] {
+  filter: grayscale(1) saturate(0) contrast(1.12) !important;
+}
+html body .tp-v1 .tp-brand-pusula-anchor img.tp-brand-pusula-needle,
+html body .tp-global-pusula-anchor img.tp-global-pusula-needle {
+  filter: none !important;
+}
+
+/* Five quiet, consistent line icons on the mobile navigation. */
+html body #root .tp-v1 .tp-bottom {
+  background: #fff !important;
+  border-top: 1px solid #d9dee3 !important;
+}
+html body #root .tp-v1 .tp-bottom :is(.tp-bottom-icon-shell,.tp-bottom-ai-shell) {
+  display: grid !important;
+  place-items: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  margin-inline: auto !important;
+  border: 1px solid transparent !important;
+  border-radius: 13px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+html body #root .tp-v1 .tp-bottom button.active .tp-bottom-icon-shell,
+html body #root .tp-v1 .tp-bottom button:focus-visible :is(.tp-bottom-icon-shell,.tp-bottom-ai-shell) {
+  background: #eef1f4 !important;
+  border-color: #d9dee3 !important;
+}
+html body #root .tp-v1 .tp-bottom .tp-bottom-line-icon {
+  display: block !important;
+  width: 23px !important;
+  height: 23px !important;
+  flex: none !important;
+  color: #4b5563 !important;
+  stroke: currentColor !important;
+  filter: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+html body #root .tp-v1 .tp-bottom button.active .tp-bottom-line-icon {
+  color: #171b20 !important;
+}
+html body #root .tp-v1 .tp-bottom button {
+  color: #4b5563 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+html body #root .tp-v1 .tp-bottom button.active { color: #171b20 !important; }
+
+/* Existing bearing-aware map compass: restore legible cardinal directions.
+   Its rose continues to follow MapLibre rotation and tap still resets north. */
+html body .tp-map-first-shell .tp-real-home-map .maplibregl-ctrl-bottom-right
+  .maplibregl-ctrl-group.tp-map-compass,
+html body .tp-map-first-shell .tp-real-home-map .maplibregl-ctrl-bottom-right
+  .tp-map-compass__button {
+  width: 54px !important;
+  height: 54px !important;
+  min-width: 54px !important;
+  min-height: 54px !important;
+  border-radius: 15px !important;
+  background: #fff !important;
+  border-color: #cbd2d9 !important;
+  box-shadow: 0 3px 14px #20252b42 !important;
+  opacity: 1 !important;
+}
+html body .tp-map-first-shell .tp-real-home-map .tp-map-compass__rose {
+  width: 54px !important;
+  height: 54px !important;
+  inset: 0 !important;
+  margin: 0 !important;
+}
+html body .tp-map-first-shell .tp-real-home-map .tp-map-compass__label {
+  color: #39434e !important;
+  font-size: 9px !important;
+  text-shadow: none !important;
+}
+html body .tp-map-first-shell .tp-real-home-map .tp-map-compass__north {
+  color: #171b20 !important;
+  font-size: 11px !important;
+}
+html body .tp-map-first-shell .tp-real-home-map .tp-map-compass__needle-north {
+  border-bottom-color: #20252b !important;
+}
+html body .tp-map-first-shell .tp-real-home-map .tp-map-compass__needle-south {
+  border-top-color: #aab3bc !important;
+}
+html body .tp-map-first-shell .tp-real-home-map .tp-map-compass__center {
+  background: #20252b !important;
+  box-shadow: none !important;
+}
+
+html body .tp-v1 .tp-home-map-pusula-refresh-error {
+  display: block;
+  margin-top: 4px;
+  color: #39434e !important;
+  font-size: 10px;
+  line-height: 1.35;
+}

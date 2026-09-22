@@ -1,0 +1,26 @@
+/* The new-field flow follows the same mobile monochrome surfaces as the app. */
+html body .tp-chat-field { background: #f5f6f8 !important; color: #20252b !important; min-height: 100dvh; }
+html body .tp-chat-field .tp-addfield-backgrounds { display: none !important; }
+html body .tp-chat-field .tp-chat-shell { background: transparent !important; }
+html body .tp-chat-field .tp-chat-top { border-bottom: 1px solid #d9dee3; padding-bottom: 12px; }
+html body .tp-chat-field .tp-chat-top button { background: #fff !important; border-color: #d9dee3 !important; color: #20252b !important; box-shadow: none !important; }
+html body .tp-chat-field .tp-chat-brand { text-shadow: none !important; }
+html body .tp-chat-field .tp-chat-brand :is(strong,small) { color: #20252b !important; }
+html body .tp-chat-field .tp-progress i { background: #d9dee3 !important; box-shadow: none !important; }
+html body .tp-chat-field .tp-progress i.on { background: #303942 !important; }
+html body .tp-chat-field .tp-bot { background: #fff !important; border-color: #d9dee3 !important; box-shadow: none !important; }
+html body .tp-chat-field .tp-bot img { filter: grayscale(1) brightness(.78) contrast(1.3) !important; }
+html body .tp-chat-field .tp-bubble-copy,
+html body .tp-chat-field .tp-answer { background: #fff !important; border-color: #d9dee3 !important; color: #20252b !important; box-shadow: 0 2px 12px #20252b0d !important; backdrop-filter: none !important; }
+html body .tp-chat-field .tp-bubble-copy :is(h1,small) { color: #20252b !important; text-shadow: none !important; }
+html body .tp-chat-field .tp-bubble-copy p { color: #4b5563 !important; }
+html body .tp-chat-field .tp-answer label { color: #303942 !important; }
+html body .tp-chat-field .tp-answer :is(input,textarea) { box-sizing: border-box; background: #fff !important; border-color: #cbd2d9 !important; color: #20252b !important; box-shadow: none !important; }
+html body .tp-chat-field .tp-answer :is(input,textarea)::placeholder { color: #697586 !important; }
+html body .tp-chat-field .tp-answer .tp-mobile-picker-trigger { background: #f7f8fa !important; border-color: #cbd2d9 !important; color: #20252b !important; box-shadow: none !important; }
+html body .tp-chat-field .tp-action-row :is(.back,.next),
+html body .tp-chat-field .tp-choice { background: #eef1f4 !important; border-color: #cbd2d9 !important; color: #20252b !important; box-shadow: none !important; }
+html body .tp-chat-field .tp-action-row .next { background: #303942 !important; color: #fff !important; }
+html body .tp-chat-field .tp-choice.active { border-color: #303942 !important; background: #e2e6ea !important; }
+html body .tp-chat-field :is(.tp-found,.tp-note) { color: #4b5563 !important; }
+html body .tp-chat-field :is(button,input,textarea):focus-visible { outline: 2px solid #303942 !important; outline-offset: 2px; }

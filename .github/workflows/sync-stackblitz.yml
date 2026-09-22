@@ -1,0 +1,56 @@
+name: Sync StackBlitz Project
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/sync-stackblitz.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Clone latest StackBlitz snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/stackblitz-project
+          npx --yes stackblitz-clone \
+            'https://stackblitz.com/edit/vitejs-vite-p9bhjmpv' \
+            /tmp/stackblitz-project
+          test -f /tmp/stackblitz-project/package.json
+          test -f /tmp/stackblitz-project/src/App.tsx
+
+      - name: Replace repository with StackBlitz snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .github/workflows/sync-stackblitz.yml /tmp/sync-stackblitz.yml
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -a /tmp/stackblitz-project/. .
+          mkdir -p .github/workflows
+          cp /tmp/sync-stackblitz.yml .github/workflows/sync-stackblitz.yml
+
+      - name: Commit synchronized project
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'StackBlitz snapshot already matches the repository.'
+            exit 0
+          fi
+          git commit -m 'sync: import latest StackBlitz vitejs-vite-p9bhjmpv'
+          git push origin HEAD:main

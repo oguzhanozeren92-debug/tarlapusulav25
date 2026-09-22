@@ -1,0 +1,24 @@
+.tp-mobile-picker-trigger { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid #cbd2d9; border-radius: 12px; background: #fff; color: #20252b; font: inherit; font-size: 15px; font-weight: 650; text-align: left; cursor: pointer; }
+.tp-mobile-picker-trigger .placeholder { color: #56616e; font-weight: 500; }
+.tp-mobile-picker-chevron { color: #39434e; font-size: 23px; line-height: 1; }
+.tp-mobile-picker-trigger:disabled { opacity: .55; cursor: not-allowed; }
+.tp-mobile-picker-trigger:focus-visible, .tp-picker-sheet button:focus-visible, .tp-picker-search input:focus-visible { outline: 2px solid #303942 !important; outline-offset: 2px; }
+.tp-picker-backdrop { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: flex-end; justify-content: center; background: #20252b66; }
+.tp-picker-sheet { box-sizing: border-box; width: min(100%, 760px); max-height: min(84dvh, 720px); display: flex; flex-direction: column; border: 1px solid #d9dee3; border-bottom: 0; border-radius: 22px 22px 0 0; background: #fff; color: #20252b; box-shadow: 0 -14px 45px #20252b24; overflow: hidden; animation: tpPickerIn .18s ease-out; }
+@keyframes tpPickerIn { from { transform: translateY(24px); opacity: .7; } to { transform: translateY(0); opacity: 1; } }
+.tp-picker-handle { width: 38px; height: 4px; margin: 9px auto 3px; border-radius: 999px; background: #cbd2d9; flex: none; }
+.tp-picker-header { display: flex; align-items: center; justify-content: space-between; min-height: 51px; padding: 0 17px; border-bottom: 1px solid #e5e8eb; }
+.tp-picker-header strong { color: #20252b; font-size: 16px; font-weight: 750; }
+.tp-picker-header button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #d9dee3; border-radius: 11px; background: #f7f8fa; color: #20252b; font-size: 24px; cursor: pointer; }
+.tp-picker-search { display: flex; align-items: center; gap: 10px; margin: 12px 16px 6px; padding: 0 12px; border: 1px solid #cbd2d9; border-radius: 12px; background: #fff; }
+.tp-picker-search span { color: #56616e; font-size: 23px; }
+.tp-picker-search input { flex: 1; min-width: 0; min-height: 45px; border: 0 !important; outline: none; background: transparent !important; color: #20252b !important; font: inherit; font-size: 15px; }
+.tp-picker-options { min-height: 90px; overflow-y: auto; overscroll-behavior: contain; padding: 4px 16px max(18px, env(safe-area-inset-bottom)); }
+.tp-picker-options button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 51px; margin: 5px 0; padding: 10px 14px; border: 1px solid #e5e8eb; border-radius: 12px; background: #f7f8fa; color: #20252b; font: inherit; text-align: left; cursor: pointer; }
+.tp-picker-options button.selected { border-color: #aeb7c1; background: #eef1f4; }
+.tp-picker-options button span:first-child { display: grid; gap: 3px; }
+.tp-picker-options button strong { color: #20252b; font-size: 14px; font-weight: 680; }
+.tp-picker-options button small { color: #56616e; font-size: 12px; }
+.tp-picker-check { color: #303942; font-size: 18px; }
+.tp-picker-empty { margin: 18px 0; color: #56616e; font-size: 14px; text-align: center; }
+@media (prefers-reduced-motion: reduce) { .tp-picker-sheet { animation: none; } }

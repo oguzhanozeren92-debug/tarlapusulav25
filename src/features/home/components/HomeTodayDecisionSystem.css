@@ -1,0 +1,378 @@
+/* TarlaPusula Bugün — 5 karar tipi
+ * Siyah/beyaz üretim temasını korur; anlamı yalnız renkle taşımaz.
+ */
+
+ .tp-home-today-decision-list {
+  gap: 9px;
+}
+
+.tp-home-today-decision {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border-color: #dde2e6;
+}
+
+.tp-home-today-decision::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #20252b;
+  opacity: .22;
+}
+
+.tp-home-today-decision.kind-do::before { opacity: 1; }
+.tp-home-today-decision.kind-avoid::before {
+  width: 5px;
+  background: repeating-linear-gradient(180deg,#20252b 0,#20252b 5px,transparent 5px,transparent 9px);
+  opacity: .9;
+}
+.tp-home-today-decision.kind-check::before { opacity: .52; }
+.tp-home-today-decision.kind-upcoming::before { width: 2px; opacity: .36; }
+.tp-home-today-decision.kind-data { border-style: dashed; }
+.tp-home-today-decision.kind-data::before { width: 2px; opacity: .2; }
+
+.tp-home-today-decision-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.tp-home-today-decision-meta > small {
+  min-width: 0;
+  overflow: hidden;
+  color: #6b7580 !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-home-today-kind {
+  min-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0 7px;
+  border: 1px solid #20252b;
+  border-radius: 999px;
+  background: #fff;
+  color: #20252b;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .055em;
+  white-space: nowrap;
+}
+
+.tp-home-today-kind.kind-do { background: #20252b; color: #fff; }
+.tp-home-today-kind.kind-avoid { border-width: 1.5px; background: #fff; color: #111519; }
+.tp-home-today-kind.kind-check { border-color: #aeb6be; background: #eef1f3; color: #303942; }
+.tp-home-today-kind.kind-upcoming { border-color: #c7cdd3; background: #f7f8fa; color: #56616e; }
+.tp-home-today-kind.kind-data { border-style: dashed; border-color: #9ea7b0; background: #fff; color: #56616e; }
+
+.tp-home-today-decision-detail { display: grid; gap: 0; }
+
+.tp-home-today-detail-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.tp-home-today-detail-status > span {
+  color: #697586;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.tp-home-today-kind-helper {
+  margin: 0 0 15px !important;
+  padding: 9px 10px;
+  border: 1px solid #e2e6ea;
+  border-radius: 10px;
+  background: #f7f8fa;
+  color: #56616e !important;
+  font-size: 11px !important;
+  font-weight: 650;
+  line-height: 1.45 !important;
+}
+
+.tp-home-today-evidence {
+  margin-top: 16px;
+  padding: 13px;
+  border: 1px solid #dde2e6;
+  border-radius: 14px;
+  background: #fafbfc;
+}
+
+.tp-home-today-evidence-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tp-home-today-evidence-head > small {
+  color: #697586 !important;
+  font-size: 9px !important;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.tp-home-today-evidence-head > b {
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 1px solid #ccd2d8;
+  border-radius: 999px;
+  background: #fff;
+  color: #303942;
+  font-size: 9px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.tp-home-today-evidence-head > b.confidence-strong { border-color: #20252b; background: #20252b; color: #fff; }
+.tp-home-today-evidence-head > b.confidence-medium { background: #eef1f3; }
+.tp-home-today-evidence-head > b.confidence-preliminary { border-style: dashed; color: #697586; }
+
+.tp-home-today-evidence > strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #20252b;
+  font-size: 13px;
+}
+
+.tp-home-today-evidence > p {
+  margin: 0 !important;
+  color: #56616e !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.tp-home-today-evidence ul {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 10px 0 0 17px;
+  border-top: 1px solid #e4e8eb;
+}
+
+.tp-home-today-evidence li {
+  color: #303942;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.tp-home-today-evidence-note {
+  display: block;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid #e4e8eb;
+  color: #697586 !important;
+  font-size: 10.5px !important;
+  line-height: 1.45 !important;
+}
+
+.tp-home-today-missing-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 13px;
+  border: 1px dashed #aeb6be;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.tp-home-today-missing-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #e5e8eb;
+}
+
+.tp-home-today-missing-form-head small {
+  color: #697586;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.tp-home-today-missing-form-head strong {
+  overflow: hidden;
+  color: #20252b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-home-today-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.tp-home-today-choice-grid button,
+.tp-home-today-field-row > button,
+.tp-home-today-season-fields > button {
+  min-height: 40px;
+  border: 1px solid #20252b;
+  border-radius: 10px;
+  background: #20252b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tp-home-today-choice-grid button {
+  min-height: 44px;
+  padding: 8px;
+  background: #f7f8fa;
+  color: #20252b;
+}
+
+.tp-home-today-missing-form button:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.tp-home-today-field-row,
+.tp-home-today-season-fields {
+  display: grid;
+  gap: 8px;
+}
+
+.tp-home-today-field-row label,
+.tp-home-today-season-fields label > span {
+  color: #56616e;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.tp-home-today-season-fields label {
+  display: grid;
+  gap: 5px;
+}
+
+.tp-home-today-field-row input,
+.tp-home-today-field-row select,
+.tp-home-today-season-fields input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 43px;
+  padding: 0 11px;
+  border: 1px solid #d7dde3;
+  border-radius: 10px;
+  background: #f7f8fa;
+  color: #20252b;
+  font: 600 14px/1 Inter, system-ui, sans-serif;
+  outline: none;
+}
+
+.tp-home-today-field-row input:focus,
+.tp-home-today-field-row select:focus,
+.tp-home-today-season-fields input:focus {
+  border-color: #20252b;
+  background: #fff;
+}
+
+.tp-home-today-season-fields > small {
+  color: #697586 !important;
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+}
+
+.tp-home-today-missing-error,
+.tp-home-today-missing-success {
+  margin: 0 !important;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+.tp-home-today-missing-error {
+  border: 1px solid #d9bcbc;
+  background: #fff8f8;
+  color: #7e2e2e !important;
+}
+
+.tp-home-today-missing-success {
+  border: 1px solid #cfd6dc;
+  background: #f7f8fa;
+  color: #20252b !important;
+}
+
+.tp-home-today-decision-link { margin-top: 17px; }
+.tp-home-today-decision-link:hover { border-color: #bfc6cd; background: #eef1f3; }
+
+.tp-home-today-satellite-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.tp-home-today-satellite-action {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  justify-content: space-between;
+  border-radius: 11px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.tp-home-today-satellite-action.is-primary {
+  border-color: #20252b;
+  background: #20252b;
+  color: #fff;
+}
+
+.tp-home-today-satellite-action.is-primary:hover {
+  background: #111519;
+}
+
+.tp-home-today-satellite-action.is-secondary {
+  border-color: #20252b;
+  background: #fff;
+  color: #20252b;
+}
+
+.tp-home-today-satellite-action.is-secondary:hover {
+  background: #f2f4f5;
+}
+
+.tp-home-today-satellite-action.is-analysis {
+  grid-column: 1 / -1;
+  border: 1px dashed #20252b;
+  background: #f7f8fa;
+  color: #20252b;
+}
+
+.tp-home-today-satellite-action.is-analysis:hover {
+  background: #eef1f3;
+}
+
+@media (max-width: 380px) {
+  .tp-home-today-decision {
+    grid-template-columns: 34px minmax(0, 1fr) 12px;
+    gap: 8px;
+    padding: 10px;
+  }
+  .tp-home-today-decision .tp-home-quick-decision-icon { width: 32px; height: 32px; }
+  .tp-home-today-kind { min-height: 19px; padding: 0 6px; font-size: 7.5px; }
+  .tp-home-today-evidence { padding: 11px; }
+  .tp-home-today-choice-grid { grid-template-columns: 1fr; }
+  .tp-home-today-satellite-actions { grid-template-columns: 1fr; }
+}

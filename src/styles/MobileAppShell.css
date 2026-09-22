@@ -1,0 +1,117 @@
+/* Shared mobile app frame. The desktop browser is only a portrait preview. */
+:root {
+  --tp-app-width: 480px;
+  --tp-app-gutter: 14px;
+  --tp-app-nav-height: 78px;
+}
+
+html, body, #root {
+  width: 100%;
+  overflow-x: clip;
+}
+
+#root {
+  max-width: var(--tp-app-width);
+  margin-inline: auto;
+  min-height: 100dvh;
+}
+
+@media (min-width: 481px) {
+  #root {
+    border-inline: 1px solid rgba(100, 210, 126, .12);
+    box-shadow: 0 0 60px rgba(0, 0, 0, .45);
+  }
+}
+
+/* Fixed navigation belongs to the app viewport, including the iPhone home area. */
+body .tp-v1 .tp-bottom,
+body .tp-field-detail-page .tp-field-detail-bottom,
+body .bottomNav {
+  width: min(100%, var(--tp-app-width)) !important;
+  max-width: var(--tp-app-width) !important;
+  min-height: calc(var(--tp-app-nav-height) + env(safe-area-inset-bottom)) !important;
+  height: auto !important;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom)) !important;
+  left: 50% !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+}
+
+body .tp-field-detail-page .tp-field-detail-bottom {
+  border-color: #1e3a24 !important;
+  background: rgba(4, 13, 6, .97) !important;
+  color: #d7efdd !important;
+  backdrop-filter: blur(20px);
+}
+
+body .tp-field-detail-page .tp-field-detail-bottom button {
+  color: #adbfaf !important;
+}
+
+body .tp-field-detail-page .tp-field-detail-bottom button.active {
+  color: #86efac !important;
+}
+
+body .tp-field-detail-page .tp-field-detail-bottom .tp-field-detail-main-action {
+  color: #fff !important;
+}
+
+body .tp-field-detail-page .tp-field-fab-wrap {
+  left: max(var(--tp-app-gutter), calc((100vw - var(--tp-app-width)) / 2 + var(--tp-app-gutter))) !important;
+  bottom: calc(var(--tp-app-nav-height) + 8px + env(safe-area-inset-bottom)) !important;
+}
+
+@media (max-width: 600px) {
+  .tp-v1,
+  .tp-field-detail-page,
+  .tp-calendar-page,
+  .tp-ai-page,
+  .tp-wxr-page,
+  .tp-wxv2-page,
+  .soil-page {
+    min-height: 100dvh;
+  }
+
+  body .tp-v1,
+  body .tp-field-detail-page,
+  body .tp-calendar-page,
+  body .tp-ai-page {
+    padding-bottom: calc(var(--tp-app-nav-height) + 22px + env(safe-area-inset-bottom)) !important;
+  }
+
+  body .tp-v1 .tp-main {
+    width: 100% !important;
+    padding-inline: var(--tp-app-gutter) !important;
+  }
+
+  body .tp-v1 .tp-bottom button {
+    min-width: 0 !important;
+    min-height: 54px !important;
+    font-size: 10px !important;
+  }
+
+  body .tp-field-detail-page .tp-field-detail-header {
+    padding-inline: var(--tp-app-gutter) !important;
+  }
+
+  body .tp-field-detail-page .tp-field-detail-content {
+    width: calc(100% - 2 * var(--tp-app-gutter)) !important;
+    margin: 12px auto 0 !important;
+  }
+
+  body .tp-field-detail-page .tp-field-detail-bottom button {
+    min-width: 0;
+    font-size: 10px !important;
+  }
+
+  /* Safari does not zoom the whole interface when a form control is focused. */
+  .tp-chat-shell input:not([type='checkbox']),
+  .tp-field-detail-page input:not([type='checkbox']),
+  .tp-field-detail-page textarea,
+  .tp-field-detail-page select,
+  .tp-calendar-page input:not([type='checkbox']),
+  .tp-calendar-page textarea,
+  .tp-calendar-page select {
+    font-size: max(16px, 1em) !important;
+  }
+}

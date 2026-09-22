@@ -1,0 +1,677 @@
+/* One mobile-first, neutral surface system for every TarlaPusula screen.
+   Map imagery, crop-health layers and the original compass artwork keep their own colors. */
+   :root {
+    color-scheme: light;
+    --tp-bg: #ffffff;
+    --tp-bg-soft: #f7f8fa;
+    --tp-bg-deep: #ffffff;
+    --tp-surface-0: #ffffff;
+    --tp-surface-1: #ffffff;
+    --tp-surface-2: #f7f8fa;
+    --tp-surface-3: #f1f3f5;
+    --tp-surface-4: #e8ebee;
+    --tp-text: #20252b;
+    --tp-text-strong: #171b20;
+    --tp-text-soft: #4b5563;
+    --tp-muted: #697586;
+    --tp-muted-2: #87919c;
+    --tp-primary: #303942;
+    --tp-primary-strong: #20252b;
+    --tp-primary-soft: #5b6570;
+    --tp-primary-dark: #e9ecef;
+    --tp-border: #e5e8eb;
+    --tp-line: #e5e8eb;
+    --tp-line-soft: #eff1f3;
+    --tp-line-active: #697586;
+    --tp-line-cyan: #dce2e6;
+    --soil-bg-main: #ffffff;
+    --soil-bg-deep: #ffffff;
+    --soil-bg-card: #ffffff;
+    --soil-bg-active: #f1f3f5;
+    --soil-border-card: #e5e8eb;
+    --soil-border-input: #d9dee3;
+    --soil-sage: #303942;
+    --soil-heading: #20252b;
+    --soil-secondary: #56616e;
+    --soil-muted: #697586;
+  }
+  
+  html, body, #root, body .app {
+    color-scheme: light !important;
+    background: #fff !important;
+    color: #20252b !important;
+  }
+  @media (min-width: 481px) {
+    #root { border-inline: 1px solid #e5e8eb !important; box-shadow: 0 8px 40px #26323812 !important; }
+  }
+  
+  /* Every route starts with the same white canvas and readable type. */
+  body :is(.tp-v1, .tp-field-detail-page, .tp-calendar-page, .tp-ai-page,
+    .tp-wxr-page, .tp-wxv2-page, .soil-page, .tp-peststore-page,
+    .tp-market-ref-page, .tp-support-page, .tp-agri-news-page,
+    .tp-nutrition-page, .tp-producer-market-page, .tp-pest-guide-page,
+    .tp-desktop-shell, .tp-placeholder-page, .tp-chat-shell,
+    .tp-onboarding-page, .pt-page, .tp-era5-page, .tp-unified-map-page,
+    .tp-authv2, .tp-theme-page) {
+    background: #fff !important;
+    color: #20252b !important;
+    color-scheme: light !important;
+  }
+  
+  /* Shared cards and section surfaces. Keep actual map canvases and imagery intact. */
+  body :is(.tp-v1, .tp-field-detail-page, .tp-calendar-page, .tp-ai-page,
+    .tp-wxr-page, .tp-wxv2-page, .soil-page, .tp-placeholder-page,
+    .tp-onboarding-page, .pt-page, .tp-chat-shell,
+    .tp-peststore-page, .tp-market-ref-page, .tp-support-page,
+    .tp-agri-news-page, .tp-nutrition-page, .tp-producer-market-page,
+    .tp-pest-guide-page) :is([class$='-card'], [class$='-panel'],
+    [class$='-tile'], [class$='-surface'], .tp-card, .tp-panel, .tp-surface,
+    .tp-theme-surface):not(.maplibregl-map):not(.tp-map-stage) {
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+  }
+  body :is(.tp-v1, .tp-field-detail-page, .tp-calendar-page, .tp-ai-page,
+    .tp-wxr-page, .soil-page, .tp-placeholder-page, .tp-onboarding-page,
+    .pt-page, .tp-chat-shell) :is(h1,h2,h3,h4,h5,strong,label) {
+    color: #20252b !important;
+    text-shadow: none !important;
+  }
+  body :is(.tp-v1, .tp-field-detail-page, .tp-calendar-page, .tp-ai-page,
+    .tp-wxr-page, .soil-page, .tp-placeholder-page, .tp-onboarding-page,
+    .pt-page, .tp-chat-shell) :is(p,small) {
+    color: #56616e !important;
+    text-shadow: none !important;
+  }
+  
+  /* Navigation, classic compass, home dashboard. */
+  body .tp-v1 .tp-v1-header, body .tp-global-page-header,
+  body .tp-field-detail-page .tp-field-detail-header,
+  body .tp-calendar-page header, body .soil-page .soil-topbar,
+  body .tp-ai-page .tp-ai-page-header, body .topbar {
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body .tp-v1 .tp-brand-pusula-anchor,
+  body .tp-v1 .tp-brand-pusula-anchor img,
+  body .tp-premium-drawer-brand-mark,
+  body .tp-global-pusula-anchor { visibility: visible !important; }
+  body .tp-v1 .tp-brand-pusula-anchor::before { background: none !important; }
+  body .tp-v1 .tp-brand-pusula-anchor img { filter: none !important; }
+  body .tp-v1 .tp-menu-btn, body .tp-v1 .tp-score,
+  body .tp-v1 .tp-header-weather, body .tp-global-page-back,
+  body .tp-global-page-menu, body .tp-global-weather-glass,
+  body .tp-global-points-glass {
+    background: #f7f8fa !important;
+    border: 1px solid #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body .tp-v1 .tp-home-today-reference,
+  body .tp-v1 .tp-home-notifications-reference,
+  body .tp-v1 .tp-home-field,
+  body .tp-v1 .tp-synthesis-bubble,
+  body .tp-v1 .tp-field-head {
+    background: #fff !important;
+    border: 1px solid #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  body .tp-v1 :is(.tp-home-today-bg,.tp-home-notifications-bg,
+    .tp-home-today-shade,.tp-home-notifications-shade),
+  body .tp-v1 .tp-home-field::before,
+  body .tp-v1 .tp-field-head::before { display: none !important; }
+  body .tp-v1 :is(.tp-home-today-title h2,.tp-home-notifications-title strong,
+    .tp-home-today-action-copy strong,.tp-map-heading-copy h2,
+    .tp-header-weather-copy strong,.tp-brand strong) { color: #20252b !important; }
+  body .tp-v1 :is(.tp-home-today-subtitle,.tp-home-notifications-subtitle,
+    .tp-map-heading-copy p,.tp-header-weather-copy small,.tp-header-weather-copy em) {
+    color: #697586 !important;
+  }
+  body .tp-v1 :is(.tp-home-today-action,.tp-field-select-box,
+    .tp-map-fullscreen-btn,.tp-add-field-3d,.tp-map-shortcut,
+    .tp-home-general-metric,.tp-ndvi-legend-card,.tp-map-data-badge,
+    .tp-real-home-legend) {
+    background: #fff !important;
+    color: #20252b !important;
+    border-color: #e5e8eb !important;
+    box-shadow: none !important;
+  }
+  body .tp-v1 .tp-bottom,
+  body .tp-field-detail-page .tp-field-detail-bottom,
+  body .bottomNav {
+    background: #fff !important;
+    border-top: 1px solid #e5e8eb !important;
+    color: #56616e !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body .tp-v1 .tp-bottom::before { background: #e5e8eb !important; box-shadow: none !important; }
+  body .tp-v1 .tp-bottom button,
+  body .tp-field-detail-page .tp-field-detail-bottom button,
+  body .bottomNav button { color: #697586 !important; text-shadow: none !important; }
+  body .tp-v1 .tp-bottom button.active,
+  body .tp-field-detail-page .tp-field-detail-bottom button.active,
+  body .bottomNav button.active { color: #20252b !important; }
+  body .tp-v1 .tp-bottom :is(.tp-bottom-icon-shell,.tp-bottom-ai-shell,.tp-nav-v2),
+  body .tp-field-detail-page .tp-field-detail-main-action {
+    background: #f7f8fa !important;
+    color: #20252b !important;
+    border-color: #e5e8eb !important;
+    box-shadow: none !important;
+  }
+  
+  /* Preserve the left drawer and compass artwork, remove the green atmosphere. */
+  html body .tp-premium-drawer {
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: 12px 0 36px #20252b1a !important;
+  }
+  html body .tp-premium-drawer :is(.tp-premium-drawer-atmosphere),
+  html body .tp-premium-drawer::before,
+  html body .tp-premium-drawer::after { display: none !important; }
+  html body .tp-premium-drawer :is(.tp-premium-drawer-brand-name,
+    .tp-premium-drawer-brand-name em,.tp-premium-drawer-welcome strong,
+    .tp-premium-drawer-x) { color: #20252b !important; text-shadow: none !important; }
+  html body .tp-premium-drawer :is(.tp-premium-drawer-welcome small,
+    .tp-premium-drawer-welcome p) { color: #697586 !important; }
+  html body .tp-premium-drawer :is(button,.tp-premium-points) {
+    background: #f7f8fa !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+  html body .tp-premium-drawer-backdrop { background: #20252b55 !important; }
+  
+  /* Sheets, dialogs and forms, including the field-delete confirmation. */
+  html body :is(.tp-fields-sheet,.tp-field-delete-dialog,
+    [role='dialog']:not(.maplibregl-popup)) {
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: 0 12px 40px #20252b22 !important;
+  }
+  html body .tp-fields-sheet :is(.tp-fields-sheet-field,.tp-fields-sheet-close,
+    .tp-fields-sheet-detail,.tp-fields-sheet-add,.tp-fields-delete-actions button:not(.danger)),
+  html body .tp-field-delete-dialog button:not(.danger) {
+    background: #f7f8fa !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+  }
+  html body .tp-fields-sheet .tp-fields-sheet-field.is-selected { border-color: #919ca7 !important; }
+  html body .tp-fields-sheet .tp-fields-sheet-field-icon { background: #fff !important; border-color: #e5e8eb !important; color: #303942 !important; box-shadow: none !important; }
+  html body .tp-fields-sheet :is(h2,.tp-fields-sheet-field-copy strong) { color: #20252b !important; }
+  html body .tp-fields-sheet :is(p,small,.tp-fields-sheet-field-copy small) { color: #697586 !important; }
+  html body .tp-fields-sheet .tp-fields-sheet-delete { background: #fff5f5 !important; border-color: #efc7c7 !important; color: #a53737 !important; }
+  html body .tp-fields-sheet .tp-fields-delete-actions .danger { background: #a53737 !important; color: #fff !important; }
+  html body .tp-fields-sheet .tp-fields-delete-warning { background: #fff9e9 !important; color: #72511b !important; border-color: #eedfbe !important; }
+  html body .tp-fields-sheet .tp-fields-delete-error { color: #a53737 !important; }
+  html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+    .tp-wxr-page,.soil-page,.tp-onboarding-page,.tp-chat-shell,.tp-authv2)
+    :is(input,textarea,select) {
+    background: #fff !important;
+    border-color: #d9dee3 !important;
+    color: #20252b !important;
+    color-scheme: light !important;
+  }
+  html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+    .tp-wxr-page,.soil-page,.tp-onboarding-page,.tp-chat-shell,.tp-authv2)
+    :is(input,textarea)::placeholder { color: #87919c !important; }
+  
+  /* Login and auxiliary pages use the same uncluttered background. */
+  body .tp-authv2 { background-image: none !important; }
+  body .tp-authv2 :is(.tp-authv2-panel,.tp-authv2-feature,.tp-authv2-input) {
+    background: #fff !important; border-color: #e5e8eb !important;
+    color: #20252b !important; box-shadow: none !important;
+  }
+  body .soil-page :is(.soil-hero,.soil-card,.soil-ai,.soil-history,
+    .soil-sidebar,.soil-topbar,.soil-soilgrids-state,.soil-empty) {
+    background: #fff !important; border-color: #e5e8eb !important;
+    color: #20252b !important; box-shadow: none !important;
+  }
+  body .soil-page .soil-hero-shade { display: none !important; }
+  body .tp-wxr-page :is(.tp-wxr-card,.tp-wxr-table-card,.tp-wxr-hero,
+    .tp-wxr-section,.tp-wxr-header) {
+    background: #fff !important; border-color: #e5e8eb !important;
+    color: #20252b !important; box-shadow: none !important;
+  }
+  
+  /* Legacy module panels and embedded pages follow the same neutral hierarchy. */
+  html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+    .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-placeholder-page,
+    .tp-onboarding-page,.pt-page,.tp-chat-shell,.tp-peststore-page,
+    .tp-market-ref-page,.tp-support-page,.tp-agri-news-page,
+    .tp-nutrition-page,.tp-producer-market-page,.tp-pest-guide-page)
+    :is([class*='-card'],[class*='-panel'],[class*='-tile'],[class*='-box'],
+    [class*='-row'],[class*='-section']):not(.tp-map-stage):not(.maplibregl-map) {
+    border-color: #e5e8eb !important;
+    box-shadow: none !important;
+  }
+  html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+    .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-placeholder-page,
+    .tp-onboarding-page,.pt-page,.tp-chat-shell,.tp-peststore-page,
+    .tp-market-ref-page,.tp-support-page,.tp-agri-news-page,
+    .tp-nutrition-page,.tp-producer-market-page,.tp-pest-guide-page)
+    :is([class*='-box'],[class*='-row'],[class*='-sheet'],[class*='-modal']):not(.tp-map-stage):not(.maplibregl-map) {
+    background-color: #fff !important;
+    color: #20252b !important;
+  }
+  html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+    .tp-wxr-page,.tp-wxv2-page,.soil-page,.tp-placeholder-page,
+    .tp-onboarding-page,.pt-page,.tp-chat-shell,.tp-peststore-page,
+    .tp-market-ref-page,.tp-support-page,.tp-agri-news-page,
+    .tp-nutrition-page,.tp-producer-market-page,.tp-pest-guide-page)
+    :is([class*='-card'],[class*='-panel'],[class*='-tile'],[class*='-box'])
+    :is(span,em,b,a):not([class*='status']):not([class*='warning']):not([class*='error']) {
+    color: #303942 !important;
+    text-shadow: none !important;
+  }
+  html body :is(.tp-v1,.tp-field-detail-page,.tp-calendar-page,.tp-ai-page,
+    .tp-wxr-page,.soil-page,.tp-placeholder-page,.tp-onboarding-page,
+    .pt-page,.tp-chat-shell) button:not(.tp-brand-pusula-anchor):not([class*='danger']):not([class*='delete']):not(.maplibregl-ctrl-icon) {
+    border-color: #e5e8eb !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  html body .tp-v1 :is(.tp-ui3d-icon,.tp-nav-v2),
+  html body .tp-premium-drawer-icon img { filter: grayscale(1) saturate(0) !important; }
+  html body .tp-v1 .tp-brand-pusula-anchor img,
+  html body .tp-premium-drawer-brand-mark { filter: none !important; }
+  html body .tp-authv2-wordmark span,
+  html body .tp-authv2-wordmark strong { color: #20252b !important; text-shadow: none !important; }
+  html body .tp-authv2-primary { background: #303942 !important; border-color: #303942 !important; color: #fff !important; box-shadow: none !important; }
+  html body .tp-authv2 :is(.tp-authv2-features,.tp-authv2-feature) { background: #fff !important; box-shadow: none !important; }
+  
+  /* Home modules rendered from their own CSS/inline style blocks. These are
+     outside the shared card selectors above, so explicitly give each a surface. */
+  html body .tp-v1 .tp-today { box-shadow: none !important; }
+  html body .tp-v1 .tp-today::before,
+  html body .tp-v1 .tp-mini::before { display: none !important; }
+  html body .tp-v1 .tp-mini,
+  html body .tp-v1 .tp-today > .tp-home-data-status {
+    background: #f7f8fa !important;
+    border: 1px solid #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+  }
+  html body .tp-v1 .tp-mini :is(strong,small),
+  html body .tp-v1 .tp-home-data-status-heading strong { color: #20252b !important; }
+  html body .tp-v1 .tp-home-data-status-heading small { color: #697586 !important; }
+  html body .tp-v1 .tp-home-data-status-chevron { color: #56616e !important; }
+  
+  html body .tp-v1 .tp-home-forecast {
+    background: #f7f8fa !important;
+    border: 1px solid #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+  }
+  html body .tp-v1 .tp-home-forecast-heading :is(strong,span),
+  html body .tp-v1 .tp-home-forecast-day strong { color: #20252b !important; }
+  html body .tp-v1 .tp-home-forecast-day :is(span,small),
+  html body .tp-v1 .tp-home-forecast-empty { color: #697586 !important; }
+  html body .tp-v1 .tp-home-forecast-day { border-color: #e5e8eb !important; }
+  
+  /* The compass summary is part of the map card, beneath the satellite image. */
+  html body .tp-v1 .tp-home-map-pusula-strip {
+    background: #f7f8fa !important;
+    border-top: 1px solid #e5e8eb !important;
+    color: #20252b !important;
+    backdrop-filter: none !important;
+  }
+  html body .tp-v1 .tp-home-map-pusula-strip::before { display: none !important; }
+  html body .tp-v1 .tp-home-map-pusula-logo img { filter: none !important; opacity: 1 !important; }
+  html body .tp-v1 .tp-home-map-pusula-kicker { color: #39434e !important; }
+  html body .tp-v1 .tp-home-map-pusula-kicker span { color: #697586 !important; }
+  html body .tp-v1 .tp-home-map-pusula-text { color: #20252b !important; }
+  html body .tp-v1 .tp-home-map-pusula-strip:is(.is-loading,.has-error) .tp-home-map-pusula-text { color: #697586 !important; }
+  html body .tp-v1 .tp-home-map-pusula-actions button { color: #39434e !important; background: transparent !important; }
+  html body .tp-v1 .tp-home-map-pusula-signal { color: #56616e !important; background: #e9ecef !important; border-color: #dce1e5 !important; }
+  html body .tp-v1 .tp-home-map-pusula-signal.negative { color: #a53737 !important; background: #fff1f1 !important; border-color: #efc7c7 !important; }
+  html body .tp-v1 .tp-home-map-pusula-signal.positive { color: #24734c !important; background: #eaf6ee !important; border-color: #c8e7d2 !important; }
+  html body .tp-v1 .tp-home-map-pusula-signal.attention { color: #88621a !important; background: #fff6e5 !important; border-color: #f1dcae !important; }
+  
+  /* Related details open as readable white bottom sheets. */
+  html body :is(.tp-home-map-why-sheet,dialog.tp-home-data-dialog,dialog.tp-home-today-dialog) {
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: 0 12px 40px #20252b22 !important;
+  }
+  html body :is(.tp-home-map-why-sheet,.tp-home-data-dialog,.tp-home-today-dialog)
+    :is(h2,h3,strong,dt,li) { color: #20252b !important; }
+  html body :is(.tp-home-map-why-sheet,.tp-home-data-dialog,.tp-home-today-dialog)
+    :is(p,small,dd,span) { color: #56616e !important; }
+  html body :is(.tp-home-map-why-sheet,.tp-home-data-dialog,.tp-home-today-dialog)
+    :is(button,.tp-home-map-why-action,.tp-home-map-why-layer,.tp-home-today-water-summary dl div) {
+    background: #f7f8fa !important;
+    border-color: #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: none !important;
+  }
+  html body .tp-home-data-status-dot.is-ready { background: #2e8356 !important; box-shadow: none !important; }
+  html body .tp-home-data-status-list { border-color: #e5e8eb !important; }
+  
+  /* White map controls stay legible against the satellite photograph. */
+  html body .tp-v1 .tp-map-first-shell .tp-map-control-rail,
+  html body .tp-v1 .tp-map-stage .tp-map-control-rail {
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+    box-shadow: 0 3px 12px #20252b28 !important;
+  }
+  html body .tp-v1 .tp-map-first-shell .tp-map-control-rail .tp-map-control-btn {
+    color: #20252b !important;
+    background: #fff !important;
+    border-color: #e5e8eb !important;
+  }
+  html body .tp-v1 .tp-map-first-shell .tp-map-control-rail .tp-map-control-btn svg { color: #20252b !important; }
+  
+  /* The plan preview toggle is part of the mobile shell, not map data. */
+  html body #tp-dev-plan-switch {
+    min-width: 100px !important;
+    min-height: 38px !important;
+    background: #fff !important;
+    border: 1px solid #e5e8eb !important;
+    color: #20252b !important;
+    box-shadow: 0 3px 12px #20252b20 !important;
+    backdrop-filter: none !important;
+  }
+  html body #tp-dev-plan-switch :is(.tp-dev-label,.tp-dev-value) { color: #39434e !important; }
+  html body #tp-dev-plan-switch .tp-dev-dot { background: #697586 !important; box-shadow: none !important; }
+  
+  /* Refined light surfaces: a little depth, with solid contrast on small text. */
+  html body .tp-v1 { background: #f5f6f8 !important; }
+  html body .tp-v1 .tp-home-field {
+    background: #fff !important;
+    border-color: #dce2e8 !important;
+    box-shadow: 0 8px 28px #27344212 !important;
+  }
+  html body .tp-v1 .tp-mini,
+  html body .tp-v1 .tp-today > .tp-home-data-status,
+  html body .tp-v1 .tp-home-forecast {
+    background: #eef1f4 !important;
+    border-color: #d7dde4 !important;
+    box-shadow: 0 3px 10px #2734420b !important;
+  }
+  html body .tp-v1 .tp-home-map-pusula-strip {
+    background: #edf1f4 !important;
+    border-color: #d7dde4 !important;
+  }
+  html body .tp-v1 :is(.tp-mini,.tp-home-forecast,.tp-home-data-status) :is(small,span),
+  html body .tp-v1 .tp-home-forecast-day :is(span,small),
+  html body .tp-v1 .tp-home-map-pusula-kicker span { color: #4f5c69 !important; }
+  html body .tp-v1 .tp-home-forecast-heading > span,
+  html body .tp-v1 .tp-home-data-status-chevron,
+  html body .tp-v1 .tp-home-map-pusula-actions button { color: #303d4a !important; }
+  html body .tp-v1 .tp-home-map-pusula-kicker,
+  html body .tp-v1 .tp-home-forecast-heading strong { color: #26313c !important; }
+  html body .tp-v1 .tp-home-map-pusula-text,
+  html body .tp-v1 .tp-home-forecast-day strong,
+  html body .tp-v1 .tp-home-data-status-heading strong { color: #1e2933 !important; }
+  html body .tp-v1 .tp-home-forecast-day { border-color: #d7dde4 !important; }
+  
+  /* The drawer uses the same tonal hierarchy; its legacy nested white text
+     and gold point labels otherwise disappear against the light surface. */
+  html body .tp-premium-drawer {
+    background: #f4f6f8 !important;
+    border-color: #dce2e8 !important;
+    box-shadow: 14px 0 38px #26344329 !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-top,
+  html body .tp-premium-drawer .tp-premium-drawer-nav {
+    border-color: #d9e0e6 !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-brand-name,
+  html body .tp-premium-drawer .tp-premium-drawer-brand-name em,
+  html body .tp-premium-drawer .tp-premium-drawer-welcome strong {
+    color: #1e2933 !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-welcome :is(small,p) { color: #536170 !important; }
+  html body .tp-premium-drawer .tp-premium-drawer-nav > button {
+    background: #fff !important;
+    border-bottom: 1px solid #dce2e8 !important;
+    color: #26313c !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-nav > button:is(:hover,.active) {
+    background: #e9eef2 !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-nav > button > span:nth-child(2) {
+    color: #26313c !important;
+    font-size: 14px !important;
+    font-weight: 720 !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-nav > button > i { color: #566574 !important; }
+  html body .tp-premium-drawer .tp-premium-drawer-icon {
+    background: #e9edf1 !important;
+    border-color: #d5dde4 !important;
+    box-shadow: none !important;
+  }
+  html body .tp-premium-drawer .tp-premium-points-opd {
+    background: #e9edf1 !important;
+    border: 1px solid #cfd8e0 !important;
+    box-shadow: 0 2px 8px #2634430b !important;
+  }
+  html body .tp-premium-drawer .tp-premium-points-opd span:not(.tp-premium-points-opd-emblem),
+  html body .tp-premium-drawer .tp-premium-points-opd strong,
+  html body .tp-premium-drawer .tp-premium-points-opd i { color: #26313c !important; }
+  html body .tp-premium-drawer .tp-premium-points-opd span:not(.tp-premium-points-opd-emblem) { font-size: 11px !important; }
+  html body .tp-premium-drawer .tp-premium-drawer-logout {
+    background: #e9edf1 !important;
+    border-color: #d5dde4 !important;
+    color: #26313c !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-foot-art { background: transparent !important; }
+  html body .tp-premium-drawer .tp-premium-drawer-foot-art span { color: #536170 !important; }
+  html body:has(.tp-premium-drawer) #tp-dev-plan-switch { visibility: hidden !important; }
+  
+  /* Monochrome compass body only. The separately layered rotating needle keeps
+     its original image, position and animation. */
+  html body .tp-v1 .tp-brand-pusula-anchor img:not(.tp-brand-pusula-needle),
+  html body .tp-premium-drawer .tp-premium-drawer-brand-mark,
+  html body .tp-global-pusula-anchor img:not(.tp-global-pusula-needle),
+  html body .tp-pdg-compass .tp-pdg-body,
+  html body .pusula-guide .pusula-guide__body,
+  html body .tp-pusula-synthesis-anchor img {
+    filter: grayscale(1) brightness(.78) contrast(1.3) !important;
+  }
+  
+  /* One neutral control style for the menu and every action above the map. */
+  html body .tp-v1 .tp-menu-btn,
+  html body .tp-v1 .tp-map-first-shell .tp-field-select-box,
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar .tp-add-field-3d,
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar .tp-mf-operation-toolbar,
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar .tp-mf-quick-action,
+  html body .tp-v1 .tp-map-first-shell .tp-mf-layer-trigger {
+    background: #f1f3f5 !important;
+    border: 1px solid #d7dee5 !important;
+    border-radius: 11px !important;
+    color: #283440 !important;
+    box-shadow: 0 2px 6px #2734420d !important;
+    backdrop-filter: none !important;
+  }
+  html body .tp-v1 .tp-map-first-shell .tp-field-head {
+    background: #fff !important;
+    border-color: #d7dee5 !important;
+    box-shadow: none !important;
+  }
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar :is(button,.tp-field-select-box):hover,
+  html body .tp-v1 .tp-menu-btn:hover,
+  html body .tp-v1 .tp-map-first-shell .tp-mf-layer-trigger:hover {
+    background: #e7ebef !important;
+    border-color: #cbd4dd !important;
+  }
+  html body .tp-v1 .tp-map-first-shell .tp-field-toolbar :is(.tp-field-select,.tp-field-pin,.tp-field-chevron,svg),
+  html body .tp-v1 .tp-map-first-shell .tp-mf-layer-trigger svg {
+    color: #283440 !important;
+    stroke: currentColor !important;
+    filter: none !important;
+  }
+  html body .tp-v1 .tp-menu-btn .tp-nav-v2 {
+    filter: grayscale(1) brightness(.75) contrast(1.4) !important;
+  }
+  
+  /* The original satellite photograph now spans the entire header without white edge fades.
+     Keep it on its own layer so the classic compass and moving needle retain their colors. */
+  html body .tp-v1 .tp-v1-header {
+    background: #333940 !important;
+    border-bottom: 1px solid #707982 !important;
+  }
+  html body .tp-v1 .tp-v1-header::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    background: url('https://xwyfidtktauxivsosmex.supabase.co/storage/v1/object/public/ui-icons/backgrounds/global-header-satellite-v2.webp') center 58% / cover no-repeat !important;
+    filter: grayscale(1) contrast(1.12) brightness(.86) !important;
+    opacity: 1 !important;
+  }
+  html body .tp-v1 .tp-v1-header::after {
+    display: none !important;
+  }
+  
+  /* Shared page header: compact monochrome glyphs and readable weather/points. */
+  html body .tp-global-page-header :is(.tp-3d-menu-icon,.tp-3d-location-icon,.tp-3d-sun,.tp-3d-star,.tp-3d-bell) {
+    color: #26313c !important;
+    stroke: currentColor !important;
+    filter: none !important;
+  }
+  html body .tp-global-page-header .tp-global-weather-copy :is(strong,em),
+  html body .tp-global-page-header .tp-global-points-copy strong {
+    color: #26313c !important;
+  }
+  
+  /* Weather dashboard: neutral impact panel and a genuinely compact mobile layout. */
+  html body .tp-wxr-page .tp-wxr-impact-message {
+    background: #eef1f4 !important;
+    border: 1px solid #d4dce4 !important;
+    box-shadow: none !important;
+  }
+  html body .tp-wxr-page .tp-wxr-impact-message::after,
+  html body .tp-wxr-page .tp-wxr-impact::before { display: none !important; }
+  html body .tp-wxr-page .tp-wxr-impact-message > span {
+    color: #26313c !important;
+    border-color: #cbd4dd !important;
+    box-shadow: none !important;
+  }
+  html body .tp-wxr-page .tp-wxr-impact-message p,
+  html body .tp-wxr-page .tp-wxr-risks b,
+  html body .tp-wxr-page .tp-wxr-card-title span { color: #26313c !important; }
+  @media (max-width: 720px) {
+    html body .tp-wxr-page .tp-wxr-hero { grid-template-columns: minmax(0,1fr) !important; gap: 9px !important; }
+    html body .tp-wxr-page :is(.tp-wxr-current,.tp-wxr-impact) { min-height: 0 !important; padding: 14px !important; }
+    html body .tp-wxr-page .tp-wxr-current-top { grid-template-columns: 94px minmax(0,1fr) !important; gap: 12px !important; min-height: 0 !important; }
+    html body .tp-wxr-page .tp-wxr-big-weather { width: 94px !important; height: 100px !important; overflow: hidden !important; }
+    html body .tp-wxr-page .tp-wxr-big-weather img { width: 88px !important; height: 88px !important; max-width: 100% !important; }
+    html body .tp-wxr-page .tp-wxr-weather-halo { width: 82px !important; height: 82px !important; }
+    html body .tp-wxr-page .tp-wxr-temp { font-size: 36px !important; }
+    html body .tp-wxr-page .tp-wxr-current-copy h2 { font-size: 14px !important; margin: 3px 0 7px !important; }
+    html body .tp-wxr-page .tp-wxr-impact-message { min-height: 0 !important; margin-top: 9px !important; grid-template-columns: 40px minmax(0,1fr) !important; }
+    html body .tp-wxr-page .tp-wxr-impact-message p { font: 500 12px/1.4 Inter,system-ui,sans-serif !important; }
+    html body .tp-wxr-page .tp-wxr-risks div { grid-template-columns: minmax(0,1fr) auto auto !important; font-size: 12px !important; }
+    html body .tp-wxr-page .tp-wxr-detail-btn { font-size: 12px !important; }
+  }
+  
+  /* Reuse the drawer's original artwork as a monochrome layer behind solid menu rows. */
+  html body .tp-premium-drawer .tp-premium-drawer-atmosphere {
+    display: block !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-atmosphere::before {
+    content: '';
+    inset: 0 !important;
+    background:
+      url('https://fkrqvwarxzmdrexsxtzw.supabase.co/storage/v1/object/public/ui-icons/backgrounds/d70787c4-3c37-4582-a2c2-f7d7e06b1cad%20(1).png') center / cover no-repeat,
+      url('https://fkrqvwarxzmdrexsxtzw.supabase.co/storage/v1/object/public/ui-icons/backgrounds/pusuladan-sana-bg-4.webp') center / cover no-repeat !important;
+    opacity: .3 !important;
+    filter: grayscale(1) contrast(1.1) !important;
+    transform: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-atmosphere::after {
+    display: none !important;
+  }
+  
+  /* A charcoal canvas lets the artwork read as an image instead of a washed-out tint. */
+  html body .tp-premium-drawer {
+    background: #30363d !important;
+    border-color: #59616b !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-atmosphere::before {
+    opacity: .7 !important;
+    filter: grayscale(1) contrast(1.25) brightness(.78) !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-brand-name,
+  html body .tp-premium-drawer .tp-premium-drawer-brand-name em,
+  html body .tp-premium-drawer .tp-premium-drawer-welcome strong {
+    color: #fff !important;
+  }
+  html body .tp-premium-drawer .tp-premium-drawer-welcome :is(small,p),
+  html body .tp-premium-drawer .tp-premium-drawer-foot-art span {
+    color: #e5e8ec !important;
+  }
+  
+  /* Map labels and the five-day forecast need a stronger light-theme hierarchy. */
+  html body .tp-v1 .tp-mf-ndvi .tp-mf-ndvi-handle :is(b,i) {
+    color: #fff !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 2px #0008 !important;
+  }
+  html body .tp-v1 .tp-home-forecast {
+    background: #e9edf1 !important;
+    border: 1px solid #b8c3ce !important;
+    box-shadow: 0 7px 22px #25313c20 !important;
+    padding: 16px !important;
+  }
+  html body .tp-v1 .tp-home-forecast-heading strong {
+    color: #1f2933 !important;
+    font-size: 17px !important;
+  }
+  html body .tp-v1 .tp-home-forecast-heading > span { font-size: 12px !important; font-weight: 750 !important; }
+  html body .tp-v1 .tp-home-forecast-day strong { font-size: 21px !important; }
+  html body .tp-v1 .tp-home-forecast-day :is(span,small) { font-size: 11px !important; color: #4f5c69 !important; }
+  
+  /* TarlaPusula ana arka planı — Supabase Storage / monokrom parseller */
+  html body .tp-v1 {
+    position: relative;
+    isolation: isolate;
+    background: rgba(25, 28, 31, .30) !important;
+  }
+  
+  html body .tp-v1::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  
+    background:
+      linear-gradient(
+        180deg,
+        rgba(12, 14, 16, .18) 0%,
+        rgba(12, 14, 16, .30) 45%,
+        rgba(12, 14, 16, .48) 100%
+      ),
+      url('https://xwyfidtktauxivsosmex.supabase.co/storage/v1/object/public/ui-icons/backgrounds/tarlapusula-bg-monokrom-parseller.webp')
+        center center / cover no-repeat;
+  
+    filter: grayscale(1) contrast(1.08) brightness(.78);
+    opacity: .96;
+    transform: scale(1.015);
+  }
+  html body .tp-v1 .tp-v1-header {
+    background: transparent !important;
+  }
+  html body .tp-v1 .tp-v1-header::before,
+  html body .tp-v1 .tp-v1-header::after {
+    display: none !important;
+  }
+  

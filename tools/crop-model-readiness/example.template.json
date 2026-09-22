@@ -1,0 +1,9 @@
+{
+  "data_type": "synthetic",
+  "field": { "crop": null, "crop_cycle": "annual", "planting_date": null, "end_date": null },
+  "site": { "latitude": null, "longitude": null, "elevation_m": null },
+  "daily_weather": [],
+  "pcse": { "crop_parameters_source": null, "soil_parameters_source": null, "agromanagement_source": null },
+  "aquacrop": { "crop_parameters_source": null, "soil_profile_source": null, "initial_water_content_source": null, "irrigation_scenarios": [] },
+  "observations": { "stage_dates": [], "harvested_yield_t_ha": null, "actual_irrigation_log_source": null, "initial_soil_water_measurement_source": null }
+}

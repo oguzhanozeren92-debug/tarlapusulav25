@@ -1,0 +1,34 @@
+.tp-field-detail-page .tp-field-detail-content { padding-bottom: 110px; }
+.tp-field-detail-page .tp-field-hero-card { margin-bottom: 16px; background: #fff !important; border: 1px solid #d9dee3 !important; box-shadow: none !important; }
+.tp-field-detail-page .tp-field-hero-card::before { display: none !important; }
+.tp-field-detail-page .tp-field-hero-icon { background: #eef1f4 !important; filter: grayscale(1); }
+.tp-field-detail-page .tp-field-hero-stats { background: #f7f8fa !important; border-color: #d9dee3 !important; }
+.tp-field-detail-page .statusPill { color: #303942 !important; background: #eef1f4 !important; border: 1px solid #d9dee3 !important; }
+.tp-field-detail-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; margin: 0 0 14px; padding: 5px; border: 1px solid #d9dee3; border-radius: 15px; background: #eef1f4; }
+.tp-field-detail-tabs button { min-height: 43px; padding: 7px 4px; border: 0 !important; border-radius: 11px; background: transparent !important; color: #4b5563 !important; font-size: 13px; font-weight: 700; cursor: pointer; }
+.tp-field-detail-tabs button.active { background: #fff !important; color: #171b20 !important; box-shadow: 0 1px 6px #20252b17 !important; }
+.tp-field-detail-tabs button:focus-visible, .tp-field-detail-overview button:focus-visible { outline: 2px solid #303942 !important; outline-offset: 2px; }
+.tp-field-detail-overview { display: grid; gap: 9px; padding: 16px; border: 1px solid #d9dee3; border-radius: 18px; background: #fff !important; }
+.tp-field-detail-overview h2 { margin: 0; color: #20252b; font-size: 18px; }
+.tp-field-detail-overview p { margin: 0 0 5px; color: #4b5563; font-size: 13px; }
+.tp-field-detail-overview button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 65px; padding: 11px 14px; border: 1px solid #d9dee3 !important; border-radius: 13px; background: #f7f8fa !important; color: #20252b !important; text-align: left; cursor: pointer; }
+.tp-field-detail-overview button > span:first-child { display: grid; gap: 4px; min-width: 0; }
+.tp-field-detail-overview button strong { color: #20252b; font-size: 14px; }
+.tp-field-detail-overview button small { color: #4b5563; font-size: 12px; line-height: 1.3; }
+.tp-field-detail-overview button > span:last-child { color: #39434e; font-size: 25px; line-height: 1; }
+.tp-field-detail-deep { margin: 15px 0; border: 1px solid #d9dee3; border-radius: 14px; background: #f7f8fa; }
+.tp-field-detail-deep > summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 15px; color: #20252b; font-size: 14px; font-weight: 750; cursor: pointer; list-style: none; }
+.tp-field-detail-deep > summary::-webkit-details-marker { display: none; }
+.tp-field-detail-deep > summary span { color: #4b5563; transition: transform .2s; }
+.tp-field-detail-deep[open] > summary span { transform: rotate(180deg); }
+.tp-field-detail-deep > summary:focus-visible { outline: 2px solid #303942; outline-offset: 2px; border-radius: 12px; }
+.tp-field-detail-deep > :not(summary) { margin-inline: 12px; }
+@media (max-width: 380px) { .tp-field-detail-tabs button { font-size: 12px; } .tp-field-detail-overview { padding: 12px; } }
+
+.tp-irrigation-method-card{margin:12px 0;padding:14px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);color:#fff}
+.tp-irrigation-method-card small{display:block;color:#8b9a90;font-size:9px;font-weight:800;letter-spacing:.1em}
+.tp-irrigation-method-card strong{display:block;margin-top:5px;font-size:14px}
+.tp-irrigation-method-card p{margin:6px 0 11px;color:#859289;font-size:10px;line-height:1.45}
+.tp-irrigation-method-card select{width:100%;min-height:42px;padding:0 11px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#0b0d0c;color:#fff;font-size:12px}
+.tp-irrigation-method-card select:disabled{opacity:.58}
+.tp-irrigation-method-card em{display:block;margin-top:8px;color:#9daaa1;font-size:9px;font-style:normal}

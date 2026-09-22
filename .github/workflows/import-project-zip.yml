@@ -1,0 +1,56 @@
+name: Import TarlaPusula ZIP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'project-import.zip'
+      - '.github/workflows/import-project-zip.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract uploaded project
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f project-import.zip
+          rm -rf /tmp/tarlapusula-import
+          mkdir -p /tmp/tarlapusula-import
+          unzip -q project-import.zip -d /tmp/tarlapusula-import
+          test -f /tmp/tarlapusula-import/package.json
+          test -d /tmp/tarlapusula-import/src
+
+      - name: Replace main with imported project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -rf /tmp/tarlapusula-workflows
+          mkdir -p /tmp/tarlapusula-workflows
+          if [ -d .github/workflows ]; then
+            cp -a .github/workflows/. /tmp/tarlapusula-workflows/
+          fi
+
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -a /tmp/tarlapusula-import/. .
+
+          rm -rf .github/workflows
+          mkdir -p .github/workflows
+          cp -a /tmp/tarlapusula-workflows/. .github/workflows/
+          rm -f project-import.zip || true
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'sync: import latest TarlaPusula project ZIP'
+          git push origin HEAD:main

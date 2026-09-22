@@ -1,0 +1,2431 @@
+:root {
+  --ps-bg: #0A0F0D;
+  --ps-deep: #0C120E;
+  --ps-card: #121A15;
+  --ps-active: #1B2920;
+  --ps-border: #1F2E25;
+  --ps-input-border: #23352B;
+  --ps-sage: #D2E7D6;
+  --ps-heading: #E6E1D5;
+  --ps-secondary: #A3B3A7;
+  --ps-muted: #617366;
+  --ps-good: #82D995;
+  --ps-warning: #E5C158;
+  --ps-danger: #E17B75;
+}
+
+.tp-peststore-page,
+.tp-peststore-page * {
+  box-sizing: border-box;
+}
+
+.tp-peststore-page {
+  min-height: 100vh;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 82% 6%, rgba(76,111,84,.07), transparent 30%),
+    var(--ps-bg);
+  color: var(--ps-secondary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.tp-peststore-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 80;
+  width: 214px;
+  padding: 18px 12px;
+  border-right: 1px solid var(--ps-border);
+  background: #0B100D;
+}
+
+.tp-peststore-brand {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 15px;
+  border-bottom: 1px solid rgba(31,46,37,.7);
+}
+
+.tp-peststore-brand > span {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #26392D;
+  border-radius: 12px;
+  background: #121D16;
+  color: var(--ps-sage);
+}
+
+.tp-peststore-brand strong {
+  display: block;
+  color: var(--ps-heading);
+  font: 600 15px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-peststore-brand small {
+  display: block;
+  margin-top: 2px;
+  color: #68796D;
+  font-size: 8px;
+}
+
+.tp-peststore-sidebar nav {
+  max-height: calc(100vh - 88px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 14px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.tp-peststore-sidebar nav::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-peststore-sidebar nav button {
+  width: 100%;
+  min-height: 40px;
+  display: grid;
+  grid-template-columns: 32px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 5px 9px;
+  background: transparent;
+  color: #819187;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tp-peststore-sidebar nav button.active {
+  border-color: #26382C;
+  background: var(--ps-active);
+  color: var(--ps-sage);
+}
+
+.tp-peststore-sidebar nav button > span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.tp-peststore-sidebar nav strong {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-peststore-sidebar nav i {
+  border-radius: 999px;
+  padding: 2px 5px;
+  background: rgba(0,255,136,.08);
+  color: #00FF88;
+  font-size: 7px;
+  font-style: normal;
+}
+
+.tp-peststore-content {
+  min-height: 100vh;
+  margin-left: 214px;
+}
+
+.tp-peststore-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--ps-border);
+  background: rgba(10,15,13,.95);
+  backdrop-filter: blur(14px);
+}
+
+.tp-peststore-topbar > button {
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ps-border);
+  border-radius: 11px;
+  background: var(--ps-card);
+  color: var(--ps-heading);
+  cursor: pointer;
+}
+
+.tp-peststore-topbar > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.tp-peststore-topbar strong {
+  display: block;
+  color: var(--ps-heading);
+  font: 600 16px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-peststore-topbar small {
+  display: block;
+  margin-top: 2px;
+  color: var(--ps-muted);
+  font-size: 8px;
+}
+
+.tp-peststore-mobile-menu {
+  display: none !important;
+}
+
+.tp-peststore-main {
+  width: min(1160px, calc(100% - 34px));
+  margin: 0 auto;
+  padding: 20px 0 86px;
+}
+
+.tp-peststore-hero {
+  min-height: 292px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--ps-border);
+  border-radius: 22px;
+  padding: 32px;
+  background-position: center;
+  background-size: cover;
+}
+
+.tp-peststore-hero-copy {
+  max-width: 720px;
+}
+
+.tp-peststore-hero-copy > span,
+.tp-peststore-card-head small,
+.tp-peststore-analysis-heading > span,
+.tp-peststore-fields-select > span,
+.tp-peststore-modal-head small {
+  color: #7D9283;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: .13em;
+}
+
+.tp-peststore-hero h1 {
+  margin: 8px 0;
+  color: var(--ps-heading);
+  font: 500 clamp(31px,4vw,49px)/1.02 Georgia, Cambria, "Times New Roman", serif;
+  letter-spacing: -.03em;
+}
+
+.tp-peststore-hero p {
+  max-width: 680px;
+  margin: 0;
+  color: #9CAF9F;
+  font-size: 10px;
+  line-height: 1.62;
+}
+
+.tp-peststore-hero-badge {
+  width: fit-content;
+  min-height: 31px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 15px;
+  border: 1px solid rgba(210,231,214,.16);
+  border-radius: 999px;
+  padding: 0 11px;
+  background: rgba(210,231,214,.075);
+  color: var(--ps-sage);
+  font-size: 7.5px;
+  font-weight: 800;
+  backdrop-filter: blur(8px);
+}
+
+.tp-peststore-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0,.92fr) minmax(0,1.08fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.tp-peststore-card {
+  border: 1px solid var(--ps-border);
+  border-radius: 20px;
+  padding: 20px;
+  background: var(--ps-card);
+}
+
+.tp-peststore-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tp-peststore-card-head > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid #293D31;
+  border-radius: 12px;
+  background: var(--ps-deep);
+  color: var(--ps-sage);
+}
+
+.tp-peststore-card-head > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.tp-peststore-card-head h2 {
+  margin: 3px 0 0;
+  color: var(--ps-heading);
+  font-size: 13px;
+}
+
+.tp-peststore-card-head > b {
+  border: 1px solid var(--ps-border);
+  border-radius: 999px;
+  padding: 4px 8px;
+  color: var(--ps-muted);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.tp-peststore-dropzone {
+  min-height: 205px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px dashed #314437;
+  border-radius: 17px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(210,231,214,.045), transparent 54%),
+    var(--ps-deep);
+  text-align: center;
+  cursor: pointer;
+}
+
+.tp-peststore-dropzone.has-file {
+  border-style: solid;
+  border-color: rgba(130,217,149,.28);
+}
+
+.tp-peststore-dropzone input {
+  display: none;
+}
+
+.tp-peststore-dropzone > span {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #2A3D30;
+  border-radius: 14px;
+  color: var(--ps-sage);
+}
+
+.tp-peststore-dropzone img {
+  width: min(100%, 310px);
+  max-height: 145px;
+  display: block;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.tp-peststore-dropzone strong {
+  max-width: 470px;
+  overflow: hidden;
+  color: var(--ps-heading);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-peststore-dropzone p {
+  max-width: 470px;
+  margin: 0;
+  color: var(--ps-muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.tp-peststore-primary,
+.tp-peststore-save-product {
+  width: 100%;
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 16px;
+  background: var(--ps-sage);
+  color: var(--ps-deep);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.tp-peststore-primary:disabled,
+.tp-peststore-save-product:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+
+.tp-peststore-spinner {
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(12,18,14,.25);
+  border-top-color: var(--ps-deep);
+  border-radius: 999px;
+  animation: ps-spin .75s linear infinite;
+}
+
+.tp-peststore-spinner.light {
+  border-color: rgba(210,231,214,.15);
+  border-top-color: var(--ps-sage);
+}
+
+@keyframes ps-spin {
+  to { transform: rotate(360deg); }
+}
+
+.tp-peststore-inline-message {
+  margin-top: 10px;
+  border: 1px solid var(--ps-border);
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: var(--ps-deep);
+  color: #879A8D;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.tp-peststore-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 142px;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tp-peststore-toolbar label {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--ps-input-border);
+  border-radius: 11px;
+  padding: 0 10px;
+  background: var(--ps-deep);
+  color: var(--ps-muted);
+}
+
+.tp-peststore-toolbar input,
+.tp-peststore-toolbar select {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ps-heading);
+  font: inherit;
+  font-size: 8.5px;
+}
+
+.tp-peststore-toolbar select option {
+  background: var(--ps-deep);
+  color: var(--ps-heading);
+}
+
+.tp-peststore-empty {
+  min-height: 238px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--ps-muted);
+  text-align: center;
+}
+
+.tp-peststore-empty strong {
+  color: var(--ps-heading);
+  font-size: 10px;
+}
+
+.tp-peststore-empty p {
+  max-width: 360px;
+  margin: 0;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.tp-peststore-stock-list {
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 11px;
+  overflow-y: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #263A2E transparent;
+}
+
+.tp-peststore-stock-item {
+  border: 1px solid var(--ps-border);
+  border-radius: 15px;
+  padding: 12px;
+  background: var(--ps-deep);
+}
+
+.tp-peststore-stock-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tp-peststore-stock-title > div:first-child {
+  min-width: 0;
+}
+
+.tp-peststore-kind {
+  width: fit-content;
+  display: block;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  padding: 2px 6px;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.tp-peststore-kind.ilac {
+  background: rgba(100,181,246,.07);
+  color: #8AC8F8;
+}
+
+.tp-peststore-kind.gubre {
+  background: rgba(130,217,149,.07);
+  color: var(--ps-good);
+}
+
+.tp-peststore-stock-title strong,
+.tp-peststore-stock-title small {
+  display: block;
+}
+
+.tp-peststore-stock-title strong {
+  overflow: hidden;
+  color: var(--ps-heading);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-peststore-stock-title small {
+  margin-top: 3px;
+  color: #75877A;
+  font-size: 7.3px;
+}
+
+.tp-peststore-stock-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.tp-peststore-stock-actions button {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ps-border);
+  border-radius: 9px;
+  background: var(--ps-card);
+  color: #87998D;
+  cursor: pointer;
+}
+
+.tp-peststore-stock-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 11px;
+}
+
+.tp-peststore-stock-numbers strong {
+  color: var(--ps-heading);
+  font-size: 12px;
+}
+
+.tp-peststore-stock-numbers span {
+  color: var(--ps-muted);
+  font-size: 7.5px;
+}
+
+.tp-peststore-stock-numbers i {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 3px 6px;
+  font-size: 6.5px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.tp-peststore-stock-numbers i.normal {
+  background: rgba(130,217,149,.07);
+  color: var(--ps-good);
+}
+
+.tp-peststore-stock-numbers i.low {
+  background: rgba(229,193,88,.08);
+  color: var(--ps-warning);
+}
+
+.tp-peststore-stock-numbers i.critical {
+  background: rgba(225,123,117,.08);
+  color: var(--ps-danger);
+}
+
+.tp-peststore-progress {
+  height: 6px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #18221B;
+}
+
+.tp-peststore-progress span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  transition: width .2s ease;
+}
+
+.tp-peststore-progress span.normal {
+  background: #6DAD7B;
+}
+
+.tp-peststore-progress span.low {
+  background: #C6A84D;
+}
+
+.tp-peststore-progress span.critical {
+  background: #C66F69;
+}
+
+.tp-peststore-registration {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  color: #83968A;
+  font-size: 7px;
+}
+
+.tp-peststore-field-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.tp-peststore-field-chips button {
+  border: 1px solid var(--ps-border);
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: var(--ps-card);
+  color: #8FA297;
+  font: inherit;
+  font-size: 6.7px;
+  cursor: pointer;
+}
+
+.tp-peststore-analysis {
+  margin-top: 30px;
+}
+
+.tp-peststore-analysis-heading {
+  margin: 0 2px 12px;
+}
+
+.tp-peststore-analysis-heading h2 {
+  margin: 4px 0 0;
+  color: var(--ps-heading);
+  font: 500 23px/1.08 Georgia, Cambria, "Times New Roman", serif;
+  letter-spacing: -.02em;
+}
+
+.tp-peststore-analysis-heading p {
+  max-width: 800px;
+  margin: 6px 0 0;
+  color: var(--ps-muted);
+  font-size: 8.5px;
+  line-height: 1.55;
+}
+
+.tp-peststore-analysis-grid {
+  display: grid;
+  grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
+  gap: 14px;
+}
+
+.tp-peststore-result-status {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tp-peststore-result-status > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.tp-peststore-result-status > div > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #293D31;
+  border-radius: 12px;
+  background: var(--ps-deep);
+  color: var(--ps-sage);
+}
+
+.tp-peststore-result-status small {
+  color: var(--ps-muted);
+  font-size: 7px;
+  letter-spacing: .08em;
+}
+
+.tp-peststore-result-status h3 {
+  margin: 3px 0 0;
+  color: var(--ps-heading);
+  font: 500 20px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-peststore-result-status .confidence {
+  border: 1px solid var(--ps-border);
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: var(--ps-deep);
+  font-size: 6.5px;
+}
+
+.tp-peststore-result-status .confidence.high {
+  color: var(--ps-good);
+}
+
+.tp-peststore-result-status .confidence.medium {
+  color: var(--ps-warning);
+}
+
+.tp-peststore-result-status .confidence.low {
+  color: var(--ps-danger);
+}
+
+.tp-peststore-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tp-peststore-facts > div {
+  border: 1px solid var(--ps-border);
+  border-radius: 13px;
+  padding: 11px;
+  background: var(--ps-deep);
+}
+
+.tp-peststore-facts > div.wide {
+  grid-column: 1 / -1;
+}
+
+.tp-peststore-facts small,
+.tp-peststore-facts strong,
+.tp-peststore-facts p {
+  display: block;
+}
+
+.tp-peststore-facts small {
+  color: var(--ps-muted);
+  font-size: 6.7px;
+}
+
+.tp-peststore-facts strong {
+  margin-top: 4px;
+  color: var(--ps-heading);
+  font-size: 8.7px;
+  line-height: 1.4;
+}
+
+.tp-peststore-facts p {
+  margin: 4px 0 0;
+  color: #728478;
+  font-size: 7px;
+}
+
+.tp-peststore-warning-box,
+.tp-peststore-dose-empty {
+  display: flex;
+  gap: 9px;
+  margin-top: 10px;
+  border: 1px solid rgba(229,193,88,.18);
+  border-radius: 12px;
+  padding: 11px;
+  background: rgba(229,193,88,.045);
+  color: var(--ps-warning);
+}
+
+.tp-peststore-warning-box strong,
+.tp-peststore-dose-empty strong {
+  color: #D6C07C;
+  font-size: 8.5px;
+}
+
+.tp-peststore-warning-box p,
+.tp-peststore-dose-empty p {
+  margin: 3px 0 0;
+  color: #9A8D68;
+  font-size: 7.5px;
+  line-height: 1.5;
+}
+
+.tp-peststore-table-wrap {
+  margin-top: 14px;
+  overflow-x: auto;
+  border: 1px solid var(--ps-border);
+  border-radius: 13px;
+}
+
+.tp-peststore-table-wrap table {
+  width: 100%;
+  min-width: 610px;
+  border-collapse: collapse;
+}
+
+.tp-peststore-table-wrap th {
+  padding: 10px;
+  background: var(--ps-deep);
+  color: #91A296;
+  font-size: 7px;
+  text-align: left;
+}
+
+.tp-peststore-table-wrap td {
+  padding: 10px;
+  border-top: 1px solid rgba(31,46,37,.5);
+  color: #899B90;
+  font-size: 7.6px;
+  line-height: 1.45;
+  vertical-align: top;
+}
+
+.tp-peststore-table-wrap td:nth-child(2) {
+  color: var(--ps-sage);
+  font-weight: 800;
+}
+
+.tp-peststore-dose-empty {
+  margin-top: 14px;
+}
+
+.tp-peststore-stock-entry {
+  margin-top: 14px;
+}
+
+.tp-peststore-form-grid,
+.tp-peststore-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tp-peststore-form-grid label,
+.tp-peststore-edit-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tp-peststore-form-grid label > span,
+.tp-peststore-edit-grid label > span {
+  color: var(--ps-muted);
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.tp-peststore-form-grid input,
+.tp-peststore-form-grid select,
+.tp-peststore-edit-grid input,
+.tp-peststore-edit-grid select {
+  min-height: 42px;
+  width: 100%;
+  border: 1px solid var(--ps-input-border);
+  border-radius: 11px;
+  outline: 0;
+  padding: 0 10px;
+  background: var(--ps-deep);
+  color: var(--ps-heading);
+  font: inherit;
+  font-size: 8.5px;
+}
+
+.tp-peststore-form-grid select option,
+.tp-peststore-edit-grid select option {
+  background: var(--ps-deep);
+}
+
+.tp-peststore-fields-select {
+  margin-top: 14px;
+}
+
+.tp-peststore-fields-select > p {
+  margin: 7px 0 0;
+  color: var(--ps-muted);
+  font-size: 8px;
+}
+
+.tp-peststore-fields-select > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.tp-peststore-fields-select label {
+  min-width: 145px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ps-border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: var(--ps-deep);
+  cursor: pointer;
+}
+
+.tp-peststore-fields-select label.selected {
+  border-color: #385142;
+  background: var(--ps-active);
+}
+
+.tp-peststore-fields-select input {
+  accent-color: #9BB8A0;
+}
+
+.tp-peststore-fields-select label span {
+  min-width: 0;
+}
+
+.tp-peststore-fields-select label strong,
+.tp-peststore-fields-select label small {
+  display: block;
+}
+
+.tp-peststore-fields-select label strong {
+  color: var(--ps-heading);
+  font-size: 8px;
+}
+
+.tp-peststore-fields-select label small {
+  margin-top: 2px;
+  color: var(--ps-muted);
+  font-size: 6.8px;
+}
+
+.tp-peststore-bottom-nav {
+  display: none;
+}
+
+.tp-peststore-drawer-layer,
+.tp-peststore-modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+}
+
+.tp-peststore-drawer-backdrop,
+.tp-peststore-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(3px);
+}
+
+.tp-peststore-drawer {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: min(82vw,310px);
+  padding: 16px 12px;
+  border-right: 1px solid var(--ps-border);
+  background: var(--ps-deep);
+}
+
+.tp-peststore-drawer-head {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ps-border);
+  padding-bottom: 12px;
+}
+
+.tp-peststore-drawer-head > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ps-sage);
+}
+
+.tp-peststore-drawer-head strong {
+  color: var(--ps-heading);
+  font-family: Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-peststore-drawer-head > button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ps-border);
+  border-radius: 10px;
+  background: var(--ps-card);
+  color: var(--ps-secondary);
+}
+
+.tp-peststore-drawer nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 12px;
+}
+
+.tp-peststore-drawer nav button {
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: 32px 1fr 18px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 5px 9px;
+  background: transparent;
+  color: #829389;
+  font: inherit;
+  text-align: left;
+}
+
+.tp-peststore-drawer nav button.active {
+  border-color: #283A2E;
+  background: var(--ps-active);
+  color: var(--ps-sage);
+}
+
+.tp-peststore-drawer nav strong {
+  font-size: 10px;
+}
+
+.tp-peststore-modal {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(94vw,660px);
+  max-height: min(86vh,760px);
+  overflow-y: auto;
+  transform: translate(-50%,-50%);
+  border: 1px solid #2A3E31;
+  border-radius: 20px;
+  padding: 18px;
+  background: var(--ps-card);
+  box-shadow: 0 30px 80px rgba(0,0,0,.42);
+}
+
+.tp-peststore-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tp-peststore-modal-head h2 {
+  margin: 4px 0 0;
+  color: var(--ps-heading);
+  font: 500 20px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-peststore-modal-head > button {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ps-border);
+  border-radius: 10px;
+  background: var(--ps-deep);
+  color: var(--ps-secondary);
+}
+
+.tp-peststore-edit-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.tp-peststore-edit-grid .wide {
+  grid-column: 1 / -1;
+}
+
+.tp-peststore-fields-select.compact label {
+  min-width: 130px;
+}
+
+.tp-peststore-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.tp-peststore-modal-actions button {
+  min-height: 39px;
+  border: 1px solid var(--ps-input-border);
+  border-radius: 10px;
+  padding: 0 13px;
+  background: var(--ps-deep);
+  color: var(--ps-secondary);
+  font: inherit;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.tp-peststore-modal-actions button.primary {
+  border: 0;
+  background: var(--ps-sage);
+  color: var(--ps-deep);
+}
+
+@media (max-width: 980px) and (min-width: 761px) {
+  .tp-peststore-sidebar {
+    width: 70px;
+    padding-inline: 9px;
+  }
+
+  .tp-peststore-brand {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .tp-peststore-brand > div,
+  .tp-peststore-sidebar nav button strong,
+  .tp-peststore-sidebar nav button i {
+    display: none;
+  }
+
+  .tp-peststore-sidebar nav button {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .tp-peststore-content {
+    margin-left: 70px;
+  }
+}
+
+@media (max-width: 900px) {
+  .tp-peststore-top-grid,
+  .tp-peststore-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-peststore-stock-list {
+    max-height: none;
+  }
+
+  .tp-peststore-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .tp-peststore-sidebar {
+    display: none;
+  }
+
+  .tp-peststore-content {
+    margin-left: 0;
+  }
+
+  .tp-peststore-mobile-menu {
+    display: grid !important;
+  }
+
+  .tp-peststore-main {
+    width: calc(100% - 16px);
+    padding-top: 8px;
+    padding-bottom: 98px;
+  }
+
+  .tp-peststore-topbar {
+    padding-inline: 9px;
+  }
+
+  .tp-peststore-hero {
+    min-height: 235px;
+    border-radius: 18px;
+    padding: 22px 18px;
+  }
+
+  .tp-peststore-hero h1 {
+    font-size: 31px;
+  }
+
+  .tp-peststore-card {
+    border-radius: 17px;
+    padding: 14px;
+  }
+
+  .tp-peststore-analysis-heading h2 {
+    font-size: 20px;
+  }
+
+  .tp-peststore-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-peststore-bottom-nav {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 100;
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr 1fr 1fr;
+    align-items: end;
+    border-top: 1px solid rgba(31,46,37,.9);
+    padding: 7px 5px calc(7px + env(safe-area-inset-bottom));
+    background: rgba(10,15,13,.97);
+    backdrop-filter: blur(16px);
+  }
+
+  .tp-peststore-bottom-nav > button {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: 0;
+    background: transparent;
+    color: #65766B;
+    font: inherit;
+    font-size: 7px;
+  }
+
+  .tp-peststore-bottom-ai {
+    transform: translateY(-8px);
+  }
+
+  .tp-peststore-bottom-ai > b {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #465E4C;
+    border-radius: 999px;
+    background: var(--ps-sage);
+    color: var(--ps-deep);
+  }
+}
+
+@media (max-width: 520px) {
+  .tp-peststore-topbar small {
+    display: none;
+  }
+
+  .tp-peststore-hero {
+    min-height: 220px;
+  }
+
+  .tp-peststore-hero h1 {
+    font-size: 28px;
+  }
+
+  .tp-peststore-form-grid,
+  .tp-peststore-edit-grid,
+  .tp-peststore-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-peststore-facts > div.wide,
+  .tp-peststore-edit-grid .wide {
+    grid-column: auto;
+  }
+
+  .tp-peststore-analysis-heading p {
+    font-size: 8px;
+  }
+
+  .tp-peststore-dropzone {
+    min-height: 180px;
+  }
+
+  .tp-peststore-stock-title strong {
+    max-width: 210px;
+  }
+
+  .tp-peststore-modal {
+    width: calc(100% - 18px);
+    padding: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-peststore-spinner {
+    animation: none;
+  }
+}
+
+
+/* =========================================================
+   TARLAPUSULA — DEPOM / HAVA DURUMU TASARIM DİLİ EŞLEŞTİRMESİ
+   Hava Durumu ekranındaki koyu zümrüt + muted gold + ince
+   yeşil vurgu dilini Depom ekranına taşır.
+   Mevcut işlevlere dokunmaz; yalnızca görünümü eşler.
+   ========================================================= */
+
+:root {
+  --ps-bg: #020503;
+  --ps-deep: #061009;
+  --ps-card: #07100b;
+  --ps-card-2: #0a140e;
+  --ps-active: #0a160e;
+
+  --ps-border: rgba(202,171,104,.26);
+  --ps-border-soft: rgba(202,171,104,.12);
+  --ps-input-border: rgba(153,199,145,.18);
+
+  --ps-sage: #a6d6a1;
+  --ps-heading: #eee4d0;
+  --ps-secondary: #bbb4a6;
+  --ps-muted: #7f887f;
+
+  --ps-good: #70cf89;
+  --ps-warning: #d2b16f;
+  --ps-danger: #e07c6b;
+  --ps-blue: #6edbf0;
+  --ps-gold: #d2b16f;
+}
+
+.tp-peststore-page {
+  background:
+    radial-gradient(circle at 48% -8%, rgba(193,151,72,.08), transparent 26%),
+    radial-gradient(circle at 93% 18%, rgba(90,162,102,.035), transparent 26%),
+    linear-gradient(180deg, #020503 0%, #030704 50%, #010302 100%) !important;
+  color: var(--ps-heading);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.tp-peststore-page .tp-peststore-content {
+  margin-left: 0 !important;
+  background: transparent;
+}
+
+.tp-peststore-page .tp-peststore-main {
+  width: min(100% - 28px, 760px) !important;
+  margin: 0 auto !important;
+  padding: 14px 0 92px !important;
+}
+
+/* Eski sayfaya özel sidebar/topbar/hero tekrar gelirse görünmesin.
+   Menü ve üst bant artık AppDrawer + GlobalPusulaBand'den gelir. */
+.tp-peststore-sidebar,
+.tp-peststore-topbar,
+.tp-peststore-hero {
+  display: none !important;
+}
+
+/* Hava Durumu'ndaki iki büyük ana kart mantığı */
+.tp-peststore-top-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 0;
+  padding: 10px;
+  border: 1px solid var(--ps-border);
+  border-radius: 23px;
+  background:
+    radial-gradient(circle at 82% 0, rgba(87,163,99,.05), transparent 28%),
+    linear-gradient(180deg, rgba(5,10,7,.99), rgba(3,7,4,.99));
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.015),
+    0 18px 38px rgba(0,0,0,.18);
+}
+
+.tp-peststore-card {
+  border: 1px solid var(--ps-border);
+  border-radius: 18px;
+  padding: 14px;
+  background:
+    radial-gradient(circle at 12% 0, rgba(116,205,136,.045), transparent 32%),
+    linear-gradient(180deg, rgba(8,15,10,.995), rgba(3,8,5,.995));
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.018),
+    0 18px 38px rgba(0,0,0,.22),
+    0 0 18px rgba(110,190,124,.04);
+}
+
+/* Kart başlıkları: Weather kart başlıklarıyla aynı karakter */
+.tp-peststore-card-head {
+  gap: 9px;
+  min-height: 39px;
+}
+
+.tp-peststore-card-head > span {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(105,207,129,.25);
+  border-radius: 11px;
+  background: #07110a;
+  color: #9de3aa;
+  box-shadow: 0 0 15px rgba(91,221,124,.06);
+}
+
+.tp-peststore-card-head small,
+.tp-peststore-analysis-heading > span,
+.tp-peststore-fields-select > span,
+.tp-peststore-modal-head small {
+  color: #8f9a8e;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: .13em;
+}
+
+.tp-peststore-card-head h2 {
+  margin: 3px 0 0;
+  color: #e9ddc7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tp-peststore-card-head > b {
+  border: 1px solid rgba(202,171,104,.18);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(8,18,11,.8);
+  color: #9f988b;
+  font-size: 7px;
+}
+
+/* Etiket tarama alanı */
+.tp-peststore-dropzone {
+  min-height: 205px;
+  gap: 7px;
+  margin-top: 12px;
+  border: 1px dashed rgba(153,199,145,.24);
+  border-radius: 15px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(116,205,136,.055), transparent 50%),
+    rgba(4,10,6,.84);
+}
+
+.tp-peststore-dropzone:hover {
+  border-color: rgba(112,207,137,.45);
+  background:
+    radial-gradient(circle at 50% 0, rgba(116,205,136,.075), transparent 50%),
+    rgba(5,12,7,.9);
+}
+
+.tp-peststore-dropzone.has-file {
+  border-color: rgba(112,207,137,.42);
+}
+
+.tp-peststore-dropzone > span {
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(105,207,129,.26);
+  border-radius: 13px;
+  background: rgba(7,17,10,.9);
+  color: #9de3aa;
+}
+
+.tp-peststore-dropzone strong {
+  color: #e8decc;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.tp-peststore-dropzone p {
+  color: #7f887f;
+  font-size: 7.5px;
+  line-height: 1.55;
+}
+
+/* Ana aksiyon: parlak beyaz düğme yerine Weather'daki koyu/premium aksiyon */
+.tp-peststore-primary,
+.tp-peststore-save-product {
+  min-height: 40px;
+  margin-top: 10px;
+  border: 1px solid rgba(104,206,129,.28);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(10,23,13,.98), rgba(5,13,8,.98));
+  color: #dcd1bd;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 9px;
+  font-weight: 500;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.018),
+    0 0 14px rgba(91,221,124,.05);
+}
+
+.tp-peststore-primary:not(:disabled):hover,
+.tp-peststore-save-product:not(:disabled):hover {
+  border-color: rgba(112,207,137,.48);
+  color: #eee4d0;
+  background:
+    linear-gradient(180deg, rgba(12,27,15,.99), rgba(6,15,9,.99));
+}
+
+.tp-peststore-primary:disabled,
+.tp-peststore-save-product:disabled {
+  opacity: .38;
+}
+
+.tp-peststore-spinner {
+  border-color: rgba(166,214,161,.16);
+  border-top-color: #70cf89;
+}
+
+/* Arama / filtre */
+.tp-peststore-toolbar {
+  grid-template-columns: minmax(0,1fr) 138px;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.tp-peststore-toolbar label {
+  min-height: 38px;
+  border: 1px solid var(--ps-input-border);
+  border-radius: 11px;
+  padding: 0 9px;
+  background: rgba(3,8,5,.86);
+  color: #718277;
+}
+
+.tp-peststore-toolbar input,
+.tp-peststore-toolbar select {
+  color: #dcd4c5;
+  font-size: 8px;
+}
+
+.tp-peststore-toolbar input::placeholder {
+  color: #5f6d63;
+}
+
+/* Depo ürünleri */
+.tp-peststore-stock-list {
+  max-height: 520px;
+  gap: 7px;
+  margin-top: 10px;
+  scrollbar-color: rgba(112,207,137,.20) transparent;
+}
+
+.tp-peststore-stock-item {
+  border: 1px solid rgba(202,171,104,.16);
+  border-radius: 14px;
+  padding: 11px;
+  background:
+    radial-gradient(circle at 8% 0, rgba(116,205,136,.035), transparent 34%),
+    rgba(3,8,5,.88);
+}
+
+.tp-peststore-stock-item:hover {
+  border-color: rgba(202,171,104,.28);
+}
+
+.tp-peststore-stock-title strong {
+  color: #e6ddcd;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.tp-peststore-stock-title small {
+  color: #758077;
+  font-size: 7px;
+}
+
+.tp-peststore-kind {
+  padding: 2px 6px;
+  font-size: 6px;
+  letter-spacing: .08em;
+}
+
+.tp-peststore-kind.ilac {
+  border: 1px solid rgba(110,219,240,.16);
+  background: rgba(110,219,240,.045);
+  color: #6edbf0;
+}
+
+.tp-peststore-kind.gubre {
+  border: 1px solid rgba(112,207,137,.18);
+  background: rgba(112,207,137,.045);
+  color: #70cf89;
+}
+
+.tp-peststore-stock-actions button {
+  width: 31px;
+  height: 31px;
+  border: 1px solid rgba(202,171,104,.16);
+  border-radius: 9px;
+  background: rgba(7,16,10,.78);
+  color: #9a9b91;
+}
+
+.tp-peststore-stock-actions button:hover {
+  border-color: rgba(112,207,137,.30);
+  color: #b9dcbc;
+}
+
+.tp-peststore-stock-numbers strong {
+  color: #eee4d3;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tp-peststore-stock-numbers span {
+  color: #787e76;
+}
+
+.tp-peststore-stock-numbers i.normal {
+  background: rgba(112,207,137,.06);
+  color: #70cf89;
+}
+.tp-peststore-stock-numbers i.low {
+  background: rgba(210,177,111,.07);
+  color: #d2b16f;
+}
+.tp-peststore-stock-numbers i.critical {
+  background: rgba(224,124,107,.07);
+  color: #e07c6b;
+}
+
+.tp-peststore-progress {
+  height: 5px;
+  background: rgba(104,130,111,.10);
+}
+
+.tp-peststore-progress span.normal { background: #70cf89; }
+.tp-peststore-progress span.low { background: #d2b16f; }
+.tp-peststore-progress span.critical { background: #e07c6b; }
+
+.tp-peststore-registration {
+  color: #7d857b;
+  border-top-color: rgba(202,171,104,.10);
+}
+
+.tp-peststore-field-chips button {
+  border: 1px solid rgba(112,207,137,.18);
+  background: rgba(7,16,10,.8);
+  color: #9bd6a5;
+}
+
+/* Boş / durum kartları */
+.tp-peststore-empty,
+.tp-peststore-inline-message {
+  color: #8e8a80;
+}
+
+.tp-peststore-inline-message {
+  border: 1px solid rgba(202,171,104,.16);
+  border-radius: 12px;
+  background: rgba(5,11,7,.85);
+}
+
+.tp-peststore-empty strong {
+  color: #e5dccb;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+
+/* Analiz bölümü de Weather ekranındaki alt detay kartları gibi */
+.tp-peststore-analysis {
+  margin-top: 18px;
+}
+
+.tp-peststore-analysis-heading {
+  margin: 0 2px 9px;
+}
+
+.tp-peststore-analysis-heading h2 {
+  margin: 5px 0 4px;
+  color: #e9ddc7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.tp-peststore-analysis-heading p {
+  color: #8d887d;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.tp-peststore-analysis-source,
+.tp-peststore-smart-summary,
+.tp-peststore-warning,
+.tp-peststore-summary,
+.tp-peststore-bku-card,
+.tp-peststore-stock-entry {
+  border-color: var(--ps-border) !important;
+  background:
+    radial-gradient(circle at 12% 0, rgba(116,205,136,.045), transparent 32%),
+    linear-gradient(180deg, rgba(8,15,10,.995), rgba(3,8,5,.995)) !important;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.018),
+    0 16px 34px rgba(0,0,0,.18);
+}
+
+.tp-peststore-analysis-source {
+  border-radius: 16px;
+}
+
+.tp-peststore-smart-summary {
+  border-radius: 18px;
+}
+
+.tp-peststore-smart-summary strong,
+.tp-peststore-analysis-source strong,
+.tp-peststore-bku-card strong {
+  color: #e5dccb;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+
+/* Form/input dili */
+.tp-peststore-page input,
+.tp-peststore-page select,
+.tp-peststore-page textarea {
+  accent-color: #70cf89;
+}
+
+.tp-peststore-page input:focus,
+.tp-peststore-page select:focus,
+.tp-peststore-page textarea:focus {
+  border-color: rgba(112,207,137,.34) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(112,207,137,.05);
+}
+
+/* Modal */
+.tp-peststore-modal-backdrop {
+  background: rgba(0,0,0,.70);
+  backdrop-filter: blur(6px);
+}
+
+.tp-peststore-modal {
+  border: 1px solid var(--ps-border);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(193,151,72,.07), transparent 30%),
+    linear-gradient(180deg, #07100b, #020503);
+  box-shadow: 0 24px 70px rgba(0,0,0,.55);
+}
+
+.tp-peststore-modal-head h2 {
+  color: #e9ddc7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+
+/* Mobil: Weather ekranıyla aynı 14px dış boşluk / tek kolon ritmi */
+@media (max-width: 760px) {
+  .tp-peststore-page .tp-peststore-main {
+    width: min(100% - 20px, 620px) !important;
+    padding: 10px 0 96px !important;
+  }
+
+  .tp-peststore-top-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .tp-peststore-card {
+    border-radius: 17px;
+    padding: 14px;
+  }
+
+  .tp-peststore-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-peststore-stock-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .tp-peststore-page .tp-peststore-main {
+    width: calc(100% - 20px) !important;
+  }
+
+  .tp-peststore-top-grid {
+    padding: 8px;
+    border-radius: 18px;
+  }
+
+  .tp-peststore-card {
+    padding: 12px;
+    border-radius: 15px;
+  }
+
+  .tp-peststore-dropzone {
+    min-height: 170px;
+  }
+
+  .tp-peststore-card-head h2 {
+    font-size: 13px;
+  }
+}
+
+
+/* =========================================================
+   DEPOM — REFERANS GÖRSEL YERLEŞİMİ
+   Global üst bant ve tek Pusula korunur.
+   ========================================================= */
+
+.tp-peststore-page .tp-peststore-main{
+  width:min(100% - 28px, 980px)!important;
+  padding-top:18px!important;
+}
+
+.tp-depot-dashboard-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:16px;
+}
+
+.tp-depot-dashboard-copy>span,
+.tp-depot-status-copy>span,
+.tp-depot-pusula-note span{
+  display:block;
+  color:#a99462;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.14em;
+}
+
+.tp-depot-dashboard-copy h1{
+  margin:6px 0 4px;
+  color:#eee4d0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(30px,4vw,44px);
+  font-weight:500;
+  letter-spacing:-.03em;
+}
+
+.tp-depot-dashboard-copy p{
+  margin:0;
+  color:#918b80;
+  font-size:11px;
+}
+
+.tp-depot-report-btn{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid rgba(112,207,137,.24);
+  border-radius:14px;
+  padding:0 14px;
+  background:linear-gradient(180deg,rgba(8,21,12,.95),rgba(3,10,6,.95));
+  color:#d7cfbd;
+}
+
+.tp-depot-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.tp-depot-stat-grid button{
+  min-height:130px;
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(210,177,111,.20);
+  border-radius:18px;
+  padding:16px;
+  text-align:left;
+  background:
+    radial-gradient(circle at 18% 0,rgba(105,205,127,.07),transparent 44%),
+    linear-gradient(180deg,rgba(7,17,10,.98),rgba(2,7,4,.98));
+  color:#eee4d0;
+  box-shadow:0 14px 30px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.02);
+}
+
+.tp-depot-stat-grid button:nth-child(even){
+  background:
+    radial-gradient(circle at 80% 0,rgba(210,177,111,.055),transparent 44%),
+    linear-gradient(180deg,rgba(9,15,9,.98),rgba(3,7,4,.98));
+}
+
+.tp-depot-stat-grid small{
+  display:block;
+  color:#c8bfae;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:12px;
+}
+
+.tp-depot-stat-grid strong{
+  display:inline-block;
+  margin-top:18px;
+  color:#f0e7d7;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:30px;
+  font-weight:500;
+}
+
+.tp-depot-stat-grid span{
+  margin-left:5px;
+  color:#8a887f;
+  font-size:9px;
+}
+
+.tp-depot-stat-grid i{
+  position:absolute;
+  left:16px;
+  bottom:13px;
+  color:#72c989;
+  font-size:9px;
+  font-style:normal;
+}
+
+.tp-depot-status-card{
+  display:grid;
+  grid-template-columns:minmax(0,.85fr) minmax(260px,1.15fr);
+  min-height:210px;
+  overflow:hidden;
+  border:1px solid rgba(210,177,111,.28);
+  border-radius:20px;
+  background:linear-gradient(180deg,#061009,#020503);
+  box-shadow:0 18px 40px rgba(0,0,0,.22);
+}
+
+.tp-depot-status-copy{
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.tp-depot-status-copy strong{
+  display:block;
+  margin-top:8px;
+  color:#eee4d0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:28px;
+  font-weight:500;
+}
+
+.tp-depot-status-copy p{
+  margin:8px 0 14px;
+  color:#8d8a81;
+  font-size:10px;
+}
+
+.tp-depot-status-bar{
+  width:100%;
+  height:8px;
+  overflow:hidden;
+  border-radius:999px;
+  background:rgba(123,154,130,.11);
+}
+
+.tp-depot-status-bar i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#65c57d,#b8d77d);
+}
+
+.tp-depot-status-visual{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  padding:20px;
+  background:
+    radial-gradient(circle at 70% 30%,rgba(86,154,94,.14),transparent 30%),
+    linear-gradient(135deg,rgba(11,22,14,.96),rgba(3,8,5,.96));
+  border-left:1px solid rgba(210,177,111,.13);
+}
+
+.tp-depot-warehouse-icon{
+  width:96px;
+  height:96px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(112,207,137,.23);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(112,207,137,.13),transparent 48%),
+    rgba(3,10,6,.92);
+  color:#a9d6a2;
+  font-size:54px;
+  box-shadow:0 0 30px rgba(93,191,112,.07);
+}
+
+.tp-depot-status-visual b{
+  display:block;
+  color:#e9ddc7;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:18px;
+  font-weight:500;
+}
+
+.tp-depot-status-visual small{
+  display:block;
+  max-width:210px;
+  margin-top:6px;
+  color:#7d847a;
+  font-size:9px;
+  line-height:1.45;
+}
+
+.tp-depot-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin-top:12px;
+}
+
+.tp-depot-tabs button{
+  min-height:42px;
+  border:1px solid rgba(112,207,137,.15);
+  border-radius:13px;
+  background:rgba(4,11,7,.86);
+  color:#8b938a;
+}
+
+.tp-depot-tabs button.active{
+  border-color:rgba(112,207,137,.35);
+  background:linear-gradient(180deg,rgba(12,28,16,.97),rgba(5,15,9,.97));
+  color:#cfe7cf;
+  box-shadow:0 0 16px rgba(97,205,120,.06);
+}
+
+.tp-depot-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 120px 120px;
+  gap:8px;
+  margin-top:9px;
+  padding:8px;
+  border:1px solid rgba(210,177,111,.16);
+  border-radius:15px;
+  background:rgba(3,8,5,.72);
+}
+
+.tp-depot-toolbar label,
+.tp-depot-toolbar button{
+  min-height:40px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid rgba(112,207,137,.15);
+  border-radius:11px;
+  padding:0 12px;
+  background:rgba(3,9,5,.88);
+  color:#aaa396;
+}
+
+.tp-depot-toolbar input{
+  width:100%;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:#dcd4c5;
+}
+
+.tp-depot-pusula-note{
+  margin-top:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  border:1px solid rgba(210,177,111,.24);
+  border-radius:18px;
+  padding:16px 18px;
+  background:
+    radial-gradient(circle at 12% 50%,rgba(126,192,108,.06),transparent 24%),
+    linear-gradient(180deg,rgba(7,16,10,.98),rgba(3,8,5,.98));
+}
+
+.tp-depot-pusula-note strong{
+  display:block;
+  max-width:620px;
+  margin-top:6px;
+  color:#d8d0bf;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.45;
+}
+
+.tp-depot-pusula-note button{
+  flex:0 0 auto;
+  min-height:38px;
+  border:1px solid rgba(210,177,111,.24);
+  border-radius:999px;
+  padding:0 14px;
+  background:rgba(9,15,9,.8);
+  color:#d4c7aa;
+}
+
+.tp-depot-action-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+  margin-top:12px;
+}
+
+.tp-depot-action-row>button{
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  border:1px solid rgba(112,207,137,.18);
+  border-radius:15px;
+  padding:10px 14px;
+  background:linear-gradient(180deg,rgba(6,16,9,.96),rgba(3,9,5,.96));
+  color:#9fd1a4;
+  text-align:left;
+}
+
+.tp-depot-action-row>button.primary{
+  border-color:rgba(112,207,137,.38);
+  box-shadow:0 0 18px rgba(93,191,112,.06);
+}
+
+.tp-depot-action-row strong,
+.tp-depot-action-row small{
+  display:block;
+}
+
+.tp-depot-action-row strong{
+  color:#ddd4c4;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:12px;
+  font-weight:500;
+}
+
+.tp-depot-action-row small{
+  margin-top:3px;
+  color:#727b72;
+  font-size:8px;
+}
+
+/* Referans düzene yaklaşmak için eski tarama + depo çifti aşağıda
+   "yönetim detayları" gibi daha sade görünür. */
+.tp-peststore-top-grid{
+  margin-top:14px!important;
+  border:0!important;
+  padding:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+@media (max-width:760px){
+  .tp-peststore-page .tp-peststore-main{
+    width:min(100% - 20px,620px)!important;
+  }
+
+  .tp-depot-dashboard-head{
+    align-items:flex-start;
+  }
+
+  .tp-depot-report-btn{
+    min-width:42px;
+  }
+
+  .tp-depot-report-btn span{
+    display:none;
+  }
+
+  .tp-depot-stat-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .tp-depot-stat-grid button{
+    min-height:110px;
+  }
+
+  .tp-depot-status-card{
+    grid-template-columns:1fr;
+  }
+
+  .tp-depot-status-visual{
+    min-height:150px;
+    border-left:0;
+    border-top:1px solid rgba(210,177,111,.13);
+  }
+
+  .tp-depot-toolbar{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .tp-depot-toolbar label{
+    grid-column:1/3;
+  }
+
+  .tp-depot-action-row{
+    grid-template-columns:1fr;
+  }
+
+  .tp-depot-pusula-note{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+
+
+/* =========================================================
+   DEPOM — 3D PREMIUM ICON + TÜM TARLALAR DEPO MANTIĞI
+   ========================================================= */
+
+.tp-depot-scan-top-btn{
+  min-width:146px;
+  padding-left:10px!important;
+}
+
+.tp-depot-scan-top-btn>img{
+  width:30px;
+  height:30px;
+  object-fit:contain;
+  border-radius:9px;
+  filter:drop-shadow(0 5px 10px rgba(0,0,0,.35));
+}
+
+.tp-depot-stat-grid button{
+  padding-right:88px!important;
+}
+
+.tp-depot-stat-icon{
+  position:absolute;
+  top:13px;
+  right:12px;
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  border-radius:14px;
+  opacity:.98;
+  filter:drop-shadow(0 10px 16px rgba(0,0,0,.30));
+  pointer-events:none;
+}
+
+.tp-depot-status-visual{
+  justify-content:flex-start!important;
+  gap:20px!important;
+}
+
+.tp-depot-status-image{
+  width:174px;
+  height:150px;
+  flex:0 0 auto;
+  object-fit:contain;
+  border-radius:18px;
+  filter:drop-shadow(0 16px 24px rgba(0,0,0,.34));
+}
+
+.tp-depot-health-copy{
+  min-width:0;
+}
+
+.tp-depot-health-copy>span{
+  display:block;
+  color:#a99462;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.14em;
+}
+
+.tp-depot-health-copy>b{
+  display:block;
+  margin-top:7px;
+  color:#eee4d0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:20px;
+  font-weight:500;
+}
+
+.tp-depot-health-copy ul{
+  list-style:none;
+  margin:13px 0 0;
+  padding:0;
+  display:grid;
+  gap:7px;
+}
+
+.tp-depot-health-copy li{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#8d988e;
+  font-size:9px;
+}
+
+.tp-depot-health-copy li>i{
+  width:7px;
+  height:7px;
+  border-radius:999px;
+  box-shadow:0 0 10px currentColor;
+}
+
+.tp-depot-health-copy li>i.good{
+  background:#72d38a;
+  color:#72d38a;
+}
+
+.tp-depot-health-copy li>i.warning{
+  background:#e4bd61;
+  color:#e4bd61;
+}
+
+.tp-depot-health-copy li>i.field{
+  background:#8cbf9b;
+  color:#8cbf9b;
+}
+
+.tp-depot-action-icon{
+  width:42px;
+  height:42px;
+  flex:0 0 auto;
+  object-fit:contain;
+  border-radius:12px;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.32));
+}
+
+.tp-peststore-product-main{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.tp-peststore-product-visual{
+  position:relative;
+  width:58px;
+  height:58px;
+  flex:0 0 58px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border:1px solid rgba(112,207,137,.16);
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(112,207,137,.08),transparent 56%),
+    rgba(3,10,6,.82);
+}
+
+.tp-peststore-product-visual>img{
+  width:52px;
+  height:52px;
+  object-fit:contain;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.35));
+}
+
+.stock-visual-level{
+  position:absolute;
+  right:5px;
+  bottom:5px;
+  width:5px;
+  height:30px;
+  overflow:hidden;
+  border-radius:99px;
+  background:rgba(255,255,255,.08);
+}
+
+.stock-visual-level>i{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  border-radius:inherit;
+  background:#72d38a;
+}
+
+.stock-visual-level.low>i{
+  background:#e0bd68;
+}
+
+.stock-visual-level.critical>i{
+  background:#dd786f;
+}
+
+.tp-peststore-field-relevance{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+}
+
+.tp-peststore-field-relevance>span{
+  color:#7b8c80;
+  font-size:7px;
+  font-weight:850;
+  letter-spacing:.12em;
+}
+
+.tp-peststore-field-relevance>strong{
+  color:#a8c7aa;
+  font-size:8px;
+  font-weight:700;
+}
+
+@media(max-width:760px){
+  .tp-depot-stat-grid button{
+    padding-right:70px!important;
+  }
+
+  .tp-depot-stat-icon{
+    width:56px;
+    height:56px;
+  }
+
+  .tp-depot-status-image{
+    width:132px;
+    height:118px;
+  }
+
+  .tp-depot-status-visual{
+    justify-content:center!important;
+  }
+}

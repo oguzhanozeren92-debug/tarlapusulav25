@@ -1,0 +1,139 @@
+.tp-today > .tp-home-data-status {
+  min-width: 0;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid rgba(71, 135, 82, .35);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(11, 16, 12, .99), rgba(5, 8, 6, .995));
+  color: #dcebdc;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
+}
+.tp-home-data-status {
+  position: relative;
+  display: block;
+  min-height: 100%;
+}
+.tp-home-data-status:focus-visible { outline: 2px solid #65da89; outline-offset: 3px; }
+.tp-home-data-status-heading { display: grid; gap: 3px; min-width: 0; }
+.tp-home-data-status-heading strong { margin-top: 6px; font: 500 18px Georgia, serif; color: #f1e6d2; }
+.tp-home-data-status-heading small {
+  overflow: hidden;
+  color: #9ba89a;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tp-home-data-status-chevron { position: absolute; right: 12px; top: 11px; color: #75d796; font-size: 19px; }
+.tp-today > .tp-home-data-dialog {
+  position: fixed;
+  inset: auto 0 0;
+  width: min(100%, 480px);
+  max-height: min(78dvh, 680px);
+  margin: auto auto 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid rgba(71, 135, 82, .55);
+  border-radius: 24px 24px 0 0;
+  background: #061308;
+  color: #dcebdc;
+  box-shadow: 0 -14px 60px rgba(0, 0, 0, .58);
+}
+.tp-home-data-dialog::backdrop { background: rgba(0, 0, 0, .7); backdrop-filter: blur(4px); }
+.tp-home-data-dialog-head { display: flex; justify-content: space-between; gap: 12px; padding: 22px 20px 17px; }
+.tp-home-data-dialog-head small { color: #75d796; font-size: 10px; letter-spacing: .12em; }
+.tp-home-data-dialog-head h2 { margin: 5px 0 3px; color: #f1e6d2; font: 500 25px Georgia, serif; }
+.tp-home-data-dialog-head p { margin: 0; color: #9bac9d; font-size: 12px; }
+.tp-home-data-dialog-head button {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(71, 135, 82, .45);
+  border-radius: 12px;
+  background: #102419;
+  color: #dcebdc;
+  font-size: 23px;
+  cursor: pointer;
+}
+.tp-home-data-status-list { padding: 2px 20px max(22px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(71, 135, 82, .2); }
+.tp-home-data-status-row {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr);
+  align-items: center;
+  gap: 3px 10px;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(71, 135, 82, .14);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font-size: 11px;
+  cursor: pointer;
+}
+.tp-home-data-status-row:focus-visible { outline: 2px solid #65da89; outline-offset: -2px; }
+.tp-home-data-status-row:last-child { border-bottom: 0; }
+.tp-home-data-status-row strong { font-size: 13px; }
+.tp-home-data-status-detail { grid-column: 2; min-width: 0; color: #9bac9d; line-height: 1.35; }
+.tp-home-data-status-action { grid-column: 2; margin-top: 3px; color: #75d796; font-weight: 600; }
+.tp-home-data-status-dot { flex: 0 0 7px; height: 7px; border-radius: 50%; background: #677769; }
+.tp-home-data-status-dot.is-ready { background: #4ad179; box-shadow: 0 0 8px rgba(74, 209, 121, .45); }
+.tp-home-data-status-dot.is-loading { background: #77b5ca; }
+.tp-home-data-status-dot.is-error { background: #ef7474; }
+.tp-home-data-status-list p { margin: 11px 0 0; color: #9bac9d; font-size: 11px; }
+@media (min-width: 640px) {
+  .tp-today > .tp-home-data-dialog { inset: 0; margin: auto; border-radius: 24px; }
+}
+
+/* Keep the data breakdown behind a single accessible control on the map. */
+.tp-map-first-shell .tp-map-control-rail > .tp-map-control-btn.tp-home-map-info:last-child {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font: 800 20px Georgia, serif !important;
+  cursor: pointer;
+}
+.tp-map-first-shell .tp-map-control-rail > .tp-home-map-info:focus-visible { outline: 2px solid #25313c; outline-offset: -3px; }
+@media(max-width:560px) {
+  .tp-map-first-shell .tp-map-control-rail > .tp-map-control-btn.tp-home-map-info:last-child {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+}
+.tp-home-data-dialog {
+  position: fixed;
+  inset: auto 0 0;
+  width: min(100%, 480px);
+  max-height: min(78dvh, 680px);
+  margin: auto auto 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 1px solid #d6dde5;
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+  color: #26313c;
+  box-shadow: 0 -14px 60px #20252b50;
+}
+.tp-home-data-dialog-head { border-bottom: 1px solid #e0e5ea; }
+.tp-home-data-dialog-head small,
+.tp-home-data-dialog-head h2 { color: #26313c; }
+.tp-home-data-dialog-head p,
+.tp-home-data-status-detail { color: #536170; }
+.tp-home-data-dialog-head button { background: #f1f3f5; border-color: #d6dde5; color: #26313c; }
+.tp-home-data-status-list { border-top: 0; }
+.tp-home-data-status-row { border-bottom-color: #e0e5ea; color: #26313c; }
+.tp-home-data-status-action { color: #26313c; }
+.tp-home-data-status-dot.is-ready { background: #536170; box-shadow: none; }
+.tp-home-data-status-list p { color: #536170; }
+@media (min-width: 640px) {
+  .tp-home-data-dialog { inset: 0; margin: auto; border-radius: 24px; }
+}

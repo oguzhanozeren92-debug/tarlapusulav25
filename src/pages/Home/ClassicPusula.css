@@ -1,0 +1,19 @@
+/* Klasik Pusula: gövde sabit, ortadaki iğne hareketli. */
+.tp-brand-pusula-anchor .tp-brand-pusula-needle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: center;
+  animation: tp-brand-pusula-idle 5.4s ease-in-out infinite;
+}
+
+@keyframes tp-brand-pusula-idle {
+  0%, 100% { transform: rotate(-12deg); }
+  50% { transform: rotate(13deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-brand-pusula-anchor .tp-brand-pusula-needle {
+    animation: none;
+  }
+}

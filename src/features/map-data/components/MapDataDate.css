@@ -1,0 +1,149 @@
+.tp-measurement-date {
+  position: absolute;
+  z-index: 96;
+
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: var(--tp-measurement-bottom, 14px);
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: max-content;
+  max-width: calc(100% - 130px);
+  min-height: 34px;
+  padding: 8px 13px;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+
+  background: rgba(14, 14, 14, 0.92);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  color: #fff;
+
+  pointer-events: none;
+  text-align: center;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:
+    bottom 220ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.tp-measurement-date > i {
+  flex: 0 0 auto;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+.tp-measurement-date > div {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tp-measurement-date span {
+  display: block;
+
+  color: #fff;
+
+  font: 800 8px/1 system-ui, sans-serif;
+  letter-spacing: 0.06em;
+
+  white-space: nowrap;
+}
+
+.tp-measurement-date strong {
+  display: block;
+
+  color: #fff;
+
+  font: 900 12px/1 system-ui, sans-serif;
+
+  white-space: nowrap;
+}
+
+.tp-measurement-date.is-history {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(14, 14, 14, 0.94);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.tp-measurement-date.is-history > i {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+
+.tp-measurement-date.is-history span,
+.tp-measurement-date.is-history strong {
+  color: #fff;
+}
+
+/*
+ * Sabit bir üst/alt noktaya kilitlenmez.
+ * MapDataDate.tsx ekrandaki gerçek kartları ölçer:
+ * - Pusula alt bandı
+ * - renk açıklama/legend kartı
+ * - genel metrik kartı
+ * - veri kartı
+ * Bunlardan biri tarih rozetinin alanına girerse rozet kendiliğinden yukarı kayar.
+ */
+.tp-map-first-shell .tp-real-home-map > .tp-measurement-date {
+  left: 50%;
+  right: auto;
+  top: auto;
+  bottom: var(--tp-measurement-bottom, 14px);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 600px) {
+  .tp-measurement-date,
+  .tp-map-first-shell .tp-real-home-map > .tp-measurement-date {
+    max-width: calc(100% - 112px);
+    min-height: 32px;
+
+    padding: 7px 10px;
+    gap: 7px;
+  }
+
+  .tp-measurement-date > div {
+    gap: 5px;
+  }
+
+  .tp-measurement-date span {
+    font-size: 7px;
+  }
+
+  .tp-measurement-date strong {
+    font-size: 11px;
+  }
+}
+
+/* Tarih rozeti her temada net okunur. */
+body .tp-v1 .tp-measurement-date span,
+body .tp-v1 .tp-measurement-date strong,
+body .tp-v1 .tp-measurement-date.is-history span,
+body .tp-v1 .tp-measurement-date.is-history strong {
+  color: #fff !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}

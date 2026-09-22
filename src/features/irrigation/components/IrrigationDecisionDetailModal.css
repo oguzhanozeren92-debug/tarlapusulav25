@@ -1,0 +1,299 @@
+.tp-irrigation-detail-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:2200;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:rgba(0,5,3,.72);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+.tp-irrigation-detail-modal{
+  width:min(560px,100%);
+  max-height:min(760px,88vh);
+  overflow:auto;
+  border:1px solid rgba(34,197,94,.28);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 16% 0%,rgba(6,182,212,.10),transparent 36%),
+    linear-gradient(180deg,rgba(6,19,8,.98),rgba(2,8,4,.99));
+  box-shadow:
+    0 28px 80px rgba(0,0,0,.58),
+    0 0 32px rgba(34,197,94,.08),
+    inset 0 1px 0 rgba(255,255,255,.035);
+  color:#eef7f0;
+  padding:20px;
+}
+
+.tp-irrigation-detail-head{
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr) 36px;
+  gap:12px;
+  align-items:start;
+}
+
+.tp-irrigation-detail-mark{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(6,182,212,.42);
+  background:rgba(3,27,28,.78);
+  box-shadow:inset 0 0 20px rgba(6,182,212,.08),0 0 18px rgba(6,182,212,.10);
+  font-size:23px;
+}
+
+.tp-irrigation-detail-head small,
+.tp-irrigation-detail-pusula small,
+.tp-irrigation-detail-grid small,
+.tp-irrigation-detail-status small,
+.tp-irrigation-detail-rain small,
+.tp-irrigation-detail-reasons>small{
+  color:#36dbe7;
+  font-size:9px;
+  line-height:1.1;
+  font-weight:850;
+  letter-spacing:.10em;
+}
+
+.tp-irrigation-detail-head h3{
+  margin:4px 0 3px;
+  color:#f3f8f4;
+  font-size:21px;
+  line-height:1.15;
+}
+
+.tp-irrigation-detail-head p{
+  margin:0;
+  color:#819188;
+  font-size:11px;
+}
+
+.tp-irrigation-detail-close{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+  color:#b8c4bc;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+}
+
+.tp-irrigation-detail-pusula{
+  margin-top:18px;
+  padding:15px;
+  border:1px solid rgba(34,197,94,.22);
+  border-radius:18px;
+  background:rgba(5,31,15,.55);
+}
+
+.tp-irrigation-detail-pusula small{
+  color:#45dc82;
+}
+
+.tp-irrigation-detail-pusula strong{
+  display:block;
+  margin-top:7px;
+  color:#edf5ef;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.tp-irrigation-detail-pusula p{
+  margin:8px 0 0;
+  color:#a0afa5;
+  font-size:11px;
+  line-height:1.45;
+}
+
+.tp-irrigation-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+
+.tp-irrigation-detail-grid article{
+  min-width:0;
+  padding:14px;
+  border:1px solid rgba(30,58,36,.96);
+  border-radius:17px;
+  background:rgba(4,15,8,.78);
+}
+
+.tp-irrigation-detail-grid article>span{
+  display:block;
+  margin-top:8px;
+  color:#8d9c92;
+  font-size:10px;
+}
+
+.tp-irrigation-detail-grid article>strong{
+  display:block;
+  margin-top:3px;
+  color:#eef6f0;
+  font-size:20px;
+}
+
+.tp-irrigation-detail-grid article>em{
+  display:block;
+  margin-top:7px;
+  color:#77877d;
+  font-size:9.5px;
+  line-height:1.35;
+  font-style:normal;
+}
+
+.tp-irrigation-detail-status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+  padding:13px 14px;
+  border:1px solid rgba(6,182,212,.20);
+  border-radius:16px;
+  background:rgba(3,21,22,.60);
+}
+
+.tp-irrigation-detail-status strong{
+  display:block;
+  margin-top:4px;
+  font-size:14px;
+}
+
+.tp-irrigation-detail-status>span{
+  min-width:46px;
+  height:32px;
+  padding:0 10px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  border:1px solid rgba(6,182,212,.32);
+  background:rgba(6,182,212,.08);
+  color:#59e3eb;
+  font-weight:850;
+  font-size:12px;
+}
+
+.tp-irrigation-detail-rain{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px solid rgba(6,182,212,.18);
+  border-radius:16px;
+  background:rgba(4,24,24,.48);
+}
+
+.tp-irrigation-detail-rain>span{
+  font-size:21px;
+}
+
+.tp-irrigation-detail-rain strong{
+  display:block;
+  margin-top:3px;
+  color:#e7f5f5;
+  font-size:12px;
+}
+
+.tp-irrigation-detail-reasons{
+  margin-top:14px;
+  padding-top:13px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+
+.tp-irrigation-detail-reasons>small{
+  color:#45dc82;
+}
+
+.tp-irrigation-detail-reasons ul{
+  margin:9px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:7px;
+}
+
+.tp-irrigation-detail-reasons li{
+  position:relative;
+  padding-left:15px;
+  color:#a6b4aa;
+  font-size:10.5px;
+  line-height:1.4;
+}
+
+.tp-irrigation-detail-reasons li::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:.55em;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 10px rgba(34,197,94,.44);
+}
+
+.tp-irrigation-detail-note{
+  margin:14px 0 0;
+  padding:11px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.025);
+  color:#6f7d74;
+  font-size:9.5px;
+  line-height:1.45;
+}
+
+.tp-irrigation-detail-actions{
+  display:grid;
+  grid-template-columns:1fr 1.5fr;
+  gap:9px;
+  margin-top:15px;
+}
+
+.tp-irrigation-detail-actions button{
+  min-height:43px;
+  border-radius:14px;
+  font-weight:800;
+  font-size:11px;
+  cursor:pointer;
+}
+
+.tp-irrigation-detail-secondary{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.035);
+  color:#aab7ae;
+}
+
+.tp-irrigation-detail-primary{
+  border:1px solid rgba(6,182,212,.35);
+  background:linear-gradient(180deg,rgba(6,71,76,.92),rgba(3,41,44,.96));
+  color:#ddfbfd;
+  box-shadow:0 0 20px rgba(6,182,212,.08);
+}
+
+@media (max-width:560px){
+  .tp-irrigation-detail-backdrop{
+    align-items:end;
+    padding:10px;
+  }
+
+  .tp-irrigation-detail-modal{
+    max-height:88vh;
+    border-radius:22px 22px 16px 16px;
+    padding:16px;
+  }
+
+  .tp-irrigation-detail-grid{
+    grid-template-columns:1fr;
+  }
+}

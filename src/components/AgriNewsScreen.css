@@ -1,0 +1,1261 @@
+:root {
+  --news-bg: #0A0F0D;
+  --news-deep: #0C120E;
+  --news-card: #121A15;
+  --news-active: #1B2920;
+  --news-border: #1F2E25;
+  --news-input: #23352B;
+  --news-sage: #D2E7D6;
+  --news-heading: #E6E1D5;
+  --news-secondary: #A3B3A7;
+  --news-muted: #617366;
+  --news-green: #4ADE80;
+  --news-yellow: #FACC15;
+  --news-red: #F87171;
+  --news-blue: #60A5FA;
+}
+
+.tp-agri-news-page,
+.tp-agri-news-page * {
+  box-sizing: border-box;
+}
+
+.tp-agri-news-page {
+  min-height: 100vh;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 85% 7%, rgba(62,102,73,.075), transparent 30%),
+    var(--news-bg);
+  color: var(--news-secondary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.tp-agri-news-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 80;
+  width: 214px;
+  padding: 18px 12px;
+  border-right: 1px solid var(--news-border);
+  background: #0B100D;
+}
+
+.tp-agri-news-brand {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 15px;
+  border-bottom: 1px solid rgba(31,46,37,.7);
+}
+
+.tp-agri-news-brand > span {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #26392D;
+  border-radius: 12px;
+  background: #121D16;
+  color: var(--news-sage);
+}
+
+.tp-agri-news-brand strong {
+  display: block;
+  color: var(--news-heading);
+  font: 600 15px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-brand small {
+  display: block;
+  margin-top: 2px;
+  color: #68796D;
+  font-size: 8px;
+}
+
+.tp-agri-news-sidebar nav {
+  max-height: calc(100vh - 88px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 14px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.tp-agri-news-sidebar nav::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-agri-news-sidebar nav button {
+  width: 100%;
+  min-height: 40px;
+  display: grid;
+  grid-template-columns: 32px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 5px 9px;
+  background: transparent;
+  color: #819187;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tp-agri-news-sidebar nav button.active {
+  border-color: #26382C;
+  background: var(--news-active);
+  color: var(--news-sage);
+}
+
+.tp-agri-news-sidebar nav button > span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.tp-agri-news-sidebar nav strong {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-agri-news-sidebar nav i {
+  border-radius: 999px;
+  padding: 2px 5px;
+  background: rgba(0,255,136,.08);
+  color: #00FF88;
+  font-size: 7px;
+  font-style: normal;
+}
+
+.tp-agri-news-content {
+  min-height: 100vh;
+  margin-left: 214px;
+}
+
+.tp-agri-news-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--news-border);
+  background: rgba(10,15,13,.95);
+  backdrop-filter: blur(14px);
+}
+
+.tp-agri-news-topbar > button {
+  width: 37px;
+  height: 37px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--news-border);
+  border-radius: 11px;
+  background: var(--news-card);
+  color: var(--news-heading);
+  cursor: pointer;
+}
+
+.tp-agri-news-topbar > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.tp-agri-news-topbar strong {
+  display: block;
+  color: var(--news-heading);
+  font: 600 16px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-topbar small {
+  display: block;
+  margin-top: 2px;
+  color: var(--news-muted);
+  font-size: 8px;
+}
+
+.tp-agri-news-mobile-menu {
+  display: none !important;
+}
+
+.tp-agri-news-main {
+  width: min(1240px, calc(100% - 34px));
+  margin: 0 auto;
+  padding: 22px 0 88px;
+}
+
+.tp-agri-news-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.tp-agri-news-heading > div:first-child > span,
+.tp-agri-news-region-card > div:first-child > span,
+.tp-agri-news-section-head > div > span,
+.tp-agri-news-modal-head > div > small {
+  color: #7D9283;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: .13em;
+}
+
+.tp-agri-news-heading h1 {
+  margin: 6px 0 0;
+  color: var(--news-heading);
+  font: 500 clamp(29px,3.5vw,44px)/1.02 Georgia, Cambria, "Times New Roman", serif;
+  letter-spacing: -.03em;
+}
+
+.tp-agri-news-heading h1 em {
+  display: block;
+  margin-top: 8px;
+  color: #91A295;
+  font: 400 10px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+.tp-agri-news-widgets {
+  display: flex;
+  gap: 7px;
+}
+
+.tp-agri-news-widgets article,
+.tp-agri-news-widgets > button {
+  min-width: 168px;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--news-border);
+  border-radius: 14px;
+  padding: 9px 10px;
+  background: var(--news-card);
+  color: var(--news-sage);
+  font: inherit;
+  text-align: left;
+}
+
+.tp-agri-news-widgets > button {
+  cursor: pointer;
+}
+
+.tp-agri-news-widgets small,
+.tp-agri-news-widgets strong,
+.tp-agri-news-widgets span {
+  display: block;
+}
+
+.tp-agri-news-widgets small {
+  color: var(--news-muted);
+  font-size: 6.2px;
+  font-weight: 800;
+}
+
+.tp-agri-news-widgets strong {
+  margin-top: 2px;
+  color: var(--news-heading);
+  font-size: 8.4px;
+}
+
+.tp-agri-news-widgets span {
+  margin-top: 2px;
+  color: #748679;
+  font-size: 6.5px;
+  line-height: 1.3;
+}
+
+.tp-agri-news-demo-notice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  border: 1px solid var(--news-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--news-deep);
+  color: #7D9083;
+  font-size: 7px;
+  line-height: 1.45;
+}
+
+.tp-agri-news-demo-notice > span {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #E5C158;
+}
+
+.tp-agri-news-filters {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tp-agri-news-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-agri-news-filters button {
+  min-height: 39px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  border: 1px solid var(--news-border);
+  border-radius: 10px;
+  padding: 0 11px;
+  background: var(--news-deep);
+  color: #85968B;
+  font: inherit;
+  font-size: 7.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tp-agri-news-filters button.active {
+  border-color: transparent;
+  background: var(--news-sage);
+  color: var(--news-deep);
+}
+
+.tp-agri-news-featured {
+  min-height: 370px;
+  display: grid;
+  grid-template-columns: .9fr 1.18fr .66fr;
+  overflow: hidden;
+  margin-top: 14px;
+  border: 1px solid var(--news-border);
+  border-radius: 18px;
+  background: var(--news-card);
+}
+
+.tp-agri-news-feature-image {
+  min-height: 370px;
+  position: relative;
+  overflow: hidden;
+  background: var(--news-deep);
+}
+
+.tp-agri-news-feature-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(10,15,13,.04), rgba(10,15,13,.64)),
+    linear-gradient(90deg, transparent 60%, rgba(18,26,21,.7));
+  pointer-events: none;
+}
+
+.tp-agri-news-feature-image img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+}
+
+.tp-agri-news-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 4px 7px;
+  font-size: 6.5px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.tp-agri-news-feature-image > .tp-agri-news-badge {
+  position: absolute;
+  z-index: 3;
+  inset: 15px auto auto 15px;
+}
+
+.tp-agri-news-badge.green {
+  background: rgba(74,222,128,.15);
+  color: var(--news-green);
+}
+
+.tp-agri-news-badge.yellow {
+  background: rgba(234,179,8,.15);
+  color: var(--news-yellow);
+}
+
+.tp-agri-news-badge.red {
+  background: rgba(248,113,113,.15);
+  color: var(--news-red);
+}
+
+.tp-agri-news-badge.blue {
+  background: rgba(96,165,250,.15);
+  color: var(--news-blue);
+}
+
+.tp-agri-news-feature-controls {
+  position: absolute;
+  z-index: 4;
+  inset: auto 15px 15px auto;
+  display: flex;
+  gap: 5px;
+}
+
+.tp-agri-news-feature-controls button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(230,225,213,.15);
+  border-radius: 10px;
+  background: rgba(10,15,13,.68);
+  color: var(--news-heading);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.tp-agri-news-feature-copy {
+  min-width: 0;
+  padding: 28px 26px;
+}
+
+.tp-agri-news-feature-copy > span {
+  color: var(--news-muted);
+  font-size: 7px;
+}
+
+.tp-agri-news-feature-copy h2 {
+  max-width: 570px;
+  margin: 8px 0 0;
+  color: var(--news-heading);
+  font: 500 clamp(24px,2.5vw,35px)/1.08 Georgia, Cambria, "Times New Roman", serif;
+  letter-spacing: -.025em;
+}
+
+.tp-agri-news-feature-copy > p {
+  max-width: 600px;
+  margin: 12px 0 0;
+  color: #93A499;
+  font-size: 8.6px;
+  line-height: 1.65;
+}
+
+.tp-agri-news-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 14px;
+}
+
+.tp-agri-news-tags span {
+  border: 1px solid var(--news-border);
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: var(--news-deep);
+  color: #8EA095;
+  font-size: 6.7px;
+  font-weight: 700;
+}
+
+.tp-agri-news-feature-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.tp-agri-news-feature-actions button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--news-input);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: var(--news-deep);
+  color: var(--news-sage);
+  font: inherit;
+  font-size: 7.5px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.tp-agri-news-feature-actions button.primary {
+  border-color: transparent;
+  background: var(--news-sage);
+  color: var(--news-deep);
+}
+
+.tp-agri-news-source {
+  display: block;
+  margin-top: 12px;
+  color: #66796C;
+  font-size: 6.5px;
+}
+
+.tp-agri-news-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 16px;
+}
+
+.tp-agri-news-dots button {
+  width: 7px;
+  height: 7px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: #314237;
+  cursor: pointer;
+}
+
+.tp-agri-news-dots button.active {
+  width: 20px;
+  background: var(--news-sage);
+}
+
+.tp-agri-news-region-card {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--news-border);
+  padding: 20px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(210,231,214,.05), transparent 52%),
+    var(--news-deep);
+}
+
+.tp-agri-news-region-card h3 {
+  margin: 4px 0 0;
+  color: var(--news-heading);
+  font: 500 17px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-region-card p {
+  margin: 7px 0 0;
+  color: var(--news-muted);
+  font-size: 7.2px;
+  line-height: 1.5;
+}
+
+.tp-agri-news-map {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 10px;
+  color: #5E8068;
+}
+
+.tp-agri-news-map svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.tp-agri-news-map circle {
+  fill: var(--news-sage);
+  opacity: .28;
+}
+
+.tp-agri-news-map > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.tp-agri-news-map > div span {
+  border: 1px solid #2A3D30;
+  border-radius: 999px;
+  padding: 3px 6px;
+  color: #8FA196;
+  font-size: 6.2px;
+}
+
+.tp-agri-news-region-card > small {
+  color: #66786C;
+  font-size: 6px;
+  line-height: 1.45;
+}
+
+.tp-agri-news-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.tp-agri-news-card {
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--news-border);
+  border-radius: 16px;
+  padding: 16px;
+  background: var(--news-card);
+}
+
+.tp-agri-news-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tp-agri-news-card-top time {
+  color: var(--news-muted);
+  font-size: 6.5px;
+}
+
+.tp-agri-news-card-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin-top: 16px;
+  border: 1px solid #293D31;
+  border-radius: 12px;
+  background: var(--news-deep);
+  color: var(--news-sage);
+}
+
+.tp-agri-news-card h3 {
+  margin: 12px 0 0;
+  color: var(--news-heading);
+  font: 500 19px/1.18 Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-card p {
+  margin: 8px 0 0;
+  color: #899B90;
+  font-size: 7.8px;
+  line-height: 1.55;
+}
+
+.tp-agri-news-card > button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  margin-top: auto;
+  border: 1px solid var(--news-input);
+  border-radius: 9px;
+  padding: 0 10px;
+  background: var(--news-deep);
+  color: var(--news-sage);
+  font: inherit;
+  font-size: 7.2px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.tp-agri-news-card > small {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 10px;
+  color: #65776B;
+  font-size: 6.2px;
+}
+
+.tp-agri-news-personal {
+  margin-top: 26px;
+}
+
+.tp-agri-news-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.tp-agri-news-section-head > div > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tp-agri-news-section-head h2 {
+  margin: 4px 0 0;
+  color: var(--news-heading);
+  font: 500 21px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-section-head > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--news-sage);
+  font: inherit;
+  font-size: 7px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tp-agri-news-personal-list {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+}
+
+.tp-agri-news-personal-list article {
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: 64px minmax(0,1fr) 30px;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--news-border);
+  border-radius: 13px;
+  padding: 8px;
+  background: var(--news-card);
+}
+
+.tp-agri-news-personal-image {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--news-deep);
+  color: var(--news-sage);
+}
+
+.tp-agri-news-personal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tp-agri-news-personal-list article > div:nth-child(2) {
+  min-width: 0;
+}
+
+.tp-agri-news-personal-list article span,
+.tp-agri-news-personal-list article strong,
+.tp-agri-news-personal-list article small {
+  display: block;
+}
+
+.tp-agri-news-personal-list article span {
+  color: var(--news-muted);
+  font-size: 6.2px;
+}
+
+.tp-agri-news-personal-list article strong {
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--news-heading);
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.tp-agri-news-personal-list article small {
+  margin-top: 4px;
+  color: #74867A;
+  font-size: 6.1px;
+}
+
+.tp-agri-news-personal-list article > button {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--news-border);
+  border-radius: 9px;
+  background: var(--news-deep);
+  color: var(--news-sage);
+  cursor: pointer;
+}
+
+.tp-agri-news-bottom-nav {
+  display: none;
+}
+
+.tp-agri-news-drawer-layer,
+.tp-agri-news-modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+}
+
+.tp-agri-news-drawer-backdrop,
+.tp-agri-news-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0,0,0,.64);
+  backdrop-filter: blur(4px);
+}
+
+.tp-agri-news-drawer {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: min(82vw,310px);
+  padding: 16px 12px;
+  border-right: 1px solid var(--news-border);
+  background: var(--news-deep);
+}
+
+.tp-agri-news-drawer-head {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--news-border);
+  padding-bottom: 12px;
+}
+
+.tp-agri-news-drawer-head > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--news-sage);
+}
+
+.tp-agri-news-drawer-head strong {
+  color: var(--news-heading);
+  font-family: Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-drawer-head > button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--news-border);
+  border-radius: 10px;
+  background: var(--news-card);
+  color: var(--news-secondary);
+}
+
+.tp-agri-news-drawer nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 12px;
+}
+
+.tp-agri-news-drawer nav button {
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: 32px 1fr 18px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 5px 9px;
+  background: transparent;
+  color: #829389;
+  font: inherit;
+  text-align: left;
+}
+
+.tp-agri-news-drawer nav button.active {
+  border-color: #283A2E;
+  background: var(--news-active);
+  color: var(--news-sage);
+}
+
+.tp-agri-news-drawer nav strong {
+  font-size: 10px;
+}
+
+.tp-agri-news-modal {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(92vw,650px);
+  max-height: min(86vh,780px);
+  overflow-y: auto;
+  transform: translate(-50%,-50%);
+  border: 1px solid #2B4033;
+  border-radius: 18px;
+  padding: 18px;
+  background: var(--news-card);
+  box-shadow: 0 30px 80px rgba(0,0,0,.44);
+}
+
+.tp-agri-news-modal.compact {
+  width: min(92vw,470px);
+}
+
+.tp-agri-news-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tp-agri-news-modal-head > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.tp-agri-news-modal-head h2 {
+  margin: 3px 0 0;
+  color: var(--news-heading);
+  font: 500 20px Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-modal-head > button {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--news-border);
+  border-radius: 10px;
+  background: var(--news-deep);
+  color: var(--news-secondary);
+}
+
+.tp-agri-news-modal-image {
+  width: 100%;
+  max-height: 260px;
+  display: block;
+  margin-top: 13px;
+  object-fit: cover;
+  border-radius: 13px;
+}
+
+.tp-agri-news-modal > h2 {
+  margin: 14px 0 0;
+  color: var(--news-heading);
+  font: 500 25px/1.13 Georgia, Cambria, "Times New Roman", serif;
+}
+
+.tp-agri-news-modal > p {
+  margin: 9px 0 0;
+  color: #91A298;
+  font-size: 8px;
+  line-height: 1.65;
+}
+
+.tp-agri-news-modal-regions {
+  margin-top: 13px;
+}
+
+.tp-agri-news-modal-regions > strong {
+  color: var(--news-heading);
+  font-size: 8px;
+}
+
+.tp-agri-news-modal-regions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.tp-agri-news-modal-regions span {
+  border: 1px solid var(--news-border);
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: var(--news-deep);
+  color: #84978A;
+  font-size: 6.5px;
+}
+
+.tp-agri-news-modal-source {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 13px;
+  border: 1px solid var(--news-border);
+  border-radius: 10px;
+  padding: 9px;
+  background: var(--news-deep);
+  color: #778B7E;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.tp-agri-news-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 15px;
+}
+
+.tp-agri-news-modal-actions button {
+  min-height: 39px;
+  border: 1px solid var(--news-input);
+  border-radius: 10px;
+  padding: 0 13px;
+  background: var(--news-deep);
+  color: var(--news-secondary);
+  font: inherit;
+  font-size: 7.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tp-agri-news-modal-actions button.primary {
+  border-color: transparent;
+  background: var(--news-sage);
+  color: var(--news-deep);
+}
+
+.tp-agri-news-pref-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.tp-agri-news-pref-list label {
+  min-height: 47px;
+  display: grid;
+  grid-template-columns: 18px 34px 1fr;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--news-border);
+  border-radius: 11px;
+  padding: 7px 9px;
+  background: var(--news-deep);
+  cursor: pointer;
+}
+
+.tp-agri-news-pref-list label.selected {
+  border-color: #385242;
+  background: var(--news-active);
+}
+
+.tp-agri-news-pref-list input {
+  accent-color: #A0BDA6;
+}
+
+.tp-agri-news-pref-list label > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--news-border);
+  border-radius: 9px;
+  color: var(--news-sage);
+}
+
+.tp-agri-news-pref-list strong {
+  color: var(--news-heading);
+  font-size: 8px;
+}
+
+@media (max-width: 1120px) {
+  .tp-agri-news-heading {
+    display: grid;
+  }
+
+  .tp-agri-news-widgets {
+    width: 100%;
+  }
+
+  .tp-agri-news-widgets article,
+  .tp-agri-news-widgets > button {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+@media (max-width: 980px) and (min-width: 761px) {
+  .tp-agri-news-sidebar {
+    width: 70px;
+    padding-inline: 9px;
+  }
+
+  .tp-agri-news-brand {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .tp-agri-news-brand > div,
+  .tp-agri-news-sidebar nav button strong,
+  .tp-agri-news-sidebar nav button i {
+    display: none;
+  }
+
+  .tp-agri-news-sidebar nav button {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .tp-agri-news-content {
+    margin-left: 70px;
+  }
+
+  .tp-agri-news-featured {
+    grid-template-columns: .86fr 1.14fr;
+  }
+
+  .tp-agri-news-region-card {
+    grid-column: 1 / -1;
+    min-height: 190px;
+    border-top: 1px solid var(--news-border);
+    border-left: 0;
+  }
+
+  .tp-agri-news-map {
+    max-width: 440px;
+  }
+}
+
+@media (max-width: 820px) {
+  .tp-agri-news-grid,
+  .tp-agri-news-personal-list {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-agri-news-card {
+    min-height: 245px;
+  }
+}
+
+@media (max-width: 760px) {
+  .tp-agri-news-sidebar {
+    display: none;
+  }
+
+  .tp-agri-news-content {
+    margin-left: 0;
+  }
+
+  .tp-agri-news-mobile-menu {
+    display: grid !important;
+  }
+
+  .tp-agri-news-main {
+    width: calc(100% - 16px);
+    padding-top: 12px;
+    padding-bottom: 98px;
+  }
+
+  .tp-agri-news-topbar {
+    padding-inline: 9px;
+  }
+
+  .tp-agri-news-heading h1 {
+    font-size: 31px;
+  }
+
+  .tp-agri-news-widgets {
+    overflow-x: auto;
+  }
+
+  .tp-agri-news-widgets article,
+  .tp-agri-news-widgets > button {
+    min-width: 176px;
+  }
+
+  .tp-agri-news-featured {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-agri-news-feature-image {
+    min-height: 235px;
+  }
+
+  .tp-agri-news-feature-copy {
+    padding: 20px 17px;
+  }
+
+  .tp-agri-news-region-card {
+    min-height: 210px;
+    border-top: 1px solid var(--news-border);
+    border-left: 0;
+  }
+
+  .tp-agri-news-bottom-nav {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 100;
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr 1fr 1fr;
+    align-items: end;
+    border-top: 1px solid rgba(31,46,37,.9);
+    padding: 7px 5px calc(7px + env(safe-area-inset-bottom));
+    background: rgba(10,15,13,.97);
+    backdrop-filter: blur(16px);
+  }
+
+  .tp-agri-news-bottom-nav > button {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: 0;
+    background: transparent;
+    color: #65766B;
+    font: inherit;
+    font-size: 7px;
+  }
+
+  .tp-agri-news-bottom-ai {
+    transform: translateY(-8px);
+  }
+
+  .tp-agri-news-bottom-ai > b {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #465E4C;
+    border-radius: 999px;
+    background: var(--news-sage);
+    color: var(--news-deep);
+  }
+}
+
+@media (max-width: 520px) {
+  .tp-agri-news-topbar small {
+    display: none;
+  }
+
+  .tp-agri-news-feature-image {
+    min-height: 210px;
+  }
+
+  .tp-agri-news-feature-copy h2 {
+    font-size: 25px;
+  }
+
+  .tp-agri-news-feature-actions {
+    flex-direction: column;
+  }
+
+  .tp-agri-news-feature-actions button {
+    width: 100%;
+  }
+
+  .tp-agri-news-personal-list article {
+    grid-template-columns: 58px minmax(0,1fr) 29px;
+  }
+
+  .tp-agri-news-personal-image {
+    width: 58px;
+    height: 58px;
+  }
+
+  .tp-agri-news-modal {
+    width: calc(100% - 18px);
+    padding: 14px;
+  }
+}

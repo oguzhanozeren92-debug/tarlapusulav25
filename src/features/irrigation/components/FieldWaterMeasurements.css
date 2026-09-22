@@ -1,0 +1,165 @@
+.tp-field-water-measurements {
+  margin: 16px 0;
+  color: #20252b;
+}
+
+.tp-field-water-measurements > details {
+  overflow: hidden;
+  border: 1px solid #d9dee3;
+  border-radius: 20px;
+  background: #f7f8fa;
+}
+
+.tp-field-water-measurements summary {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 750;
+  list-style: none;
+}
+
+.tp-field-water-measurements summary::-webkit-details-marker {
+  display: none;
+}
+
+.tp-field-water-measurements-body {
+  padding: 0 18px 18px;
+  border-top: 1px solid #e2e6ea;
+}
+
+.tp-field-water-measurements-body > small {
+  display: block;
+  margin-top: 16px;
+  color: #39434e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.tp-field-water-measurements h3 {
+  margin: 8px 0;
+  font-size: 18px;
+}
+
+.tp-field-water-measurements p {
+  margin: 7px 0;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tp-field-water-measurements form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.tp-field-water-measurements label {
+  display: grid;
+  gap: 6px;
+  color: #39434e;
+  font-size: 13px;
+}
+
+.tp-field-water-measurements input,
+.tp-field-water-measurements select,
+.tp-field-water-measurements textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px;
+  border: 1px solid #cbd2d9;
+  border-radius: 10px;
+  background: #fff;
+  color: #20252b;
+  color-scheme: light;
+  font: inherit;
+}
+
+.tp-field-water-measurements textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.tp-field-water-measurements button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid #cbd2d9;
+  border-radius: 10px;
+  background: #eef1f4;
+  color: #20252b;
+  cursor: pointer;
+  font: inherit;
+}
+
+.tp-field-water-measurements button:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.tp-field-water-measurements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tp-field-water-measurements-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.tp-field-water-measurements-list article {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d9dee3;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.tp-field-water-measurements-list article > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+
+.tp-field-water-measurements-list strong {
+  font-size: 16px;
+}
+
+.tp-field-water-measurements-list span {
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.tp-field-water-measurements-list article p {
+  margin: 2px 0;
+}
+
+.tp-field-water-measurements-list article button {
+  min-height: 32px;
+}
+
+.tp-field-water-success {
+  color: #20252b !important;
+  font-weight: 650;
+}
+
+.tp-field-water-error {
+  color: #991b1b !important;
+}
+
+@media (max-width: 420px) {
+  .tp-field-water-measurements-grid {
+    grid-template-columns: 1fr;
+  }
+}
