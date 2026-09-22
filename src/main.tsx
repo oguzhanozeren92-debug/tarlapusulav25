@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import AdminPortal from './pages/Admin/AdminPortal.tsx'
 import PinnedCropSuitabilityNotification from './features/notifications/components/PinnedCropSuitabilityNotification';
+import PublishedAgriNewsBridge from './features/content-public/PublishedAgriNewsBridge';
 import './styles/TarlaPusulaTheme.css';
 import './styles/MobileAppShell.css';
 import './styles/WhiteAppTheme.css';
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
       <>
         <App />
         <PinnedCropSuitabilityNotification />
+        <PublishedAgriNewsBridge />
       </>
     )}
   </StrictMode>,
