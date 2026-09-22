@@ -1,0 +1,116 @@
+.tp-pinned-crop-suitability {
+  order: -1000;
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 6px 34px minmax(0, 1fr) 17px;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid #d7dde3;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #20252b;
+  box-shadow: 0 2px 8px rgba(32, 37, 43, .05);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tp-pinned-crop-suitability:hover {
+  border-color: #c2c9d0;
+  background: #fafbfc;
+}
+
+.tp-pinned-crop-suitability:focus-visible {
+  outline: 2px solid #39434e;
+  outline-offset: 2px;
+}
+
+.tp-pinned-crop-suitability-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #20252b;
+}
+
+.tp-pinned-crop-suitability-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #20252b;
+  color: #ffffff;
+}
+
+.tp-pinned-crop-suitability-icon svg {
+  display: block;
+  color: #ffffff;
+  stroke: currentColor;
+}
+
+.tp-pinned-crop-suitability-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.tp-pinned-crop-suitability-title-row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tp-pinned-crop-suitability-title-row strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #20252b;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-pinned-crop-suitability-title-row em {
+  flex: 0 0 auto;
+  padding: 3px 5px;
+  border: 1px solid #d7dde3;
+  border-radius: 999px;
+  background: #f7f8fa;
+  color: #697586;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+
+.tp-pinned-crop-suitability-copy small {
+  min-width: 0;
+  overflow: hidden;
+  color: #697586;
+  font-size: 9.5px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-pinned-crop-suitability-chevron {
+  justify-self: end;
+  color: #697586;
+}
+
+@media (max-width: 390px) {
+  .tp-pinned-crop-suitability {
+    grid-template-columns: 5px 32px minmax(0, 1fr) 15px;
+    gap: 7px;
+    padding: 7px 8px;
+  }
+
+  .tp-pinned-crop-suitability-copy small {
+    font-size: 9px;
+  }
+}
