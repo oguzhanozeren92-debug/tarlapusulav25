@@ -2,11 +2,12 @@ import { useEffect, useState, type FormEvent } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../../supabaseClient';
 import ContentAdminPanel from '../../features/content-admin/ContentAdminPanel';
+import AdminVisualBuilder from './AdminVisualBuilder';
 import AdminPageBuilder from './AdminPageBuilder';
 import './AdminPortal.css';
 
 type PortalState = 'checking' | 'signed-out' | 'forbidden' | 'ready';
-type PortalTab = 'content' | 'design';
+type PortalTab = 'content' | 'design' | 'advanced';
 
 async function checkAdmin(user: User | null) {
   if (!user) return false;
@@ -22,10 +23,16 @@ async function checkAdmin(user: User | null) {
   return Boolean(data?.user_id);
 }
 
+function tabTitle(tab: PortalTab) {
+  if (tab === 'content') return 'İçerik Yönetimi';
+  if (tab === 'advanced') return 'Gelişmiş CMS';
+  return 'Görsel Düzenleyici';
+}
+
 export default function AdminPortal() {
   const [state, setState] = useState<PortalState>('checking');
   const [user, setUser] = useState<User | null>(null);
-  const [tab, setTab] = useState<PortalTab>('content');
+  const [tab, setTab] = useState<PortalTab>('design');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
@@ -165,7 +172,8 @@ export default function AdminPortal() {
         </div>
         <nav>
           <button className={tab === 'content' ? 'active' : ''} onClick={() => setTab('content')}><span>01</span> İçerik Merkezi</button>
-          <button className={tab === 'design' ? 'active' : ''} onClick={() => setTab('design')}><span>02</span> Tasarım & CMS</button>
+          <button className={tab === 'design' ? 'active' : ''} onClick={() => setTab('design')}><span>02</span> Görsel Düzenleyici</button>
+          <button className={tab === 'advanced' ? 'active' : ''} onClick={() => setTab('advanced')}><span>03</span> Gelişmiş CMS</button>
         </nav>
         <div className="tp-admin-sidebar__account">
           <small>Giriş yapan admin</small>
@@ -178,12 +186,14 @@ export default function AdminPortal() {
         <header className="tp-admin-topbar">
           <div>
             <span>TarlaPusula v25</span>
-            <strong>{tab === 'content' ? 'İçerik Yönetimi' : 'Uygulama Tasarım Yönetimi'}</strong>
+            <strong>{tabTitle(tab)}</strong>
           </div>
           <a href="/">Uygulamaya dön ↗</a>
         </header>
         <div className="tp-admin-main__body">
-          {tab === 'content' ? <ContentAdminPanel /> : <AdminPageBuilder onBack={() => setTab('content')} />}
+          {tab === 'content' && <ContentAdminPanel />}
+          {tab === 'design' && <AdminVisualBuilder />}
+          {tab === 'advanced' && <AdminPageBuilder onBack={() => setTab('design')} />}
         </div>
       </main>
     </div>
