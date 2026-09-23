@@ -1,0 +1,70 @@
+name: Apply Model Shadow Comparison
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/apply-model-shadow-comparison.py'
+      - '.github/workflows/apply-model-shadow-comparison.yml'
+      - 'supabase/functions/model-shadow-comparison/**'
+      - 'supabase/migrations/20260923234500_create_model_shadow_comparisons.sql'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply integration patch
+        run: python .github/apply-model-shadow-comparison.py
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Parse comparison edge function
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const ts = require('typescript');
+          const file = 'supabase/functions/model-shadow-comparison/index.ts';
+          const source = fs.readFileSync(file, 'utf8');
+          const out = ts.transpileModule(source, {
+            compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+            reportDiagnostics: true,
+          });
+          const errors = (out.diagnostics || []).filter(d => d.category === ts.DiagnosticCategory.Error);
+          if (errors.length) {
+            console.error(errors.map(d => ts.flattenDiagnosticMessageText(d.messageText, '\n')).join('\n'));
+            process.exit(1);
+          }
+          console.log('OK', file);
+          NODE
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit verified comparison integration
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat(models): compare PCSE AquaCrop CropForge shadows'
+          git push origin main
