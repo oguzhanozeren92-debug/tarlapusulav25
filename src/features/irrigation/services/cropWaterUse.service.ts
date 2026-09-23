@@ -395,27 +395,29 @@ export async function calculateCropWaterUse(
     );
   }
 
+  const fieldRow = dbField as Record<string, any>;
+
   const normalizedField =
     {
-      ...dbField,
+      ...fieldRow,
 
       cropCycle:
-        dbField.crop_cycle,
+        fieldRow.crop_cycle,
 
       plantingYear:
-        dbField.planting_year,
+        fieldRow.planting_year,
 
       cropSubtype:
-        dbField.crop_subtype,
+        fieldRow.crop_subtype,
 
       parcelGeometry:
-        dbField.parcel_geometry,
+        fieldRow.parcel_geometry,
 
       parcelCentroidLat:
-        dbField.parcel_centroid_lat,
+        fieldRow.parcel_centroid_lat,
 
       parcelCentroidLng:
-        dbField.parcel_centroid_lng,
+        fieldRow.parcel_centroid_lng,
     };
 
   const [
@@ -441,25 +443,25 @@ export async function calculateCropWaterUse(
 
   const cropSubtype =
     normalizeCropSubtype(
-      dbField.crop_subtype,
+      fieldRow.crop_subtype,
     );
 
   const canopyModel =
     resolveCanopyModelInput({
       canopyCoverPercent:
-        dbField.canopy_cover_percent,
+        fieldRow.canopy_cover_percent,
       canopyHeightM:
-        dbField.canopy_height_m,
+        fieldRow.canopy_height_m,
       canopyDevelopmentClass:
-        dbField.canopy_development_class,
+        fieldRow.canopy_development_class,
       canopyHeightClass:
-        dbField.canopy_height_class,
+        fieldRow.canopy_height_class,
     });
 
   const coefficient =
     resolveCropCoefficient({
       cropName:
-        dbField.crop,
+        fieldRow.crop,
 
       cropSubtype,
 
@@ -500,7 +502,7 @@ export async function calculateCropWaterUse(
       fieldId,
       calculatedAt: generatedAt,
       kc,
-      cropName: String(dbField.crop ?? ''),
+      cropName: String(fieldRow.crop ?? ''),
       stage: phenology.phenology.stage,
       stageLabel: phenology.phenology.stageLabel,
       confidence: coefficient.confidence,
@@ -569,12 +571,12 @@ export async function calculateCropWaterUse(
 
   const canopyDevelopmentLabel =
     getCanopyDevelopmentLabel(
-      dbField.canopy_development_class,
+      fieldRow.canopy_development_class,
     );
 
   const canopyHeightLabel =
     getCanopyHeightLabel(
-      dbField.canopy_height_class,
+      fieldRow.canopy_height_class,
     );
 
   if (canopyDevelopmentLabel) {
@@ -664,14 +666,14 @@ export async function calculateCropWaterUse(
 
     fieldName:
       String(
-        dbField.name ??
+        fieldRow.name ??
         '',
       ).trim() ||
       null,
 
     cropName:
       String(
-        dbField.crop ??
+        fieldRow.crop ??
         '',
       ).trim() ||
       null,

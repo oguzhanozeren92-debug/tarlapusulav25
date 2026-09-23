@@ -148,6 +148,8 @@ export async function loadFieldCompletionContext(
     return null;
   }
 
+  const row = data as Record<string, any>;
+
   const canopyDevelopmentClass =
     [
       'very_small',
@@ -155,8 +157,8 @@ export async function loadFieldCompletionContext(
       'medium',
       'large',
       'very_large',
-    ].includes(String(data.canopy_development_class ?? ''))
-      ? (String(data.canopy_development_class) as FieldCompletionContext['canopyDevelopmentClass'])
+    ].includes(String(row.canopy_development_class ?? ''))
+      ? (String(row.canopy_development_class) as FieldCompletionContext['canopyDevelopmentClass'])
       : null;
 
   const canopyHeightClass =
@@ -166,24 +168,24 @@ export async function loadFieldCompletionContext(
       '2_3m',
       '3_5m',
       'over_5m',
-    ].includes(String(data.canopy_height_class ?? ''))
-      ? (String(data.canopy_height_class) as FieldCompletionContext['canopyHeightClass'])
+    ].includes(String(row.canopy_height_class ?? ''))
+      ? (String(row.canopy_height_class) as FieldCompletionContext['canopyHeightClass'])
       : null;
 
   return {
-    fieldId: String(data.id),
-    cropName: textOrNull(data.crop),
-    cropCycle: textOrNull(data.crop_cycle),
-    plantingYear: finiteNumber(data.planting_year),
-    irrigationStatus: normalizeDatabaseStatus(data.irrigation_status),
+    fieldId: String(row.id),
+    cropName: textOrNull(row.crop),
+    cropCycle: textOrNull(row.crop_cycle),
+    plantingYear: finiteNumber(row.planting_year),
+    irrigationStatus: normalizeDatabaseStatus(row.irrigation_status),
     bearing:
-      typeof data.bearing === 'boolean'
-        ? data.bearing
+      typeof row.bearing === 'boolean'
+        ? row.bearing
         : null,
     canopyDevelopmentClass,
     canopyHeightClass,
-    canopyCoverPercent: finiteNumber(data.canopy_cover_percent),
-    canopyHeightM: finiteNumber(data.canopy_height_m),
+    canopyCoverPercent: finiteNumber(row.canopy_cover_percent),
+    canopyHeightM: finiteNumber(row.canopy_height_m),
   };
 }
 

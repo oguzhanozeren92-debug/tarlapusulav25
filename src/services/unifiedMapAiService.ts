@@ -406,7 +406,7 @@ function applyRiskRadarToFieldSynthesis(
         ? 'dikkat'
         : synthesis.status;
 
-  const evidence: FieldSynthesisEvidence[] = [
+  const evidence = ([
     {
       layer: 'risk-radar',
       layerLabel: 'Pusula Risk Radarı',
@@ -424,7 +424,7 @@ function applyRiskRadarToFieldSynthesis(
       status: radarStatus,
     },
     ...(Array.isArray(synthesis.evidence) ? synthesis.evidence : []),
-  ].slice(0, 9);
+  ] satisfies FieldSynthesisEvidence[]).slice(0, 9);
 
   const likelyCauses: FieldSynthesisLikelyCause[] = [
     ...(top.score >= 30

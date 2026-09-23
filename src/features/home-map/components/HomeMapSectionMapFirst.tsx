@@ -14,7 +14,12 @@ import {
   type HomeSoilProperty,
 } from '../HomeMapEngine';
 
-type HomeMapSectionMapFirstProps = ComponentProps<typeof HomeMapSection>;
+type HomeMapSectionMapFirstProps = ComponentProps<typeof HomeMapSection> & {
+  onOpenToday?: () => void;
+  onOpenNotifications?: () => void;
+  onOpenTasks?: () => void;
+  notificationCount?: number;
+};
 
 type LayerOption = {
   id: HomeLayer;

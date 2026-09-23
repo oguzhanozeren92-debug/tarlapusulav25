@@ -271,12 +271,13 @@ export async function buildPusulaPdfSnapshot(fieldIdInput: string, appWeather?: 
     .from('fields').select(FIELD_COLUMNS).eq('id', fieldId).eq('user_id', user.id).single();
   if (fieldError) throw fieldError;
 
-  const geometry = field.parcel_geometry ?? null;
+  const fieldRow = field as Record<string, any>;
+  const geometry = fieldRow.parcel_geometry ?? null;
   const period = getWeeklyReportPeriod();
 
   const [satellite, weather, activities, soilAnalyses, diagnoses, kcSnapshots, layerArchive] = await Promise.all([
     collectSatellite(geometry).catch(() => ({ points: [], availableDates: [] })),
-    hasUsableAppWeather(appWeather) ? Promise.resolve(appWeather) : collectWeather(field),
+    hasUsableAppWeather(appWeather) ? Promise.resolve(appWeather) : collectWeather(fieldRow),
     optionalRows('activities', fieldId, '*', 'activity_date'),
     optionalRows('soil_analyses', fieldId),
     optionalRows('ai_diagnosis_sessions', fieldId, '*', 'updated_at'),
@@ -296,13 +297,13 @@ export async function buildPusulaPdfSnapshot(fieldIdInput: string, appWeather?: 
   return {
     schemaVersion: 2,
     field: {
-      id: String(field.id), name: field.name ?? 'Tarla', city: field.city ?? null,
-      district: field.district ?? null, village: field.village ?? null,
-      areaDecare: numberOrNull(field.area_decare), crop: field.crop ?? null,
-      cropSubtype: field.crop_subtype ?? null, season: numberOrNull(field.season),
-      irrigationStatus: field.irrigation_status ?? null, irrigationMethod: field.irrigation_method ?? null,
-      geometry, latitude: numberOrNull(field.parcel_centroid_lat ?? field.latitude),
-      longitude: numberOrNull(field.parcel_centroid_lng ?? field.longitude),
+      id: String(fieldRow.id), name: fieldRow.name ?? 'Tarla', city: fieldRow.city ?? null,
+      district: fieldRow.district ?? null, village: fieldRow.village ?? null,
+      areaDecare: numberOrNull(fieldRow.area_decare), crop: fieldRow.crop ?? null,
+      cropSubtype: fieldRow.crop_subtype ?? null, season: numberOrNull(fieldRow.season),
+      irrigationStatus: fieldRow.irrigation_status ?? null, irrigationMethod: fieldRow.irrigation_method ?? null,
+      geometry, latitude: numberOrNull(fieldRow.parcel_centroid_lat ?? fieldRow.latitude),
+      longitude: numberOrNull(fieldRow.parcel_centroid_lng ?? fieldRow.longitude),
     },
     period: { start: period.start, end: period.end, createdAt: new Date().toISOString() },
     satellite, weather,

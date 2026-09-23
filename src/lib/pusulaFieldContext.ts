@@ -14,13 +14,14 @@ import {
   type DssatShadowReadiness,
 } from '../features/irrigation/services/dssatShadowReadiness.service';
 import {
-  fetchWorldCerealReferenceEvidence,
-  type WorldCerealReferenceEvidence,
-} from '../services/worldCerealEvidence.service';
+  fetchWorldCerealReferenceContext,
+  type WorldCerealReferenceContext,
+} from '../services/worldCerealReference.service';
+import { fetchFieldNdviTimeSeries } from '../features/satellite/services/ndviTimeSeries.service';
 import {
-  fetchNasaHarvestCropStageEvidence,
-  type NasaHarvestCropStageEvidence,
-} from '../services/nasaHarvestCropStage.service';
+  estimateNasaHarvestCropStage,
+  type NasaHarvestCropStageResult,
+} from '../features/phenology/services/nasaHarvestCropStage.service';
 import {
   fetchHybrisFieldEventsEvidence,
   type HybrisFieldEventsEvidence,
@@ -193,15 +194,17 @@ export type PusulaFieldContext = {
     evidence: PusulaEvidence;
   } | null;
 
-  cropReference: (WorldCerealReferenceEvidence & {
+  cropReference: (Omit<WorldCerealReferenceContext, 'evidence'> & {
+    sourceEvidence: WorldCerealReferenceContext['evidence'];
     evidence: PusulaEvidence;
   }) | null;
 
-  cropSuitability: (CropSuitabilityResponse & {
+  cropSuitability: (Omit<CropSuitabilityResponse, 'evidence'> & {
+    sourceEvidence: CropSuitabilityResponse['evidence'];
     evidence: PusulaEvidence;
   }) | null;
 
-  phenology: (NasaHarvestCropStageEvidence & {
+  phenology: (NasaHarvestCropStageResult & {
     evidence: PusulaEvidence;
   }) | null;
 
@@ -369,6 +372,7 @@ async function loadExtendedContext(
   fieldId: string,
   latitude: number,
   longitude: number,
+  parcelGeometry: unknown,
 ) {
   const cached = readExtendedCache(fieldId);
 
@@ -417,9 +421,12 @@ async function loadExtendedContext(
     }),
     fetchFaoAsisPointContext(latitude, longitude),
     fetchHydroBasinContext(latitude, longitude),
-    fetchWorldCerealReferenceEvidence(fieldId),
+    fetchWorldCerealReferenceContext(latitude, longitude),
     fetchFieldCropSuitability(fieldId),
-    fetchNasaHarvestCropStageEvidence(fieldId),
+    parcelGeometry
+      ? fetchFieldNdviTimeSeries(parcelGeometry, { daysBack: 180 })
+          .then((series) => estimateNasaHarvestCropStage(series.points))
+      : Promise.resolve(null),
     fetchHybrisFieldEventsEvidence(fieldId),
     fetchDssatShadowReadiness(fieldId),
   ]);
@@ -623,6 +630,7 @@ async function loadExtendedContext(
     cropSuitabilityResult.status === 'fulfilled'
       ? {
           ...cropSuitabilityResult.value,
+          sourceEvidence: cropSuitabilityResult.value.evidence,
           evidence: {
             source: 'FAO ECOCROP + NASA POWER + SoilGrids',
             priority: 'model_context',
@@ -657,6 +665,7 @@ async function loadExtendedContext(
     worldCerealResult.status === 'fulfilled'
       ? {
           ...worldCerealResult.value,
+          sourceEvidence: worldCerealResult.value.evidence ?? [],
           evidence: {
             source: 'ESA WorldCereal 10 m 2021 v100',
             priority: 'model_context',
@@ -674,7 +683,7 @@ async function loadExtendedContext(
       : null;
 
   const phenology: PusulaFieldContext['phenology'] =
-    phenologyResult.status === 'fulfilled'
+    phenologyResult.status === 'fulfilled' && phenologyResult.value
       ? {
           ...phenologyResult.value,
           evidence: {
@@ -815,6 +824,7 @@ export async function buildPusulaFieldContext({
           fieldId,
           coords.latitude,
           coords.longitude,
+          (field as any)?.parcelGeometry ?? (field as any)?.parcel_geometry ?? null,
         )
       : Promise.resolve(null);
 

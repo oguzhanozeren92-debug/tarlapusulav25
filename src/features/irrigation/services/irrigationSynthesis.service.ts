@@ -49,14 +49,15 @@ async function loadFieldForPhenology(fieldId: string) {
   if (error) throw error;
   if (!data) throw new Error('Sulama sentezi için tarla bulunamadı.');
 
+  const row = data as Record<string, any>;
   return {
-    ...data,
-    cropName: data.crop ?? null,
-    cropCycle: data.crop_cycle ?? null,
-    plantingYear: data.planting_year ?? null,
-    parcelGeometry: data.parcel_geometry ?? null,
-    parcelCentroidLat: data.parcel_centroid_lat ?? null,
-    parcelCentroidLng: data.parcel_centroid_lng ?? null,
+    ...row,
+    cropName: row.crop ?? null,
+    cropCycle: row.crop_cycle ?? null,
+    plantingYear: row.planting_year ?? null,
+    parcelGeometry: row.parcel_geometry ?? null,
+    parcelCentroidLat: row.parcel_centroid_lat ?? null,
+    parcelCentroidLng: row.parcel_centroid_lng ?? null,
   };
 }
 
