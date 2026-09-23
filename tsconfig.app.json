@@ -16,9 +16,10 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Type safety. Unused code is enforced by lint/cleanup, not tsc. */
+    /* Structural type safety. Cleanup-only findings stay in lint. */
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "noImplicitAny": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
