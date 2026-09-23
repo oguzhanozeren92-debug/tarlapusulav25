@@ -1,0 +1,160 @@
+name: Apply stabilization batch 3
+
+on:
+  push:
+    branches:
+      - 'stabilize/2026-09-23'
+    paths:
+      - '.github/workflows/apply-stabilization-batch3.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: stabilize/2026-09-23
+          fetch-depth: 0
+
+      - name: Apply batch 3
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def patch(path, old, new, count=None):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              found = text.count(old)
+              if found == 0:
+                  raise SystemExit(f'Patch target not found in {path}: {old[:120]!r}')
+              if count is not None and found < count:
+                  raise SystemExit(f'Expected {count} matches in {path}, found {found}')
+              text = text.replace(old, new) if count is None else text.replace(old, new, count)
+              p.write_text(text, encoding='utf-8')
+
+          # Supabase JS has no generated Database schema in this repo. Keep runtime
+          # validation explicit and cast only query rows at the boundary instead of
+          # allowing GenericStringError to leak into domain code.
+          p = Path('src/features/fields/services/fieldCompletion.service.ts')
+          text = p.read_text(encoding='utf-8')
+          start = text.index('export async function loadFieldCompletionContext(')
+          end = text.index('/**\n * Eski çağrılar için korunuyor.', start)
+          segment = text[start:end]
+          segment = segment.replace("  if (!data) {\n    return null;\n  }\n", "  if (!data) {\n    return null;\n  }\n\n  const row = data as Record<string, any>;\n")
+          segment = segment.replace('data.', 'row.')
+          text = text[:start] + segment + text[end:]
+          p.write_text(text, encoding='utf-8')
+
+          p = Path('src/features/irrigation/services/cropWaterUse.service.ts')
+          text = p.read_text(encoding='utf-8')
+          marker = "  if (!dbField) {\n    throw new Error(\n      'Bitki su tüketimi hesabı için tarla bulunamadı veya erişim yok.',\n    );\n  }\n"
+          if marker not in text:
+              raise SystemExit('cropWaterUse dbField marker missing')
+          text = text.replace(marker, marker + "\n  const fieldRow = dbField as Record<string, any>;\n", 1)
+          text = text.replace('...dbField', '...fieldRow')
+          text = text.replace('dbField.', 'fieldRow.')
+          p.write_text(text, encoding='utf-8')
+
+          patch(
+              'src/features/irrigation/services/irrigationSynthesis.service.ts',
+              "  if (error) throw error;\n  if (!data) throw new Error('Sulama sentezi için tarla bulunamadı.');\n\n  return {\n    ...data,\n    cropName: data.crop ?? null,\n    cropCycle: data.crop_cycle ?? null,\n    plantingYear: data.planting_year ?? null,\n    parcelGeometry: data.parcel_geometry ?? null,\n    parcelCentroidLat: data.parcel_centroid_lat ?? null,\n    parcelCentroidLng: data.parcel_centroid_lng ?? null,\n  };",
+              "  if (error) throw error;\n  if (!data) throw new Error('Sulama sentezi için tarla bulunamadı.');\n\n  const row = data as Record<string, any>;\n  return {\n    ...row,\n    cropName: row.crop ?? null,\n    cropCycle: row.crop_cycle ?? null,\n    plantingYear: row.planting_year ?? null,\n    parcelGeometry: row.parcel_geometry ?? null,\n    parcelCentroidLat: row.parcel_centroid_lat ?? null,\n    parcelCentroidLng: row.parcel_centroid_lng ?? null,\n  };",
+          )
+
+          # PUSULAPDF field row boundary.
+          p = Path('src/features/pusula-pdf/services/pusulaPdfData.service.ts')
+          text = p.read_text(encoding='utf-8')
+          start = text.index('export async function buildPusulaPdfSnapshot(')
+          end = text.index('export async function getOrCreateWeeklyPusulaReport(', start)
+          segment = text[start:end]
+          segment = segment.replace('  if (fieldError) throw fieldError;\n\n  const geometry = field.parcel_geometry ?? null;', "  if (fieldError) throw fieldError;\n\n  const fieldRow = field as Record<string, any>;\n  const geometry = fieldRow.parcel_geometry ?? null;")
+          segment = segment.replace('collectWeather(field)', 'collectWeather(fieldRow)')
+          segment = segment.replace('field.', 'fieldRow.')
+          text = text[:start] + segment + text[end:]
+          p.write_text(text, encoding='utf-8')
+
+          patch(
+              'src/features/pusula-pdf/services/pusulaPdfDecisionEvidence.service.ts',
+              "  if (error) throw error;\n  if (!data) throw new Error('PUSULAPDF kanıt arşivi için tarla bulunamadı.');\n\n  return {\n    ...data,\n    cropName: data.crop ?? null,\n    cropCycle: data.crop_cycle ?? null,\n    plantingYear: data.planting_year ?? null,\n    parcelGeometry: data.parcel_geometry ?? null,\n    parcelCentroidLat: data.parcel_centroid_lat ?? null,\n    parcelCentroidLng: data.parcel_centroid_lng ?? null,\n  };",
+              "  if (error) throw error;\n  if (!data) throw new Error('PUSULAPDF kanıt arşivi için tarla bulunamadı.');\n\n  const row = data as Record<string, any>;\n  return {\n    ...row,\n    cropName: row.crop ?? null,\n    cropCycle: row.crop_cycle ?? null,\n    plantingYear: row.planting_year ?? null,\n    parcelGeometry: row.parcel_geometry ?? null,\n    parcelCentroidLat: row.parcel_centroid_lat ?? null,\n    parcelCentroidLng: row.parcel_centroid_lng ?? null,\n  };",
+          )
+
+          # Map-first wrapper has three UI-only callbacks in addition to the core map props.
+          patch(
+              'src/features/home-map/components/HomeMapSectionMapFirst.tsx',
+              'type HomeMapSectionMapFirstProps = ComponentProps<typeof HomeMapSection>;',
+              "type HomeMapSectionMapFirstProps = ComponentProps<typeof HomeMapSection> & {\n  onOpenToday?: () => void;\n  onOpenNotifications?: () => void;\n  onOpenTasks?: () => void;\n  notificationCount?: number;\n};",
+          )
+
+          # Pusula extended context: point stale imports at active production services.
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "import {\n  fetchWorldCerealReferenceEvidence,\n  type WorldCerealReferenceEvidence,\n} from '../services/worldCerealEvidence.service';\nimport {\n  fetchNasaHarvestCropStageEvidence,\n  type NasaHarvestCropStageEvidence,\n} from '../services/nasaHarvestCropStage.service';",
+              "import {\n  fetchWorldCerealReferenceContext,\n  type WorldCerealReferenceContext,\n} from '../services/worldCerealReference.service';\nimport { fetchFieldNdviTimeSeries } from '../features/satellite/services/ndviTimeSeries.service';\nimport {\n  estimateNasaHarvestCropStage,\n  type NasaHarvestCropStageResult,\n} from '../features/phenology/services/nasaHarvestCropStage.service';",
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "  cropReference: (WorldCerealReferenceEvidence & {\n    evidence: PusulaEvidence;\n  }) | null;\n\n  cropSuitability: (CropSuitabilityResponse & {\n    evidence: PusulaEvidence;\n  }) | null;\n\n  phenology: (NasaHarvestCropStageEvidence & {\n    evidence: PusulaEvidence;\n  }) | null;",
+              "  cropReference: (Omit<WorldCerealReferenceContext, 'evidence'> & {\n    sourceEvidence: WorldCerealReferenceContext['evidence'];\n    evidence: PusulaEvidence;\n  }) | null;\n\n  cropSuitability: (Omit<CropSuitabilityResponse, 'evidence'> & {\n    sourceEvidence: CropSuitabilityResponse['evidence'];\n    evidence: PusulaEvidence;\n  }) | null;\n\n  phenology: (NasaHarvestCropStageResult & {\n    evidence: PusulaEvidence;\n  }) | null;",
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "async function loadExtendedContext(\n  fieldId: string,\n  latitude: number,\n  longitude: number,\n) {",
+              "async function loadExtendedContext(\n  fieldId: string,\n  latitude: number,\n  longitude: number,\n  parcelGeometry: unknown,\n) {",
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "    fetchWorldCerealReferenceEvidence(fieldId),\n    fetchFieldCropSuitability(fieldId),\n    fetchNasaHarvestCropStageEvidence(fieldId),",
+              "    fetchWorldCerealReferenceContext(latitude, longitude),\n    fetchFieldCropSuitability(fieldId),\n    parcelGeometry\n      ? fetchFieldNdviTimeSeries(parcelGeometry, { daysBack: 180 })\n          .then((series) => estimateNasaHarvestCropStage(series.points))\n      : Promise.resolve(null),",
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "          ...worldCerealResult.value,\n          evidence: {",
+              "          ...worldCerealResult.value,\n          sourceEvidence: worldCerealResult.value.evidence ?? [],\n          evidence: {",
+              1,
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "          ...cropSuitabilityResult.value,\n          evidence: {",
+              "          ...cropSuitabilityResult.value,\n          sourceEvidence: cropSuitabilityResult.value.evidence,\n          evidence: {",
+              1,
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "    phenologyResult.status === 'fulfilled'\n      ? {",
+              "    phenologyResult.status === 'fulfilled' && phenologyResult.value\n      ? {",
+              1,
+          )
+          patch(
+              'src/lib/pusulaFieldContext.ts',
+              "          coords.longitude,\n        )",
+              "          coords.longitude,\n          (field as any)?.parcelGeometry ?? (field as any)?.parcel_geometry ?? null,\n        )",
+              1,
+          )
+
+          # Preserve the evidence layer discriminated union through array slicing.
+          patch(
+              'src/services/unifiedMapAiService.ts',
+              "  const evidence: FieldSynthesisEvidence[] = [\n    {",
+              "  const evidence = ([\n    {",
+              1,
+          )
+          patch(
+              'src/services/unifiedMapAiService.ts',
+              "    ...(Array.isArray(synthesis.evidence) ? synthesis.evidence : []),\n  ].slice(0, 9);",
+              "    ...(Array.isArray(synthesis.evidence) ? synthesis.evidence : []),\n  ] satisfies FieldSynthesisEvidence[]).slice(0, 9);",
+              1,
+          )
+
+      - name: Commit batch 3
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src
+          git diff --cached --check
+          git commit -m "fix: stabilize field data and pusula context contracts" || exit 0
+          git push origin HEAD:stabilize/2026-09-23
