@@ -11,6 +11,7 @@ from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from aquacrop_runner import AquaCropPilotRequest, run_aquacrop_pilot
+from cropforge_runner import CropForgeShadowRequest, run_cropforge_shadow
 from dssat_adapter import DssatStructuredShadowRequest, run_dssat_structured_shadow
 from dssat_runner import (
     DssatPreparedShadowRequest,
@@ -31,7 +32,7 @@ IS_DEVELOPMENT = os.getenv("MODEL_GATEWAY_ENV", "production").strip().lower() ==
 
 app = FastAPI(
     title="TarlaPusula Model Gateway",
-    version="0.7.0",
+    version="0.8.0",
     docs_url="/docs" if IS_DEVELOPMENT else None,
     redoc_url="/redoc" if IS_DEVELOPMENT else None,
     openapi_url="/openapi.json" if IS_DEVELOPMENT else None,
@@ -249,6 +250,7 @@ def health() -> dict[str, Any]:
         "pyfao56": _module_status("pyfao56"),
         "pcse": _module_status("pcse"),
         "aquacrop": _module_status("aquacrop"),
+        "cropforge": _module_status("cropforge"),
         "dssat": dssat_runtime_status(),
     }
     enabled_engines = [
@@ -480,29 +482,48 @@ def cropforge_readiness(
     payload: EngineReadinessRequest,
     x_model_gateway_key: str | None = Header(default=None),
 ) -> dict[str, Any]:
-    """Validate real CropForge scenario inputs without executing CropForge.
-
-    Phase 1 deliberately keeps execution disabled. Terrain/erosion physics require
-    a verified topography payload and are not enabled by this readiness check.
-    """
+    """Validate CropForge core shadow inputs without granting decision authority."""
     _authorize(x_model_gateway_key)
     result = _readiness("cropforge", payload, REQUIRED_CROPFORGE_INPUTS)
+    execution_enabled = ENGINE_REGISTRY["cropforge"]["rollout"] in {
+        "shadow",
+        "pilot",
+        "production",
+    }
     return {
         **result,
         "input_ready": result["ready"],
-        "execution_enabled": False,
-        "ready": False,
+        "execution_enabled": execution_enabled,
+        "ready": bool(result["ready"] and execution_enabled),
         "production_authority": False,
         "yield_authority": False,
         "irrigation_prescription_authority": False,
         "nutrient_prescription_authority": False,
         "terrain_physics_ready": False,
         "note": (
-            "Core CropForge inputs are complete. Runtime execution remains intentionally disabled until verified terrain and benchmark gates are added."
-            if result["ready"]
+            "Core CropForge inputs are complete and the crop/weather shadow runner is enabled. Terrain and decision physics remain gated."
+            if result["ready"] and execution_enabled
             else result["note"]
         ),
     }
+
+
+@app.post("/v1/scenario/cropforge/shadow")
+def cropforge_shadow(
+    payload: CropForgeShadowRequest,
+    x_model_gateway_key: str | None = Header(default=None),
+) -> dict[str, Any]:
+    _authorize(x_model_gateway_key)
+    if ENGINE_REGISTRY["cropforge"]["rollout"] not in {"shadow", "pilot", "production"}:
+        raise HTTPException(status_code=409, detail="CropForge shadow rollout is disabled")
+    try:
+        return run_cropforge_shadow(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"CropForge shadow failed: {exc}") from exc
 
 
 @app.get("/v1/scenario/dssat/health")

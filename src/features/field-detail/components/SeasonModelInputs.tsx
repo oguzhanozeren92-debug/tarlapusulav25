@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { TURKEY_CROPS } from '../../../data/crops';
 import {
   ensureCropForgeReadinessFreshBestEffort,
+  ensureCropForgeShadowFreshBestEffort,
   ensurePyFao56ReadinessFreshBestEffort,
 } from '../../../services/modelReadiness.service';
 import type { Field, FieldSeason } from '../../../types';
@@ -52,6 +53,7 @@ export default function SeasonModelInputs({ field, seasons, seasonsLoading }: Pr
     const fieldId = String(field.id);
     ensurePyFao56ReadinessFreshBestEffort(fieldId, 24);
     ensureCropForgeReadinessFreshBestEffort(fieldId, 24);
+    ensureCropForgeShadowFreshBestEffort(fieldId, 24);
   }, [field.id]);
 
   useEffect(() => {

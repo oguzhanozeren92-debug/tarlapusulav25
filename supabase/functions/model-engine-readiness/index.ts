@@ -26,7 +26,7 @@ const ENGINE_CONFIG = {
 
   cropforge: {
     adapter: 'pcse-pilot-inputs+aquacrop-pilot-inputs',
-    rollout: 'shadow-readiness',
+    rollout: 'shadow',
     required: ['field_location', 'daily_weather', 'crop_parameters', 'soil_profile', 'planting_date'],
   },
 } as const;
@@ -126,8 +126,8 @@ function normalizeCropForge(pcsePayload: any, aquacropPayload: any) {
       aquacrop_adapter: aquacropPayload?.adapters ?? null,
     },
     context: {
-      cropforge_phase: 'shadow-readiness-v1',
-      execution_enabled: false,
+      cropforge_phase: 'shadow-runtime-v1',
+      execution_enabled: true,
       terrain_physics_ready: false,
       terrain_gate: 'verified_topography_required_before_runtime',
       pcse: pcsePayload?.context ?? null,

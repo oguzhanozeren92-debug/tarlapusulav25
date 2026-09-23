@@ -335,3 +335,48 @@ export function refreshCropForgeReadinessBestEffort(
     'cropforge',
   );
 }
+
+
+const cropForgeShadowInFlight = new Set<string>();
+
+export function ensureCropForgeShadowFreshBestEffort(
+  fieldId: string,
+  maxAgeHours = DEFAULT_MAX_AGE_HOURS,
+) {
+  const field = normalizedId(fieldId);
+  if (!field || cropForgeShadowInFlight.has(field)) return;
+  cropForgeShadowInFlight.add(field);
+
+  void (async () => {
+    try {
+      const { data, error } = await supabase
+        .from('model_engine_runs')
+        .select('status,updated_at,completed_at')
+        .eq('field_id', field)
+        .eq('engine', 'cropforge')
+        .eq('mode', 'shadow')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!error && data) {
+        const timestamp = Date.parse(String(data.completed_at ?? data.updated_at ?? ''));
+        const freshForMs = Math.max(0.25, maxAgeHours) * 60 * 60 * 1000;
+        if (Number.isFinite(timestamp) && Date.now() - timestamp <= freshForMs) return;
+      }
+
+      const { data: result, error: invokeError } = await supabase.functions.invoke(
+        'cropforge-shadow-run',
+        { body: { field_id: field } },
+      );
+      if (invokeError) throw invokeError;
+      if (result?.ok === false) {
+        throw new Error(String(result?.error ?? 'CropForge shadow çalıştırılamadı.'));
+      }
+    } catch (error) {
+      console.warn('[cropforge-shadow] background run failed', error);
+    } finally {
+      cropForgeShadowInFlight.delete(field);
+    }
+  })();
+}
