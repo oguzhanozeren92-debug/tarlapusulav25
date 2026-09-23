@@ -13,6 +13,14 @@ import './styles/WhiteAppTheme.css';
 import './styles/MonochromeUI.css';
 import './styles/MapReadabilityFix.css';
 
+if (window.location.pathname === '/admin' || window.location.pathname.startsWith('/admin/')) {
+  try {
+    window.localStorage.setItem('tp_admin_mode_open_v1', '1');
+  } catch {
+    // Admin yetkisi yine Supabase + admin_users ile doğrulanır.
+  }
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <>
