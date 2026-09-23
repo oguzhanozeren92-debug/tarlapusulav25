@@ -27,12 +27,11 @@ jobs:
       - name: Run tests
         run: npm test
 
-      # The repository already has a large pre-existing TypeScript error
-      # baseline. Keep surfacing that debt without making every main commit
-      # permanently red; tests and the production build remain hard gates.
-      - name: Typecheck (legacy baseline, advisory)
-        continue-on-error: true
+      - name: Typecheck
         run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
 
       - name: Build
         run: npm run build
