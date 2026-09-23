@@ -75,6 +75,34 @@ async function authenticatedClients(req: Request) {
   return { user: data.user, serviceClient, supabaseUrl, anonKey, authorization };
 }
 
+async function loadGatewayConfig(serviceClient: any) {
+  const { data, error } = await serviceClient
+    .from('internal_service_config')
+    .select('key,value')
+    .in('key', ['cropforge_model_gateway_url', 'cropforge_model_gateway_shared_key']);
+
+  const values = new Map<string, string>();
+  if (!error && Array.isArray(data)) {
+    for (const row of data) values.set(String(row.key), String(row.value ?? ''));
+  }
+
+  const gatewayUrl = (
+    values.get('cropforge_model_gateway_url') ??
+    Deno.env.get('MODEL_GATEWAY_URL') ??
+    ''
+  ).replace(/\/$/, '');
+  const gatewayKey = (
+    values.get('cropforge_model_gateway_shared_key') ??
+    Deno.env.get('MODEL_GATEWAY_SHARED_KEY') ??
+    ''
+  ).trim();
+
+  if (!gatewayUrl || !gatewayKey) {
+    throw new Error('CropForge model gateway bağlantı yapılandırması eksik.');
+  }
+  return { gatewayUrl, gatewayKey };
+}
+
 async function callAdapter(
   supabaseUrl: string,
   anonKey: string,
@@ -219,13 +247,14 @@ Deno.serve(async (req) => {
       }, 400);
     }
 
-    const gatewayUrl = (Deno.env.get('MODEL_GATEWAY_URL') ?? '').replace(/\/$/, '');
-    const gatewayKey = Deno.env.get('MODEL_GATEWAY_SHARED_KEY') ?? '';
-    if (!gatewayUrl || !gatewayKey) {
+    const { user, serviceClient, supabaseUrl, anonKey, authorization } = await authenticatedClients(req);
+    let gatewayUrl = '';
+    let gatewayKey = '';
+    try {
+      ({ gatewayUrl, gatewayKey } = await loadGatewayConfig(serviceClient));
+    } catch {
       return json({ ok: false, blocked: true, missing_inputs: ['model_gateway_connection'], production_authority: false }, 503);
     }
-
-    const { user, serviceClient, supabaseUrl, anonKey, authorization } = await authenticatedClients(req);
     const { data: field, error: fieldError } = await serviceClient
       .from('fields')
       .select('id,user_id,crop,area_decare,latitude,longitude,parcel_centroid_lat,parcel_centroid_lng')
