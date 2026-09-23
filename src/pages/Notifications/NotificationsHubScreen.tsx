@@ -61,6 +61,8 @@ type StoredNotification = {
     action_target?: string | null;
     title?: string | null;
     status?: string | null;
+    reward_points?: number | null;
+    rewardPoints?: number | null;
   } | null;
   isRead?: boolean;
   createdAt?: string | null;
@@ -92,7 +94,12 @@ function readStoredNotifications(): StoredNotification[] {
       raw ? JSON.parse(raw) : [];
 
     return Array.isArray(parsed)
-      ? parsed
+      ? parsed.filter(
+          (item) =>
+            item &&
+            typeof item === 'object' &&
+            item.kind !== 'task',
+        )
       : [];
   } catch {
     return [];
@@ -632,7 +639,7 @@ export default function NotificationsHubScreen({
           ).trim();
 
         if (
-          item.kind === 'task' &&
+          item.task &&
           activeField &&
           typeof onOpenFieldDetail ===
             'function'
@@ -735,7 +742,7 @@ export default function NotificationsHubScreen({
             </h1>
             <p>
               Pusula analizleri üstte sabit,
-              gelişmeler ve görevler aşağıda.
+              uyarılar ve gelişmeler aşağıda.
             </p>
           </div>
 
@@ -1322,7 +1329,7 @@ export default function NotificationsHubScreen({
                 GÜNCEL GELİŞMELER
               </span>
               <h2>
-                Bildirimler ve görevler
+                Bildirimler
               </h2>
             </div>
 
@@ -1388,10 +1395,7 @@ export default function NotificationsHubScreen({
 
                     <span className="tp-notification-item-copy">
                       <small>
-                        {item.kind ===
-                        'task'
-                          ? 'GÖREV'
-                          : 'BİLDİRİM'}
+                        BİLDİRİM
                         {item.fieldName
                           ? ` · ${item.fieldName}`
                           : ''}

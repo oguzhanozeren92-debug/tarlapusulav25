@@ -15,10 +15,21 @@ export function persistHomeNotifications(input: {
     const previous = raw ? JSON.parse(raw) : [];
     const previousItems = Array.isArray(previous) ? previous : [];
     const byId = new Map<string, any>();
-    const activeIds = new Set(input.notifications.map((item) => item.id));
+
+    /*
+     * Bildirim kuyruğu yalnız bilgi/uyarı taşır. Görevler field_todos
+     * üzerinden yönetilir ve ayrı bir "Yeni görev tanımlandı" bildirimi
+     * fieldTasks.service tarafından üretilir.
+     */
+    const informationNotifications = input.notifications.filter((item) => !item.task);
+    const activeIds = new Set(informationNotifications.map((item) => item.id));
 
     previousItems.forEach((item: any) => {
       if (!item?.id) return;
+
+      // Eski sürümlerden kalan görev tipindeki bildirimleri temizle.
+      if (item.kind === 'task') return;
+
       if (
         String(item.fieldId ?? '') === input.fieldId &&
         !activeIds.has(String(item.id)) &&
@@ -35,7 +46,7 @@ export function persistHomeNotifications(input: {
 
     const nowIso = new Date().toISOString();
 
-    input.notifications.forEach((item) => {
+    informationNotifications.forEach((item) => {
       const existing = byId.get(item.id);
       byId.set(item.id, {
         id: item.id,
@@ -48,8 +59,8 @@ export function persistHomeNotifications(input: {
         iconKey: item.iconKey,
         target: item.target,
         priority: item.priority,
-        kind: item.task ? 'task' : 'notification',
-        task: item.task ?? null,
+        kind: 'notification',
+        task: null,
         isRead: existing?.isRead ?? false,
         createdAt: existing?.createdAt ?? nowIso,
         updatedAt: nowIso,

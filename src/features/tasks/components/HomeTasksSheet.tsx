@@ -1,5 +1,13 @@
-import { useEffect, useRef } from 'react';
-import { Check, ChevronRight, Clock3, ListTodo, RefreshCw, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Clock3,
+  ListTodo,
+  RefreshCw,
+  X,
+} from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useFieldTasks } from '../hooks/useFieldTasks';
 import type { FieldTask } from '../services/fieldTasks.service';
@@ -16,8 +24,15 @@ type Props = {
 const WATER_MEASUREMENT_FOCUS_KEY = 'tp_focus_field_water_measurement';
 
 function sourceLabel(source: string) {
-  if (source === 'field-readiness') return 'PUSULA GÖREVİ';
-  if (source === 'model-readiness') return 'MODEL HAZIRLIĞI';
+  if (
+    source === 'field-readiness' ||
+    source === 'model-readiness' ||
+    source === 'irrigation_synthesis' ||
+    source === 'notification-task'
+  ) {
+    return 'PUSULA GÖREVİ';
+  }
+
   if (source === 'pusula') return 'PUSULA';
   return 'GÖREV';
 }
@@ -63,7 +78,10 @@ function isSurfaceWaterMeasurementTask(task: FieldTask) {
 
 function taskTitle(task: FieldTask) {
   if (!isPhotoCheckTask(task)) return task.title;
-  if (task.title.toLocaleLowerCase('tr-TR').includes('fotoğraf yükle')) return task.title;
+  if (task.title.toLocaleLowerCase('tr-TR').includes('fotoğraf yükle')) {
+    return task.title;
+  }
+
   return task.title.replace(/kontrol et/i, 'kontrol et ve fotoğraf yükle');
 }
 
@@ -71,6 +89,16 @@ function actionLabel(task: FieldTask) {
   if (isIrrigationMethodTask(task)) return "Pusula'ya cevap ver";
   if (isSurfaceWaterMeasurementTask(task)) return 'Ölçümü ekle';
   return isPhotoCheckTask(task) ? 'Kontrol et ve fotoğraf yükle' : 'Göreve git';
+}
+
+function compactDescription(task: FieldTask) {
+  const value = String(task.description ?? '').replace(/\s+/g, ' ').trim();
+  if (!value) return null;
+
+  const firstSentence = value.split(/(?<=[.!?])\s+/)[0]?.trim() || value;
+  return firstSentence.length > 86
+    ? `${firstSentence.slice(0, 83).trimEnd()}…`
+    : firstSentence;
 }
 
 function scrollToPusulaQuestion(attempt = 0) {
@@ -122,13 +150,28 @@ export default function HomeTasksSheet({
   onAction,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const { tasks, loading, error, message, refresh, complete, dismiss } = useFieldTasks(fieldId, open);
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const { tasks, loading, error, message, refresh, complete, dismiss } =
+    useFieldTasks(fieldId, open);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (open && !dialog?.open) dialog?.showModal();
     if (!open && dialog?.open) dialog.close();
   }, [open]);
+
+  useEffect(() => {
+    if (!open) setExpandedTaskId(null);
+  }, [open]);
+
+  useEffect(() => {
+    if (
+      expandedTaskId &&
+      !tasks.some((task) => task.id === expandedTaskId)
+    ) {
+      setExpandedTaskId(null);
+    }
+  }, [expandedTaskId, tasks]);
 
   const close = () => {
     dialogRef.current?.close();
@@ -181,13 +224,22 @@ export default function HomeTasksSheet({
 
         <span className="tp-home-tasks-count">{tasks.length}</span>
 
-        <button type="button" className="tp-home-tasks-close" onClick={close} aria-label="Kapat">
+        <button
+          type="button"
+          className="tp-home-tasks-close"
+          onClick={close}
+          aria-label="Kapat"
+        >
           <X size={20} />
         </button>
       </header>
 
       <div className="tp-home-tasks-intro">
-        <p>Pusula, eksik tarla bilgilerine ve model ihtiyaçlarına göre sana tamamlanabilir görevler verir.</p>
+        <p>
+          {tasks.length
+            ? `${tasks.length} açık görev var. Detay için göreve dokun.`
+            : 'Yeni görev oluştuğunda burada görünecek.'}
+        </p>
         <button type="button" onClick={() => void refresh()} disabled={loading}>
           <RefreshCw size={15} className={loading ? 'is-spinning' : ''} />
           Yenile
@@ -203,56 +255,91 @@ export default function HomeTasksSheet({
         ) : tasks.length ? (
           tasks.map((task) => {
             const priority = priorityLabel(task.priority);
+            const expanded = expandedTaskId === task.id;
+            const preview = compactDescription(task);
 
             return (
-              <article className="tp-home-task-card" key={task.id}>
-                <div className="tp-home-task-topline">
-                  <span>{sourceLabel(task.source)}</span>
-                  <div>
-                    {priority ? <b>{priority}</b> : null}
-                    {task.rewardPoints > 0 ? <em>+{task.rewardPoints} P</em> : null}
-                  </div>
-                </div>
+              <article
+                className={`tp-home-task-card${expanded ? ' is-expanded' : ''}`}
+                key={task.id}
+              >
+                <button
+                  type="button"
+                  className="tp-home-task-summary"
+                  aria-expanded={expanded}
+                  aria-controls={`task-detail-${task.id}`}
+                  onClick={() =>
+                    setExpandedTaskId((current) =>
+                      current === task.id ? null : task.id,
+                    )
+                  }
+                >
+                  <span className="tp-home-task-main">
+                    <span className="tp-home-task-eyebrow">
+                      {sourceLabel(task.source)}
+                      {priority ? <b>{priority}</b> : null}
+                    </span>
+                    <strong>{taskTitle(task)}</strong>
+                    {!expanded && preview ? <small>{preview}</small> : null}
+                  </span>
 
-                {isPhotoCheckTask(task) ? (
-                  <div className="tp-home-task-photo-hint" aria-hidden="true">
-                    Fotoğraf yükle
+                  <span className="tp-home-task-side">
+                    <em>+{task.rewardPoints} P</em>
+                    <ChevronDown
+                      className="tp-home-task-chevron"
+                      size={17}
+                      aria-hidden="true"
+                    />
+                  </span>
+                </button>
+
+                {expanded ? (
+                  <div
+                    id={`task-detail-${task.id}`}
+                    className="tp-home-task-detail"
+                  >
+                    {isPhotoCheckTask(task) ? (
+                      <div className="tp-home-task-photo-hint" aria-hidden="true">
+                        Fotoğraf yükle
+                      </div>
+                    ) : null}
+
+                    {task.description ? <p>{task.description}</p> : null}
+
+                    <div className="tp-home-task-actions">
+                      <button
+                        type="button"
+                        className="tp-home-task-later"
+                        onClick={() => void dismiss(task)}
+                      >
+                        <Clock3 size={14} />
+                        Şimdi değil
+                      </button>
+
+                      {task.actionTarget ? (
+                        <button
+                          type="button"
+                          className={`tp-home-task-open ${
+                            isPhotoCheckTask(task) ? 'is-photo-action' : ''
+                          }`}
+                          onClick={() => openTask(task)}
+                        >
+                          {actionLabel(task)}
+                          <ChevronRight size={16} />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="tp-home-task-complete"
+                          onClick={() => void complete(task)}
+                        >
+                          <Check size={15} />
+                          Tamamlandı
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ) : null}
-
-                <h3>{taskTitle(task)}</h3>
-                {task.description ? <p>{task.description}</p> : null}
-
-                <div className="tp-home-task-actions">
-                  <button
-                    type="button"
-                    className="tp-home-task-later"
-                    onClick={() => void dismiss(task)}
-                  >
-                    <Clock3 size={14} />
-                    Şimdi değil
-                  </button>
-
-                  {task.actionTarget ? (
-                    <button
-                      type="button"
-                      className={`tp-home-task-open ${isPhotoCheckTask(task) ? 'is-photo-action' : ''}`}
-                      onClick={() => openTask(task)}
-                    >
-                      {actionLabel(task)}
-                      <ChevronRight size={16} />
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="tp-home-task-complete"
-                      onClick={() => void complete(task)}
-                    >
-                      <Check size={15} />
-                      Tamamlandı
-                    </button>
-                  )}
-                </div>
               </article>
             );
           })
