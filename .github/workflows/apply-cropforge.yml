@@ -33,41 +33,30 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('supabase/functions/model-engine-readiness/index.ts')
           text = path.read_text()
 
-          def replace_once(old: str, new: str, label: str):
-              global text
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f'{label}: expected 1 anchor, found {count}')
-              text = text.replace(old, new, 1)
+          if 'cropforge:' in text:
+              raise SystemExit('cropforge engine already present unexpectedly')
 
-          replace_once(
-          """  aquacrop: {
-            adapter: 'aquacrop-pilot-inputs',
-            rollout: 'pilot',
-            required: ['crop_parameters', 'soil_profile', 'initial_water_content', 'irrigation_management'],
-          },
-          } as const;""",
-          """  aquacrop: {
-            adapter: 'aquacrop-pilot-inputs',
-            rollout: 'pilot',
-            required: ['crop_parameters', 'soil_profile', 'initial_water_content', 'irrigation_management'],
-          },
-          cropforge: {
-            adapter: 'pcse-pilot-inputs+aquacrop-pilot-inputs',
-            rollout: 'shadow-readiness',
-            required: ['field_location', 'daily_weather', 'crop_parameters', 'soil_profile', 'planting_date'],
-          },
-          } as const;""",
-          'engine config',
-          )
+          marker = '\n} as const;'
+          if text.count(marker) != 1:
+              raise SystemExit(f'engine config marker count={text.count(marker)}')
+          cropforge_config = """
+            cropforge: {
+              adapter: 'pcse-pilot-inputs+aquacrop-pilot-inputs',
+              rollout: 'shadow-readiness',
+              required: ['field_location', 'daily_weather', 'crop_parameters', 'soil_profile', 'planting_date'],
+            },
+          } as const;"""
+          text = text.replace(marker, '\n' + cropforge_config, 1)
 
-          replace_once(
-          """function normalizePyFao56(payload: any, irrigationBalance: any, kcbContext: any, evaporationContext: any) {""",
-          """function normalizeCropForge(pcsePayload: any, aquacropPayload: any) {
+          normalizer_marker = 'function normalizePyFao56('
+          if text.count(normalizer_marker) != 1:
+              raise SystemExit('normalizePyFao56 anchor missing')
+          cropforge_normalizer = """function normalizeCropForge(pcsePayload: any, aquacropPayload: any) {
             const required = [...ENGINE_CONFIG.cropforge.required] as string[];
             const combinedAvailable = new Set([
               ...(Array.isArray(pcsePayload?.available_inputs) ? pcsePayload.available_inputs.map(String) : []),
@@ -97,29 +86,24 @@ jobs:
             };
           }
 
-          function normalizePyFao56(payload: any, irrigationBalance: any, kcbContext: any, evaporationContext: any) {""",
-          'normalizer',
+          """
+          text = text.replace(normalizer_marker, cropforge_normalizer + normalizer_marker, 1)
+
+          old_error = 'Yalnız pyfao56, pcse veya aquacrop readiness desteklenir.'
+          if text.count(old_error) != 1:
+              raise SystemExit('engine validation anchor missing')
+          text = text.replace(old_error, 'Yalnız pyfao56, pcse, aquacrop veya cropforge readiness desteklenir.', 1)
+
+          old_decl = 'let adapterPayload: any; let irrigationBalance: any = null;'
+          if text.count(old_decl) != 1:
+              raise SystemExit('adapter declaration anchor missing')
+          text = text.replace(old_decl, 'let adapterPayload: any; let secondaryAdapterPayload: any = null; let irrigationBalance: any = null;', 1)
+
+          branch_pattern = re.compile(
+              r"\n\s{4}\} else \{\n\s{6}adapterPayload = await callAdapter\(supabaseUrl, anonKey, authorization, config\.adapter, fieldId\);\n\s{4}\}"
           )
-
-          replace_once(
-          "if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse veya aquacrop readiness desteklenir.' }, 400);",
-          "if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse, aquacrop veya cropforge readiness desteklenir.' }, 400);",
-          'engine validation',
-          )
-
-          replace_once(
-          "let adapterPayload: any; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;",
-          "let adapterPayload: any; let secondaryAdapterPayload: any = null; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;",
-          'adapter declaration',
-          )
-
-          replace_once(
-          """    } else {
-              adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
-            }
-
-            const normalized = engine === 'pyfao56' ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext) : normalizeStandardAdapter(engine, adapterPayload);""",
-          """    } else if (engine === 'cropforge') {
+          branch_replacement = """
+            } else if (engine === 'cropforge') {
               const [pcseResult, aquacropResult] = await Promise.allSettled([
                 callAdapter(supabaseUrl, anonKey, authorization, 'pcse-pilot-inputs', fieldId),
                 callAdapter(supabaseUrl, anonKey, authorization, 'aquacrop-pilot-inputs', fieldId),
@@ -135,15 +119,22 @@ jobs:
                 : { available_inputs: [], missing_inputs: ['aquacrop_adapter_unavailable'], context: {}, adapters: {} };
             } else {
               adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
-            }
+            }"""
+          text, branch_count = branch_pattern.subn('\n' + branch_replacement, text, count=1)
+          if branch_count != 1:
+              raise SystemExit(f'adapter branch anchor count={branch_count}')
 
-            const normalized = engine === 'pyfao56'
+          normalized_pattern = re.compile(
+              r"const normalized = engine === 'pyfao56' \? normalizePyFao56\(adapterPayload, irrigationBalance, kcbContext, evaporationContext\) : normalizeStandardAdapter\(engine, adapterPayload\);"
+          )
+          normalized_replacement = """const normalized = engine === 'pyfao56'
               ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext)
               : engine === 'cropforge'
                 ? normalizeCropForge(adapterPayload, secondaryAdapterPayload)
-                : normalizeStandardAdapter(engine, adapterPayload);""",
-          'adapter branch',
-          )
+                : normalizeStandardAdapter(engine, adapterPayload);"""
+          text, normalized_count = normalized_pattern.subn(normalized_replacement, text, count=1)
+          if normalized_count != 1:
+              raise SystemExit(f'normalized anchor count={normalized_count}')
 
           path.write_text(text)
           PY
