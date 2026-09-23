@@ -5,7 +5,8 @@ import {
 export type ModelEngine =
   | 'pyfao56'
   | 'pcse'
-  | 'aquacrop';
+  | 'aquacrop'
+  | 'dssat';
 
 export type ModelReadinessRefreshResult = {
   ok: boolean;

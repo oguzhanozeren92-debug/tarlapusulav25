@@ -56,6 +56,9 @@ export function useFieldActivities({
   const [activityPhoto, setActivityPhoto] = useState<File | null>(null);
   const [activityPhotoPreview, setActivityPhotoPreview] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState<AiFieldAnalysis | null>(null);
+  const [diagnosisSequenceNo, setDiagnosisSequenceNo] = useState(1);
+  const [diagnosisNeedsMoreEvidence, setDiagnosisNeedsMoreEvidence] = useState(false);
+  const [diagnosisRequestedEvidence, setDiagnosisRequestedEvidence] = useState('');
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiAnalysisError, setAiAnalysisError] = useState('');
   const [aiAccessStatus, setAiAccessStatus] = useState<AiAccessStatus | null>(null);
@@ -74,6 +77,9 @@ export function useFieldActivities({
     setActivityPhotoPreview('');
     setAiAnalysis(null);
     setAiAnalysisError('');
+    setDiagnosisSequenceNo(1);
+    setDiagnosisNeedsMoreEvidence(false);
+    setDiagnosisRequestedEvidence('');
     setAiHistorySaveStatus('idle');
     setAiHistorySaveMessage('');
     setAiHistorySavedPoints(0);
@@ -175,8 +181,9 @@ export function useFieldActivities({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAiAnalyzeActivityPhoto = async () => {
-    if (!selectedField || !activityPhoto) {
+  const handleAiAnalyzeActivityPhoto = async (fileOverride?: File) => {
+    const analysisPhoto = fileOverride ?? activityPhoto;
+    if (!selectedField || !analysisPhoto) {
       setAiAnalysisError('Önce analiz edilecek bir fotoğraf seç.');
       return;
     }
@@ -205,8 +212,8 @@ export function useFieldActivities({
         throw new Error('Bugünkü ücretsiz AI analiz hakkını kullandın.');
       }
 
-      const compressedPhoto = await compressActivityPhoto(activityPhoto);
-      let photoRewardHash = `${activityPhoto.name}:${activityPhoto.size}:${activityPhoto.lastModified}`;
+      const compressedPhoto = await compressActivityPhoto(analysisPhoto);
+      let photoRewardHash = `${analysisPhoto.name}:${analysisPhoto.size}:${analysisPhoto.lastModified}`;
       try {
         if (globalThis.crypto?.subtle) {
           const digest = await globalThis.crypto.subtle.digest('SHA-256', await compressedPhoto.arrayBuffer());
@@ -327,6 +334,8 @@ export function useFieldActivities({
       };
 
       setAiAnalysis(normalizedAnalysis);
+      setDiagnosisNeedsMoreEvidence(Boolean(normalizedAnalysis.needsMoreEvidence));
+      setDiagnosisRequestedEvidence(normalizedAnalysis.followUpPhoto ?? '');
 
       const observationPointId = String(
         aiObservationContextRef.current?.observationPointId ?? '',
@@ -360,6 +369,15 @@ export function useFieldActivities({
     } finally {
       setAiAnalyzing(false);
     }
+  };
+
+  const handleDiagnosisFollowUpPhoto = async (file?: File) => {
+    if (!file) return;
+    handleActivityPhotoChange(file);
+    setDiagnosisSequenceNo((current) => Math.max(1, current) + 1);
+    setDiagnosisNeedsMoreEvidence(false);
+    setDiagnosisRequestedEvidence('');
+    await handleAiAnalyzeActivityPhoto(file);
   };
 
   const resetActivityForm = (type = 'Saha Kontrolü') => {
@@ -798,6 +816,9 @@ export function useFieldActivities({
     activityPhoto,
     activityPhotoPreview,
     aiAnalysis,
+    diagnosisSequenceNo,
+    diagnosisNeedsMoreEvidence,
+    diagnosisRequestedEvidence,
     aiAnalyzing,
     aiAnalysisError,
     aiAccessStatus,
@@ -810,6 +831,7 @@ export function useFieldActivities({
     loadAiAccessStatus,
     openAiAnalysisScreen,
     handleAiAnalyzeActivityPhoto,
+    handleDiagnosisFollowUpPhoto,
     resetActivityForm,
     loadFieldActivities,
     openActivityForm,

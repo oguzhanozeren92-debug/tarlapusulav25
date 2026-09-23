@@ -17,6 +17,7 @@ import type {
   FieldObservationPointOverview,
   FieldObservationPointStatus,
   ObservationUploadResult,
+  ObservationPhotoLocationReference,
   UploadObservationPhotosInput,
 } from '../types/fieldObservation';
 

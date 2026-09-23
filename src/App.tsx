@@ -1225,8 +1225,6 @@ export default function App() {
         sideMenuOpen={false}
         screen={screen}
         desktopMenuItems={desktopMenuItems}
-        realFields={realFields}
-        openFieldDetail={openFieldDetail}
         setScreen={setScreen}
         setSideMenuOpen={setSideMenuOpen}
         setWeatherHubFieldId={setWeatherHubFieldId}

@@ -81,16 +81,16 @@ async function syncSeasonPlantingDateBestEffort(
 }
 
 function syncIrrigationAmountTaskBestEffort(fieldId: string) {
-  void supabase
-    .rpc('tp_sync_irrigation_amount_task', { p_field_id: fieldId })
-    .then(({ error }) => {
+  void (async () => {
+    try {
+      const { error } = await supabase.rpc('tp_sync_irrigation_amount_task', { p_field_id: fieldId });
       if (error) {
         console.warn('[field-operation] Sulama miktarı görevi senkronize edilemedi:', error.message);
       }
-    })
-    .catch((error: unknown) => {
+    } catch (error) {
       console.warn('[field-operation] Sulama miktarı görevi senkronize edilemedi:', error);
-    });
+    }
+  })();
 }
 
 function mapOperation(row: any): FieldOperation {

@@ -504,6 +504,7 @@ export default function MarketPricesScreen({
   fields,
   selectedFieldId = '',
   screen = 'marketHub',
+  setScreen,
 }: Props) {
   const realFields = useMemo(
     () => fields.filter((field) => !(field as any).demo),

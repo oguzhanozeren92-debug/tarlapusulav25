@@ -9,10 +9,9 @@ class ApplicationMapboxMap extends mapboxgl.Map {
     super({
       ...options,
       accessToken: mapboxAccessToken,
-      // Keep provider credit available in embedded maps as well as fullscreen.
-      attributionControl: options.attributionControl === false
-        ? { compact: true }
-        : options.attributionControl,
+      // MapLibre accepts an options object while this Mapbox version expects a boolean.
+      // Preserve explicit false; every other common-runtime value keeps attribution enabled.
+      attributionControl: options.attributionControl !== false,
     });
   }
 }

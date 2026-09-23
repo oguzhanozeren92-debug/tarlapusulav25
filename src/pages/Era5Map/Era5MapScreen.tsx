@@ -197,7 +197,7 @@ export default function Era5MapScreen({
       container: mapContainerRef.current,
       center,
       zoom: coords ? 9.2 : 5.2,
-      attributionControl: true,
+      attributionControl: { compact: true },
       style: {
         version: 8,
         sources: {

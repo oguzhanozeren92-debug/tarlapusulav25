@@ -129,9 +129,9 @@ function selectorFor(element: Element | null): string | null {
     const tag = current.tagName.toLowerCase();
     const cls = stableClasses(current).slice(0, 1);
     let part = tag + (cls.length ? `.${escapeCss(cls[0])}` : '');
-    const parent = current.parentElement;
+    const parent: Element | null = current.parentElement;
     if (parent) {
-      const sameTag = Array.from(parent.children).filter((child) => child.tagName === current?.tagName);
+      const sameTag = Array.from(parent.children).filter((child: Element) => child.tagName === current?.tagName);
       if (sameTag.length > 1) part += `:nth-of-type(${sameTag.indexOf(current) + 1})`;
     }
     parts.unshift(part);

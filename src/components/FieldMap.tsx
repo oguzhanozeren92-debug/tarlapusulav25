@@ -154,7 +154,7 @@ export default function FieldMap({
 
       zoom: initialZoom,
 
-      attributionControl: true,
+      attributionControl: { compact: true },
 
       style: {
         version: 8,

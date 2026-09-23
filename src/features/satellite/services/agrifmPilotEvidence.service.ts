@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '../../../supabaseClient';
 
 export type AgriFmPilotStatus = {
   status: 'blocked' | 'ready';

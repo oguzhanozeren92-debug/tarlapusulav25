@@ -1397,7 +1397,7 @@ h1{font-size:22px;line-height:1.05;margin:0 0 3mm;letter-spacing:-.04em}
                     <button
                       type="button"
                       className="tp-pusula-pdf"
-                      onClick={createSynthesisPdf}
+                      onClick={() => createSynthesisPdf()}
                     >
                       PDF Raporu Oluştur
                     </button>
