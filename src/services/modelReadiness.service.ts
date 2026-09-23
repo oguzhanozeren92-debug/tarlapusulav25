@@ -315,7 +315,6 @@ export function refreshPyFao56ReadinessBestEffort(
   );
 }
 
-
 export function ensureCropForgeReadinessFreshBestEffort(
   fieldId: string,
   maxAgeHours = DEFAULT_MAX_AGE_HOURS,
@@ -335,7 +334,6 @@ export function refreshCropForgeReadinessBestEffort(
     'cropforge',
   );
 }
-
 
 const cropForgeShadowInFlight = new Set<string>();
 
@@ -379,4 +377,28 @@ export function ensureCropForgeShadowFreshBestEffort(
       cropForgeShadowInFlight.delete(field);
     }
   })();
+}
+
+const modelShadowComparisonInFlight = new Set<string>();
+
+export function ensureModelShadowComparisonFreshBestEffort(
+  fieldId: string,
+) {
+  const field = normalizedId(fieldId);
+  if (!field || modelShadowComparisonInFlight.has(field)) return;
+  modelShadowComparisonInFlight.add(field);
+
+  void supabase.functions.invoke(
+    'model-shadow-comparison',
+    { body: { field_id: field } },
+  ).then(({ data, error }) => {
+    if (error) throw error;
+    if (data?.ok === false) {
+      throw new Error(String(data?.error ?? 'Model shadow karşılaştırması çalıştırılamadı.'));
+    }
+  }).catch((error) => {
+    console.warn('[model-shadow-comparison] background comparison failed', error);
+  }).finally(() => {
+    modelShadowComparisonInFlight.delete(field);
+  });
 }
