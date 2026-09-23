@@ -8,9 +8,10 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-const FRESHNESS_HOURS = 24;
+const COMPLETE_FRESHNESS_HOURS = 24;
+const INCOMPLETE_FRESHNESS_HOURS = 1;
 const ENGINE_TIMEOUT_MS = 80_000;
-const FUNCTION_VERSION = 1;
+const FUNCTION_VERSION = 2;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -97,13 +98,11 @@ async function callEngine(
 }
 
 async function loadFreshComparison(serviceClient: any, userId: string, fieldId: string) {
-  const freshAfter = new Date(Date.now() - FRESHNESS_HOURS * 60 * 60 * 1000).toISOString();
   const { data, error } = await serviceClient
     .from('model_shadow_comparisons')
     .select('comparison_day,comparison_as_of,season_key,status,severity,updated_at')
     .eq('user_id', userId)
     .eq('field_id', fieldId)
-    .gte('updated_at', freshAfter)
     .order('updated_at', { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -112,7 +111,15 @@ async function loadFreshComparison(serviceClient: any, userId: string, fieldId: 
     console.warn('[model-shadow-comparison] cache lookup failed', error.message);
     return null;
   }
-  return data ?? null;
+  if (!data) return null;
+
+  const updatedAt = Date.parse(String(data.updated_at ?? ''));
+  if (!Number.isFinite(updatedAt)) return null;
+  const freshnessHours = data.status === 'complete'
+    ? COMPLETE_FRESHNESS_HOURS
+    : INCOMPLETE_FRESHNESS_HOURS;
+  const freshnessMs = freshnessHours * 60 * 60 * 1000;
+  return Date.now() - updatedAt <= freshnessMs ? data : null;
 }
 
 async function persistComparison(
