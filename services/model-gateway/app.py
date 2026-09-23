@@ -97,6 +97,14 @@ REQUIRED_DSSAT_INPUTS = {
     "planting_management",
 }
 
+REQUIRED_CROPFORGE_INPUTS = {
+    "field_location",
+    "daily_weather",
+    "crop_parameters",
+    "soil_profile",
+    "planting_date",
+}
+
 
 def _environment() -> str:
     return os.getenv("MODEL_GATEWAY_ENV", "production").strip().lower() or "production"
@@ -465,6 +473,36 @@ def aquacrop_readiness(
 ) -> dict[str, Any]:
     _authorize(x_model_gateway_key)
     return _readiness("aquacrop", payload, REQUIRED_AQUACROP_INPUTS)
+
+
+@app.post("/v1/scenario/cropforge/readiness")
+def cropforge_readiness(
+    payload: EngineReadinessRequest,
+    x_model_gateway_key: str | None = Header(default=None),
+) -> dict[str, Any]:
+    """Validate real CropForge scenario inputs without executing CropForge.
+
+    Phase 1 deliberately keeps execution disabled. Terrain/erosion physics require
+    a verified topography payload and are not enabled by this readiness check.
+    """
+    _authorize(x_model_gateway_key)
+    result = _readiness("cropforge", payload, REQUIRED_CROPFORGE_INPUTS)
+    return {
+        **result,
+        "input_ready": result["ready"],
+        "execution_enabled": False,
+        "ready": False,
+        "production_authority": False,
+        "yield_authority": False,
+        "irrigation_prescription_authority": False,
+        "nutrient_prescription_authority": False,
+        "terrain_physics_ready": False,
+        "note": (
+            "Core CropForge inputs are complete. Runtime execution remains intentionally disabled until verified terrain and benchmark gates are added."
+            if result["ready"]
+            else result["note"]
+        ),
+    }
 
 
 @app.get("/v1/scenario/dssat/health")

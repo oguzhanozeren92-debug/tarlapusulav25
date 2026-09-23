@@ -23,6 +23,12 @@ const ENGINE_CONFIG = {
     rollout: 'pilot',
     required: ['crop_parameters', 'soil_profile', 'initial_water_content', 'irrigation_management'],
   },
+
+  cropforge: {
+    adapter: 'pcse-pilot-inputs+aquacrop-pilot-inputs',
+    rollout: 'shadow-readiness',
+    required: ['field_location', 'daily_weather', 'crop_parameters', 'soil_profile', 'planting_date'],
+  },
 } as const;
 
 type Engine = keyof typeof ENGINE_CONFIG;
@@ -104,6 +110,36 @@ function normalizeStandardAdapter(engine: 'pcse' | 'aquacrop', payload: any) {
   return { availableInputs, missingInputs, evidence: payload?.adapters ?? {}, context: payload?.context ?? {}, adapterMissingInputs: Array.isArray(payload?.missing_inputs) ? payload.missing_inputs.map(String) : [] };
 }
 
+function normalizeCropForge(pcsePayload: any, aquacropPayload: any) {
+  const required = [...ENGINE_CONFIG.cropforge.required] as string[];
+  const combinedAvailable = new Set([
+    ...(Array.isArray(pcsePayload?.available_inputs) ? pcsePayload.available_inputs.map(String) : []),
+    ...(Array.isArray(aquacropPayload?.available_inputs) ? aquacropPayload.available_inputs.map(String) : []),
+  ]);
+  const availableInputs = required.filter((key) => combinedAvailable.has(key));
+  const missingInputs = required.filter((key) => !combinedAvailable.has(key));
+  return {
+    availableInputs,
+    missingInputs,
+    evidence: {
+      pcse_adapter: pcsePayload?.adapters ?? null,
+      aquacrop_adapter: aquacropPayload?.adapters ?? null,
+    },
+    context: {
+      cropforge_phase: 'shadow-readiness-v1',
+      execution_enabled: false,
+      terrain_physics_ready: false,
+      terrain_gate: 'verified_topography_required_before_runtime',
+      pcse: pcsePayload?.context ?? null,
+      aquacrop: aquacropPayload?.context ?? null,
+    },
+    adapterMissingInputs: [...new Set([
+      ...(Array.isArray(pcsePayload?.missing_inputs) ? pcsePayload.missing_inputs.map(String) : []),
+      ...(Array.isArray(aquacropPayload?.missing_inputs) ? aquacropPayload.missing_inputs.map(String) : []),
+    ])],
+  };
+}
+
 function normalizePyFao56(payload: any, irrigationBalance: any, kcbContext: any, evaporationContext: any) {
   const required = [...ENGINE_CONFIG.pyfao56.required] as string[];
   const availableInputs: string[] = [];
@@ -181,7 +217,7 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const engine = String(body?.engine ?? '').trim() as Engine;
     const fieldId = String(body?.field_id ?? body?.payload?.field_id ?? '').trim();
-    if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse veya aquacrop readiness desteklenir.' }, 400);
+    if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse, aquacrop veya cropforge readiness desteklenir.' }, 400);
     if (!fieldId) return json({ ok: false, error: 'field_id gerekli.' }, 400);
     if ('available_inputs' in body || 'missing_inputs' in body || 'latitude' in body || 'longitude' in body || 'crop' in body || 'parameters' in body) {
       return json({ ok: false, error: 'Readiness girdileri istemciden kabul edilmez; kanıtlar sunucu adapterlarından üretilir.' }, 400);
@@ -189,7 +225,7 @@ Deno.serve(async (req: Request) => {
 
     const { user, userClient, serviceClient, supabaseUrl, anonKey, authorization } = await authenticatedClients(req);
     const config = ENGINE_CONFIG[engine];
-    let adapterPayload: any; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;
+    let adapterPayload: any; let secondaryAdapterPayload: any = null; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;
 
     if (engine === 'pyfao56') {
       const [pyfaoResult, balanceResult, kcbResult, evaporationResult] = await Promise.allSettled([
@@ -203,11 +239,30 @@ Deno.serve(async (req: Request) => {
       irrigationBalance = balanceResult.status === 'fulfilled' ? balanceResult.value : { ready: false, status: 'unavailable', missing_inputs: ['irrigation_water_balance_unavailable'] };
       kcbContext = kcbResult.status === 'fulfilled' ? kcbResult.value : { validated: false, status: 'unavailable', missing_inputs: ['kcb_context_unavailable'] };
       evaporationContext = evaporationResult.status === 'fulfilled' ? evaporationResult.value : { ready: false, status: 'unavailable', missing_inputs: ['soil_evaporation_context_unavailable'] };
-    } else {
-      adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
-    }
 
-    const normalized = engine === 'pyfao56' ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext) : normalizeStandardAdapter(engine, adapterPayload);
+  } else if (engine === 'cropforge') {
+    const [pcseResult, aquacropResult] = await Promise.allSettled([
+      callAdapter(supabaseUrl, anonKey, authorization, 'pcse-pilot-inputs', fieldId),
+      callAdapter(supabaseUrl, anonKey, authorization, 'aquacrop-pilot-inputs', fieldId),
+    ]);
+    if (pcseResult.status === 'rejected' && aquacropResult.status === 'rejected') {
+      throw pcseResult.reason;
+    }
+    adapterPayload = pcseResult.status === 'fulfilled'
+      ? pcseResult.value
+      : { available_inputs: [], missing_inputs: ['pcse_adapter_unavailable'], context: {}, adapters: {} };
+    secondaryAdapterPayload = aquacropResult.status === 'fulfilled'
+      ? aquacropResult.value
+      : { available_inputs: [], missing_inputs: ['aquacrop_adapter_unavailable'], context: {}, adapters: {} };
+  } else {
+    adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
+  }
+
+    const normalized = engine === 'pyfao56'
+    ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext)
+    : engine === 'cropforge'
+      ? normalizeCropForge(adapterPayload, secondaryAdapterPayload)
+      : normalizeStandardAdapter(engine, adapterPayload);
     const ready = normalized.missingInputs.length === 0;
     const checkedAt = new Date().toISOString();
     const snapshotPersisted = await persistSnapshot(serviceClient, { user_id: user.id, field_id: fieldId, engine, rollout: config.rollout, ready, available_inputs: normalized.availableInputs, missing_inputs: normalized.missingInputs, evidence: normalized.evidence, context: { ...normalized.context, adapter: config.adapter, adapter_missing_inputs: normalized.adapterMissingInputs }, input_authority: 'server-derived', checked_at: checkedAt });

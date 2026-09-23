@@ -5,7 +5,8 @@ import {
 export type ModelEngine =
   | 'pyfao56'
   | 'pcse'
-  | 'aquacrop';
+  | 'aquacrop'
+  | 'cropforge';
 
 export type ModelReadinessRefreshResult = {
   ok: boolean;
@@ -311,5 +312,26 @@ export function refreshPyFao56ReadinessBestEffort(
   refreshModelReadinessBestEffort(
     fieldId,
     'pyfao56',
+  );
+}
+
+
+export function ensureCropForgeReadinessFreshBestEffort(
+  fieldId: string,
+  maxAgeHours = DEFAULT_MAX_AGE_HOURS,
+) {
+  ensureModelReadinessFreshBestEffort(
+    fieldId,
+    'cropforge',
+    maxAgeHours,
+  );
+}
+
+export function refreshCropForgeReadinessBestEffort(
+  fieldId: string,
+) {
+  refreshModelReadinessBestEffort(
+    fieldId,
+    'cropforge',
   );
 }

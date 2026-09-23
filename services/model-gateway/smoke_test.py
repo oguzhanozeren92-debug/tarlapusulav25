@@ -14,6 +14,7 @@ from app import (
     WeatherDay,
     app,
     aquacrop_readiness,
+    cropforge_readiness,
     health,
     pcse_readiness,
     run_pyfao56_shadow,
@@ -133,6 +134,24 @@ def main() -> None:
     )
     assert aquacrop["ready"] is False
     assert "soil_profile" in aquacrop["missing_inputs"]
+
+    cropforge = cropforge_readiness(
+        EngineReadinessRequest(
+            field_id="smoke-field",
+            available_inputs=[
+                "field_location",
+                "daily_weather",
+                "crop_parameters",
+                "soil_profile",
+                "planting_date",
+            ],
+        ),
+        None,
+    )
+    assert cropforge["input_ready"] is True
+    assert cropforge["ready"] is False
+    assert cropforge["execution_enabled"] is False
+    assert cropforge["production_authority"] is False
 
     print(
         "model-gateway smoke ok",
