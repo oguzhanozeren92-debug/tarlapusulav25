@@ -1,0 +1,76 @@
+name: Apply CropForge Phase 2 Shadow Runner
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/apply-cropforge-phase2.py'
+      - '.github/workflows/apply-cropforge-phase2.yml'
+      - 'services/model-gateway/cropforge_runner.py'
+      - 'services/model-gateway/cropforge_runner_test.py'
+      - 'supabase/functions/cropforge-shadow-run/index.ts'
+      - 'supabase/migrations/20260923231500_enable_cropforge_model_runs.sql'
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply integration patches
+        run: python .github/apply-cropforge-phase2.py
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install CropForge test runtime
+        run: pip install 'cropforge==1.0.1' 'pydantic>=2.10,<3' 'fastapi>=0.115,<1'
+
+      - name: Verify CropForge Python runner
+        run: |
+          python -m py_compile services/model-gateway/cropforge_runner.py services/model-gateway/app.py services/model-gateway/engine_registry.py
+          cd services/model-gateway
+          python cropforge_runner_test.py
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Parse Supabase edge function
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const ts = require('typescript');
+          for (const file of [
+            'supabase/functions/cropforge-shadow-run/index.ts',
+            'supabase/functions/model-engine-readiness/index.ts',
+          ]) {
+            const source = fs.readFileSync(file, 'utf8');
+            const out = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } });
+            if (out.diagnostics?.some(d => d.category === ts.DiagnosticCategory.Error)) {
+              console.error(out.diagnostics);
+              process.exit(1);
+            }
+            console.log('OK', file);
+          }
+          NODE
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit verified CropForge runner
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat(models): run CropForge core in shadow mode'
+          git push origin main
