@@ -1,0 +1,326 @@
+--- a/services/model-gateway/engine_registry.py
++++ b/services/model-gateway/engine_registry.py
+@@ -33,6 +33,28 @@
+         "adapter_version": 2,
+         "production_authority": False,
+     },
++    "cropforge": {
++        "role": "crop_digital_twin_scenario_readiness",
++        "rollout": "shadow-readiness",
++        "upstream": "saswatsundar123/CropForge",
++        "upstream_release": "v1.0.0",
++        "license": "MIT",
++        "adapter_version": 1,
++        "production_authority": False,
++        "yield_authority": False,
++        "irrigation_prescription_authority": False,
++        "nutrient_prescription_authority": False,
++        "execution_enabled": False,
++        "input_authority": "server-derived-only",
++        "readiness_scope": "core crop/weather/soil/season inputs; terrain physics remains gated",
++        "candidate_features": [
++            "crop_growth_scenario",
++            "fao56_et0_cross_check",
++            "terrain_erosion_scenario",
++            "multi_season_rotation",
++        ],
++        "note": "Phase 1 only validates real TarlaPusula inputs. CropForge runtime is not executed and has no production authority.",
++    },
+     "dssat": {
+         "role": "whole_season_management_shadow",
+         "rollout": "shadow",
+--- a/services/model-gateway/app.py
++++ b/services/model-gateway/app.py
+@@ -97,6 +97,14 @@
+     "planting_management",
+ }
+ 
++REQUIRED_CROPFORGE_INPUTS = {
++    "field_location",
++    "daily_weather",
++    "crop_parameters",
++    "soil_profile",
++    "planting_date",
++}
++
+ 
+ def _environment() -> str:
+     return os.getenv("MODEL_GATEWAY_ENV", "production").strip().lower() or "production"
+@@ -467,6 +475,36 @@
+     return _readiness("aquacrop", payload, REQUIRED_AQUACROP_INPUTS)
+ 
+ 
++@app.post("/v1/scenario/cropforge/readiness")
++def cropforge_readiness(
++    payload: EngineReadinessRequest,
++    x_model_gateway_key: str | None = Header(default=None),
++) -> dict[str, Any]:
++    """Validate real CropForge scenario inputs without executing CropForge.
++
++    Phase 1 deliberately keeps execution disabled. Terrain/erosion physics require
++    a verified topography payload and are not enabled by this readiness check.
++    """
++    _authorize(x_model_gateway_key)
++    result = _readiness("cropforge", payload, REQUIRED_CROPFORGE_INPUTS)
++    return {
++        **result,
++        "input_ready": result["ready"],
++        "execution_enabled": False,
++        "ready": False,
++        "production_authority": False,
++        "yield_authority": False,
++        "irrigation_prescription_authority": False,
++        "nutrient_prescription_authority": False,
++        "terrain_physics_ready": False,
++        "note": (
++            "Core CropForge inputs are complete. Runtime execution remains intentionally disabled until verified terrain and benchmark gates are added."
++            if result["ready"]
++            else result["note"]
++        ),
++    }
++
++
+ @app.get("/v1/scenario/dssat/health")
+ def dssat_health(
+     x_model_gateway_key: str | None = Header(default=None),
+--- a/services/model-gateway/smoke_test.py
++++ b/services/model-gateway/smoke_test.py
+@@ -14,6 +14,7 @@
+     WeatherDay,
+     app,
+     aquacrop_readiness,
++    cropforge_readiness,
+     health,
+     pcse_readiness,
+     run_pyfao56_shadow,
+@@ -134,6 +135,24 @@
+     assert aquacrop["ready"] is False
+     assert "soil_profile" in aquacrop["missing_inputs"]
+ 
++    cropforge = cropforge_readiness(
++        EngineReadinessRequest(
++            field_id="smoke-field",
++            available_inputs=[
++                "field_location",
++                "daily_weather",
++                "crop_parameters",
++                "soil_profile",
++                "planting_date",
++            ],
++        ),
++        None,
++    )
++    assert cropforge["input_ready"] is True
++    assert cropforge["ready"] is False
++    assert cropforge["execution_enabled"] is False
++    assert cropforge["production_authority"] is False
++
+     print(
+         "model-gateway smoke ok",
+         {
+--- a/src/services/modelReadiness.service.ts
++++ b/src/services/modelReadiness.service.ts
+@@ -5,7 +5,8 @@
+ export type ModelEngine =
+   | 'pyfao56'
+   | 'pcse'
+-  | 'aquacrop';
++  | 'aquacrop'
++  | 'cropforge';
+ 
+ export type ModelReadinessRefreshResult = {
+   ok: boolean;
+@@ -313,3 +314,24 @@
+     'pyfao56',
+   );
+ }
++
++
++export function ensureCropForgeReadinessFreshBestEffort(
++  fieldId: string,
++  maxAgeHours = DEFAULT_MAX_AGE_HOURS,
++) {
++  ensureModelReadinessFreshBestEffort(
++    fieldId,
++    'cropforge',
++    maxAgeHours,
++  );
++}
++
++export function refreshCropForgeReadinessBestEffort(
++  fieldId: string,
++) {
++  refreshModelReadinessBestEffort(
++    fieldId,
++    'cropforge',
++  );
++}
+--- a/src/features/field-detail/components/SeasonModelInputs.tsx
++++ b/src/features/field-detail/components/SeasonModelInputs.tsx
+@@ -1,6 +1,7 @@
+ import { useEffect, useRef, useState } from 'react';
+ import { TURKEY_CROPS } from '../../../data/crops';
+ import {
++  ensureCropForgeReadinessFreshBestEffort,
+   ensurePyFao56ReadinessFreshBestEffort,
+ } from '../../../services/modelReadiness.service';
+ import type { Field, FieldSeason } from '../../../types';
+@@ -48,7 +49,9 @@
+   }, [field.id, selected]);
+ 
+   useEffect(() => {
+-    ensurePyFao56ReadinessFreshBestEffort(String(field.id), 24);
++    const fieldId = String(field.id);
++    ensurePyFao56ReadinessFreshBestEffort(fieldId, 24);
++    ensureCropForgeReadinessFreshBestEffort(fieldId, 24);
+   }, [field.id]);
+ 
+   useEffect(() => {
+--- a/supabase/functions/model-engine-readiness/index.ts
++++ b/supabase/functions/model-engine-readiness/index.ts
+@@ -23,6 +23,11 @@
+     rollout: 'pilot',
+     required: ['crop_parameters', 'soil_profile', 'initial_water_content', 'irrigation_management'],
+   },
++  cropforge: {
++    adapter: 'pcse-pilot-inputs+aquacrop-pilot-inputs',
++    rollout: 'shadow-readiness',
++    required: ['field_location', 'daily_weather', 'crop_parameters', 'soil_profile', 'planting_date'],
++  },
+ } as const;
+ 
+ type Engine = keyof typeof ENGINE_CONFIG;
+@@ -104,6 +109,36 @@
+   return { availableInputs, missingInputs, evidence: payload?.adapters ?? {}, context: payload?.context ?? {}, adapterMissingInputs: Array.isArray(payload?.missing_inputs) ? payload.missing_inputs.map(String) : [] };
+ }
+ 
++function normalizeCropForge(pcsePayload: any, aquacropPayload: any) {
++  const required = [...ENGINE_CONFIG.cropforge.required] as string[];
++  const combinedAvailable = new Set([
++    ...(Array.isArray(pcsePayload?.available_inputs) ? pcsePayload.available_inputs.map(String) : []),
++    ...(Array.isArray(aquacropPayload?.available_inputs) ? aquacropPayload.available_inputs.map(String) : []),
++  ]);
++  const availableInputs = required.filter((key) => combinedAvailable.has(key));
++  const missingInputs = required.filter((key) => !combinedAvailable.has(key));
++  return {
++    availableInputs,
++    missingInputs,
++    evidence: {
++      pcse_adapter: pcsePayload?.adapters ?? null,
++      aquacrop_adapter: aquacropPayload?.adapters ?? null,
++    },
++    context: {
++      cropforge_phase: 'shadow-readiness-v1',
++      execution_enabled: false,
++      terrain_physics_ready: false,
++      terrain_gate: 'verified_topography_required_before_runtime',
++      pcse: pcsePayload?.context ?? null,
++      aquacrop: aquacropPayload?.context ?? null,
++    },
++    adapterMissingInputs: [...new Set([
++      ...(Array.isArray(pcsePayload?.missing_inputs) ? pcsePayload.missing_inputs.map(String) : []),
++      ...(Array.isArray(aquacropPayload?.missing_inputs) ? aquacropPayload.missing_inputs.map(String) : []),
++    ])],
++  };
++}
++
+ function normalizePyFao56(payload: any, irrigationBalance: any, kcbContext: any, evaporationContext: any) {
+   const required = [...ENGINE_CONFIG.pyfao56.required] as string[];
+   const availableInputs: string[] = [];
+@@ -181,7 +216,7 @@
+     const body = await req.json().catch(() => ({}));
+     const engine = String(body?.engine ?? '').trim() as Engine;
+     const fieldId = String(body?.field_id ?? body?.payload?.field_id ?? '').trim();
+-    if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse veya aquacrop readiness desteklenir.' }, 400);
++    if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse, aquacrop veya cropforge readiness desteklenir.' }, 400);
+     if (!fieldId) return json({ ok: false, error: 'field_id gerekli.' }, 400);
+     if ('available_inputs' in body || 'missing_inputs' in body || 'latitude' in body || 'longitude' in body || 'crop' in body || 'parameters' in body) {
+       return json({ ok: false, error: 'Readiness girdileri istemciden kabul edilmez; kanıtlar sunucu adapterlarından üretilir.' }, 400);
+@@ -189,7 +224,7 @@
+ 
+     const { user, userClient, serviceClient, supabaseUrl, anonKey, authorization } = await authenticatedClients(req);
+     const config = ENGINE_CONFIG[engine];
+-    let adapterPayload: any; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;
++    let adapterPayload: any; let secondaryAdapterPayload: any = null; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;
+ 
+     if (engine === 'pyfao56') {
+       const [pyfaoResult, balanceResult, kcbResult, evaporationResult] = await Promise.allSettled([
+@@ -203,11 +238,29 @@
+       irrigationBalance = balanceResult.status === 'fulfilled' ? balanceResult.value : { ready: false, status: 'unavailable', missing_inputs: ['irrigation_water_balance_unavailable'] };
+       kcbContext = kcbResult.status === 'fulfilled' ? kcbResult.value : { validated: false, status: 'unavailable', missing_inputs: ['kcb_context_unavailable'] };
+       evaporationContext = evaporationResult.status === 'fulfilled' ? evaporationResult.value : { ready: false, status: 'unavailable', missing_inputs: ['soil_evaporation_context_unavailble'] };
++  } else if (engine === 'cropforge') {
++      const [pcseResult, aquacropResult] = await Promise.allSettled([
++        callAdapter(supabaseUrl, anonKey, authorization, 'pcse-pilot-inputs', fieldId),
++        callAdapter(supabaseUrl, anonKey, authorization, 'aquacrop-pilot-inputs', fieldId),
++      ]);
++      if (pcseResult.status === 'rejected' && aquacropResult.status === 'rejected') {
++        throw pcseResult.reason;
++      }
++      adapterPayload = pcseResult.status === 'fulfilled'
++        ? pcseResult.value
++        : { available_inputs: [], missing_inputs: ['pcse_adapter_unavailable'], context: {}, adapters: {} };
++      secondaryAdapterPayload = aquacropResult.status === 'fulfilled'
++        ? aquacropResult.value
++        : { available_inputs: [], missing_inputs: ['aquacrop_adapter_unavailable'], context: {}, adapters: {} };
+     } else {
+       adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
+     }
+ 
+-    const normalized = engine === 'pyfao56' ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext) : normalizeStandardAdapter(engine, adapterPayload);
++    const normalized = engine === 'pyfao56'
++      ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext)
++      : engine === 'cropforge'
++        ? normalizeCropForge(adapterPayload, secondaryAdapterPayload)
++        : normalizeStandardAdapter(engine, adapterPayload);
+     const ready = normalized.missingInputs.length === 0;
+     const checkedAt = new Date().toISOString();
+     const snapshotPersisted = await persistSnapshot(serviceClient, { user_id: user.id, field_id: fieldId, engine, rollout: config.rollout, ready, available_inputs: normalized.availableInputs, missing_inputs: normalized.missingInputs, evidence: normalized.evidence, context: { ...normalized.context, adapter: config.adapter, adapter_missing_inputs: normalized.adapterMissingInputs }, input_authority: 'server-derived', checked_at: checkedAt });
+--- /dev/null
++++ b/supabase/migrations/20260923214000_add_cropforge_readiness_engine.sql
+@@ -0,0 +1,14 @@
++-- CropForge shadow readiness: allow server-derived readiness snapshots.
++-- Runtime execution is intentionally disabled in phase 1.
++
++alter table public.model_engine_readiness_snapshots
++  drop constraint if exists model_engine_readiness_snapshots_engine_check;
++
++alter table public.model_engine_readiness_snapshots
++  add constraint model_engine_readiness_snapshots_engine_check
++  check (engine = any (array[
++    'pyfao56'::text,
++    'pcse'::text,
++    'aquacrop'::text,
++    'cropforge'::text
++  ]));
+--- /dev/null
++++ b/docs/integrations/cropforge.md
+@@ -0,0 +1,28 @@
++# CropForge — TarlaPusula shadow/readiness entegrasyonu
++
++Kaynak: `saswatsundar123/CropForge` — MIT, v1.0.0.
++
++CropForge; Python tabanlı tarla simülasyonu, FAO-56 ET0, bitki büyümesi, çok sezonlu rotasyon, arazi fiziği ve erozyon/sediment senaryoları için açık kaynak bir araştırma çalışma zamanıdır.
++
++## TarlaPusula Phase 1
++
++Bu entegrasyon **CropForge'u henüz çalıştırmaz**. Mevcut TarlaPusula server-side adapterlarından gerçek tarla girdilerini birleştirerek bir CropForge deneyinin çekirdek girdilerinin hazır olup olmadığını ölçer:
++
++- tarla konumu
++- günlük hava
++- ürün parametreleri
++- toprak profili
++- ekim/dikim tarihi
++
++Girdiler istemciden `available_inputs` olarak güvenilir kabul edilmez; PCSE ve AquaCrop server adapterlarından türetilir. Sonuç `model_engine_readiness_snapshots` tablosunda `cropforge` motoru olarak saklanır.
++
++## Güvenlik kapıları
++
++- `production_authority = false`
++- verim otoritesi yok
++- sulama/gübre reçetesi otoritesi yok
++- runtime execution kapalı
++- arazi/erozyon fiziği için doğrulanmış topografya ayrıca zorunlu olacak
++- eksik veri sentetik değerle doldurulmaz
++
++Phase 2'de doğrulanmış DEM/topografya sözleşmesi ve benchmark tamamlanırsa model-gateway içinde izole CropForge shadow run eklenebilir. Production karar motoruna geçiş ayrıca doğrulama gerektirir.
