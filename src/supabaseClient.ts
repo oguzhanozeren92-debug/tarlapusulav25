@@ -1,7 +1,4 @@
-import {
-  createClient,
-  type SupabaseClient,
-} from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 const env = import.meta.env;
 
@@ -43,7 +40,7 @@ export const supabaseConfigError = !supabaseUrl
     ? 'Supabase publishable key bulunamadı.'
     : '';
 
-function createTarlaPusulaSupabaseClient(): SupabaseClient {
+function createTarlaPusulaSupabaseClient() {
   if (!isSupabaseConfigured) {
     throw new Error(
       `TarlaPusula Supabase ayarları eksik: ${supabaseConfigError || 'bilinmeyen yapılandırma hatası'}`,
@@ -51,7 +48,7 @@ function createTarlaPusulaSupabaseClient(): SupabaseClient {
   }
 
   try {
-    const client = createClient(
+    const client = createClient<any>(
       supabaseUrl,
       supabaseKey,
       {
@@ -85,4 +82,4 @@ function createTarlaPusulaSupabaseClient(): SupabaseClient {
   Yapılandırma bozuksa null istemciyi uygulama boyunca taşımak yerine
   başlangıçta fail-fast davranırız.
 */
-export const supabase: SupabaseClient = createTarlaPusulaSupabaseClient();
+export const supabase = createTarlaPusulaSupabaseClient();

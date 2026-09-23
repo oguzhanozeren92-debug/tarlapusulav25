@@ -50,6 +50,7 @@ export type IrrigationContext = {
 
   irrigationStatus: IrrigationStatus;
   irrigationStatusRaw: string | null;
+  irrigationMethod: import('../../../types').FieldIrrigationMethod | null;
 
   lastIrrigation: LastIrrigationRecord | null;
 

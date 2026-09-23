@@ -542,7 +542,7 @@ export async function analyzeEarthSearchSceneNdvi(
   const windowWidth = x1 - x0;
   const windowHeight = y1 - y0;
 
-  const [redRaster, nirRaster] = await Promise.all([
+  const [redRasterRaw, nirRasterRaw] = await Promise.all([
     redImage.readRasters({ window, interleave: true }),
     nirImage.readRasters({
       window,
@@ -551,6 +551,9 @@ export async function analyzeEarthSearchSceneNdvi(
       interleave: true,
     }),
   ]);
+
+  const redRaster = redRasterRaw as unknown as ArrayLike<number>;
+  const nirRaster = nirRasterRaw as unknown as ArrayLike<number>;
 
   const ndviRows: number[][] = Array.from(
     { length: windowHeight },

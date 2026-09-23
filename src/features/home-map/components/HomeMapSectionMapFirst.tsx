@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, ClipboardList } from 'lucide-react';
 import HomeMapSection from './HomeMapSection';
@@ -14,7 +14,7 @@ import {
   type HomeSoilProperty,
 } from '../HomeMapEngine';
 
-type HomeMapSectionMapFirstProps = Record<string, any>;
+type HomeMapSectionMapFirstProps = ComponentProps<typeof HomeMapSection>;
 
 type LayerOption = {
   id: HomeLayer;

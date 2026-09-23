@@ -153,12 +153,12 @@ export function useHomePhenologyInsight(field: any | null | undefined) {
   }, [cropCycle, seriesState?.status, timeSeriesPoints]);
 
   const nasaFusedPhenology = useMemo(
-    () => fusePhenologyWithNasaHarvest(basePhenology, nasaHarvestStage),
+    () => basePhenology ? fusePhenologyWithNasaHarvest(basePhenology, nasaHarvestStage) : null,
     [basePhenology, nasaHarvestStage],
   );
 
   const phenology = useMemo(
-    () => fusePhenologyWithCopernicusHrvpp(nasaFusedPhenology, hrvppState.data),
+    () => nasaFusedPhenology ? fusePhenologyWithCopernicusHrvpp(nasaFusedPhenology, hrvppState.data) : null,
     [nasaFusedPhenology, hrvppState.data],
   );
 

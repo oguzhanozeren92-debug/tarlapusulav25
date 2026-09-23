@@ -149,6 +149,28 @@ export function normalizeIrrigationStatus(
   return 'unknown';
 }
 
+function normalizeIrrigationMethod(
+  value: unknown,
+): IrrigationContext['irrigationMethod'] {
+  const raw = String(value ?? '').trim().toLocaleLowerCase('tr-TR');
+  const aliases: Record<string, NonNullable<IrrigationContext['irrigationMethod']>> = {
+    sprinkler: 'sprinkler',
+    'yağmurlama': 'sprinkler',
+    yagmurlama: 'sprinkler',
+    basin: 'basin',
+    tav: 'basin',
+    border: 'border',
+    salma: 'border',
+    furrow_every_narrow: 'furrow_every_narrow',
+    furrow_every_wide: 'furrow_every_wide',
+    furrow_alternating: 'furrow_alternating',
+    trickle: 'trickle',
+    damlama: 'trickle',
+    unknown: 'unknown',
+  };
+  return aliases[raw] ?? null;
+}
+
 function normalizeDecimalText(
   value: string,
 ) {
@@ -719,6 +741,7 @@ export async function loadIrrigationContext(
 
     irrigationStatus,
     irrigationStatusRaw,
+    irrigationMethod: normalizeIrrigationMethod(dbField.irrigation_method),
 
     lastIrrigation,
 

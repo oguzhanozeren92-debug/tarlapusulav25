@@ -26,7 +26,7 @@ export type WaporWaterEvidence = {
   longitude: number;
   aeti: {
     mapset: 'L1-AETI-D';
-    pixelSizeM: 326.13;
+    pixelSizeM: number;
     points: WaporWaterSeriesPoint[];
     latestMmDay: number | null;
     previousMmDay: number | null;
@@ -34,7 +34,7 @@ export type WaporWaterEvidence = {
   };
   ret: {
     mapset: 'L1-RET-D';
-    pixelSizeM: 18924;
+    pixelSizeM: number;
     points: WaporWaterSeriesPoint[];
     latestMmDay: number | null;
   };

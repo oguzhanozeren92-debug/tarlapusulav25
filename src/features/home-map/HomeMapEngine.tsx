@@ -126,6 +126,7 @@ const HOME_MAP_CLIMATE_VISUAL_INFLIGHT = new Map<
     url: string;
     bbox: HomeBBox;
     summary: HomeLayerSpatialSummary;
+    variable: HomeClimateVariable;
   }>
 >();
 const HOME_MAP_AGRO_INFLIGHT = new Map<string, Promise<any[]>>();
@@ -1326,7 +1327,7 @@ function renderedNdviScore(r: number, g: number, b: number) {
     { rgb: [13, 122, 46], value: 0.90 },
   ] as const;
 
-  let best = palette[0];
+  let best: (typeof palette)[number] = palette[0];
   let bestDistance = Number.POSITIVE_INFINITY;
 
   for (const entry of palette) {
@@ -2417,29 +2418,6 @@ function InteractiveHomeHealthMap({
       <div ref={containerRef} className="tp-real-home-map-canvas" />
 
       <MapDataDate latestDate={data?.latestImageDate} hasData={Boolean(smoothNdvi && bbox)} />
-
-      {fieldOperationToast ? (
-        <div
-          role="status"
-          style={{
-            position: 'absolute',
-            zIndex: 48,
-            left: 12,
-            top: 54,
-            maxWidth: 230,
-            padding: '7px 9px',
-            border: '1px solid rgba(34,197,94,.16)',
-            borderRadius: 10,
-            background: 'rgba(2,10,5,.93)',
-            color: '#bbf7d0',
-            fontSize: 7.2,
-            fontWeight: 800,
-            boxShadow: '0 8px 24px rgba(0,0,0,.32)',
-          }}
-        >
-          ✓ {fieldOperationToast}
-        </div>
-      ) : null}
 
       <button
         type="button"
@@ -6758,9 +6736,9 @@ export function HomeInlineLayerMap({
           title.textContent =
             layerFocusLabel;
 
-          const detail =
+          const detailText =
             document.createElement('span');
-          detail.textContent =
+          detailText.textContent =
             layer === 'vegetation'
               ? 'Parsel ortalamasına göre daha düşük NDVI.'
               : layer === 'radar-water'
@@ -6809,7 +6787,7 @@ export function HomeInlineLayerMap({
             'color:#fff',
           ].join(';');
 
-          detail.style.cssText = [
+          detailText.style.cssText = [
             'font:780 8px/1.25 Inter,system-ui,sans-serif',
             'color:#fff',
             'opacity:1',
@@ -6819,7 +6797,7 @@ export function HomeInlineLayerMap({
 
           label.appendChild(actionHint);
           label.appendChild(title);
-          label.appendChild(detail);
+          label.appendChild(detailText);
 
           try {
             actionHint.animate(

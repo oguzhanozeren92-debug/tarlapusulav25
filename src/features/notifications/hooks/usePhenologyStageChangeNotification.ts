@@ -57,14 +57,14 @@ export function usePhenologyStageChangeNotification({
 
     let cancelled = false;
 
-    void supabase
-      .rpc('tp_sync_phenology_stage_notification', {
-        p_field_id: fieldId,
-        p_stage: stage,
-        p_confidence: confidence,
-        p_source: sourceForPhenology(phenology),
-      })
-      .then(({ data, error }) => {
+    void (async () => {
+      try {
+        const { data, error } = await supabase.rpc('tp_sync_phenology_stage_notification', {
+          p_field_id: fieldId,
+          p_stage: stage,
+          p_confidence: confidence,
+          p_source: sourceForPhenology(phenology),
+        });
         if (cancelled) return;
         if (error) throw error;
 
@@ -86,7 +86,7 @@ export function usePhenologyStageChangeNotification({
           result.notification_title ??
             `${fieldName || 'Tarlan'} gelişim dönemi değişti`,
         );
-        const detail = String(
+        const notificationDetail = String(
           result.notification_message ??
             `${result.previous_stage_label ?? 'Önceki dönem'} → ${
               result.current_stage_label ?? phenology.stageLabel
@@ -99,21 +99,18 @@ export function usePhenologyStageChangeNotification({
           severity: 'info',
           source: 'phenology',
           title,
-          detail,
+          detail: notificationDetail,
           iconKey: 'leaf',
           iconTone: 'green',
           dotTone: 'info',
           target: 'field_growth',
         });
-      })
-      .catch((error: unknown) => {
+      } catch (error) {
         if (cancelled) return;
         signatureRef.current = '';
-        console.warn(
-          '[phenology-notification] Gelişim dönemi bildirimi senkronize edilemedi:',
-          error,
-        );
-      });
+        console.warn('[phenology-notification] Gelişim dönemi bildirimi senkronize edilemedi:', error);
+      }
+    })();
 
     return () => {
       cancelled = true;

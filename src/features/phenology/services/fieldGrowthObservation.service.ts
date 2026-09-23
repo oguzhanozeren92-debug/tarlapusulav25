@@ -75,16 +75,16 @@ function validateInput(input: CreateFieldGrowthObservationInput) {
 }
 
 function syncGrowthStageObservationTaskBestEffort(fieldId: string) {
-  void supabase
-    .rpc('tp_sync_growth_stage_observation_task', { p_field_id: fieldId })
-    .then(({ error }) => {
+  void (async () => {
+    try {
+      const { error } = await supabase.rpc('tp_sync_growth_stage_observation_task', { p_field_id: fieldId });
       if (error) {
         console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error.message);
       }
-    })
-    .catch((error: unknown) => {
+    } catch (error) {
       console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error);
-    });
+    }
+  })();
 }
 
 function refreshGrowthModels(fieldId: string) {
