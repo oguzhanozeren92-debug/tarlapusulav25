@@ -23,7 +23,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Show dependency audit
+      - name: Show dependency audit after jsPDF 4.2.1
         run: npm audit --json || true
 
       - name: Show top-level dependency tree
