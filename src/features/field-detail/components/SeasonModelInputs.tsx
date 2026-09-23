@@ -52,9 +52,10 @@ export default function SeasonModelInputs({ field, seasons, seasonsLoading }: Pr
   useEffect(() => {
     const fieldId = String(field.id);
     ensurePyFao56ReadinessFreshBestEffort(fieldId, 24);
+    if (!annualCrop) return;
     ensureCropForgeReadinessFreshBestEffort(fieldId, 24);
     ensureModelShadowComparisonFreshBestEffort(fieldId);
-  }, [field.id]);
+  }, [field.id, annualCrop]);
 
   useEffect(() => {
     let active = true;
