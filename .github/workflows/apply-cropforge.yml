@@ -27,6 +27,131 @@ jobs:
           git apply --check .github/cropforge.patch
           git apply .github/cropforge.patch
 
+      - name: Wire CropForge into current readiness edge function
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('supabase/functions/model-engine-readiness/index.ts')
+          text = path.read_text()
+
+          def replace_once(old: str, new: str, label: str):
+              global text
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected 1 anchor, found {count}')
+              text = text.replace(old, new, 1)
+
+          replace_once(
+          """  aquacrop: {
+            adapter: 'aquacrop-pilot-inputs',
+            rollout: 'pilot',
+            required: ['crop_parameters', 'soil_profile', 'initial_water_content', 'irrigation_management'],
+          },
+          } as const;""",
+          """  aquacrop: {
+            adapter: 'aquacrop-pilot-inputs',
+            rollout: 'pilot',
+            required: ['crop_parameters', 'soil_profile', 'initial_water_content', 'irrigation_management'],
+          },
+          cropforge: {
+            adapter: 'pcse-pilot-inputs+aquacrop-pilot-inputs',
+            rollout: 'shadow-readiness',
+            required: ['field_location', 'daily_weather', 'crop_parameters', 'soil_profile', 'planting_date'],
+          },
+          } as const;""",
+          'engine config',
+          )
+
+          replace_once(
+          """function normalizePyFao56(payload: any, irrigationBalance: any, kcbContext: any, evaporationContext: any) {""",
+          """function normalizeCropForge(pcsePayload: any, aquacropPayload: any) {
+            const required = [...ENGINE_CONFIG.cropforge.required] as string[];
+            const combinedAvailable = new Set([
+              ...(Array.isArray(pcsePayload?.available_inputs) ? pcsePayload.available_inputs.map(String) : []),
+              ...(Array.isArray(aquacropPayload?.available_inputs) ? aquacropPayload.available_inputs.map(String) : []),
+            ]);
+            const availableInputs = required.filter((key) => combinedAvailable.has(key));
+            const missingInputs = required.filter((key) => !combinedAvailable.has(key));
+            return {
+              availableInputs,
+              missingInputs,
+              evidence: {
+                pcse_adapter: pcsePayload?.adapters ?? null,
+                aquacrop_adapter: aquacropPayload?.adapters ?? null,
+              },
+              context: {
+                cropforge_phase: 'shadow-readiness-v1',
+                execution_enabled: false,
+                terrain_physics_ready: false,
+                terrain_gate: 'verified_topography_required_before_runtime',
+                pcse: pcsePayload?.context ?? null,
+                aquacrop: aquacropPayload?.context ?? null,
+              },
+              adapterMissingInputs: [...new Set([
+                ...(Array.isArray(pcsePayload?.missing_inputs) ? pcsePayload.missing_inputs.map(String) : []),
+                ...(Array.isArray(aquacropPayload?.missing_inputs) ? aquacropPayload.missing_inputs.map(String) : []),
+              ])],
+            };
+          }
+
+          function normalizePyFao56(payload: any, irrigationBalance: any, kcbContext: any, evaporationContext: any) {""",
+          'normalizer',
+          )
+
+          replace_once(
+          "if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse veya aquacrop readiness desteklenir.' }, 400);",
+          "if (!(engine in ENGINE_CONFIG)) return json({ ok: false, error: 'Yalnız pyfao56, pcse, aquacrop veya cropforge readiness desteklenir.' }, 400);",
+          'engine validation',
+          )
+
+          replace_once(
+          "let adapterPayload: any; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;",
+          "let adapterPayload: any; let secondaryAdapterPayload: any = null; let irrigationBalance: any = null; let kcbContext: any = null; let evaporationContext: any = null;",
+          'adapter declaration',
+          )
+
+          replace_once(
+          """    } else {
+              adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
+            }
+
+            const normalized = engine === 'pyfao56' ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext) : normalizeStandardAdapter(engine, adapterPayload);""",
+          """    } else if (engine === 'cropforge') {
+              const [pcseResult, aquacropResult] = await Promise.allSettled([
+                callAdapter(supabaseUrl, anonKey, authorization, 'pcse-pilot-inputs', fieldId),
+                callAdapter(supabaseUrl, anonKey, authorization, 'aquacrop-pilot-inputs', fieldId),
+              ]);
+              if (pcseResult.status === 'rejected' && aquacropResult.status === 'rejected') {
+                throw pcseResult.reason;
+              }
+              adapterPayload = pcseResult.status === 'fulfilled'
+                ? pcseResult.value
+                : { available_inputs: [], missing_inputs: ['pcse_adapter_unavailable'], context: {}, adapters: {} };
+              secondaryAdapterPayload = aquacropResult.status === 'fulfilled'
+                ? aquacropResult.value
+                : { available_inputs: [], missing_inputs: ['aquacrop_adapter_unavailable'], context: {}, adapters: {} };
+            } else {
+              adapterPayload = await callAdapter(supabaseUrl, anonKey, authorization, config.adapter, fieldId);
+            }
+
+            const normalized = engine === 'pyfao56'
+              ? normalizePyFao56(adapterPayload, irrigationBalance, kcbContext, evaporationContext)
+              : engine === 'cropforge'
+                ? normalizeCropForge(adapterPayload, secondaryAdapterPayload)
+                : normalizeStandardAdapter(engine, adapterPayload);""",
+          'adapter branch',
+          )
+
+          path.write_text(text)
+          PY
+
+          grep -q "cropforge_phase: 'shadow-readiness-v1'" supabase/functions/model-engine-readiness/index.ts
+          grep -q "engine === 'cropforge'" supabase/functions/model-engine-readiness/index.ts
+          git diff --check
+
       - name: Install dependencies
         run: npm ci
 
