@@ -1,0 +1,179 @@
+name: Apply stabilization patches
+
+on:
+  push:
+    branches:
+      - 'stabilize/2026-09-23'
+    paths:
+      - '.github/workflows/apply-stabilization-patches.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout stabilization branch
+        uses: actions/checkout@v4
+        with:
+          ref: stabilize/2026-09-23
+          fetch-depth: 0
+
+      - name: Apply verified source patches
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def patch(path, old, new, count=None):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              found = text.count(old)
+              if found == 0:
+                  raise SystemExit(f'Expected patch target not found in {path}: {old[:100]!r}')
+              if count is not None and found < count:
+                  raise SystemExit(f'Expected at least {count} targets in {path}, found {found}')
+              if count is None:
+                  text = text.replace(old, new)
+              else:
+                  text = text.replace(old, new, count)
+              p.write_text(text, encoding='utf-8')
+
+          # App: remove duplicate/invalid WeatherHub props.
+          patch(
+              'src/App.tsx',
+              "        desktopMenuItems={desktopMenuItems}\n        realFields={realFields}\n        openFieldDetail={openFieldDetail}\n        setScreen={setScreen}\n",
+              "        desktopMenuItems={desktopMenuItems}\n        setScreen={setScreen}\n",
+          )
+
+          # Market: setScreen is a real prop and is used by the bottom nav.
+          patch(
+              'src/components/MarketPricesScreen.tsx',
+              "export default function MarketPricesScreen({\n  fields,\n  selectedFieldId = '',\n  screen = 'marketHub',\n}: Props) {",
+              "export default function MarketPricesScreen({\n  fields,\n  selectedFieldId = '',\n  screen = 'marketHub',\n  setScreen,\n}: Props) {",
+          )
+
+          # MapLibre expects attribution options rather than boolean true.
+          for path in ['src/components/FieldMap.tsx', 'src/pages/Era5Map/Era5MapScreen.tsx']:
+              patch(path, '      attributionControl: true,', '      attributionControl: { compact: true },')
+
+          # Mapbox boundary receives the common runtime options; normalize to its boolean API.
+          patch(
+              'src/lib/mapRuntime.ts',
+              "      // Keep provider credit available in embedded maps as well as fullscreen.\n      attributionControl: options.attributionControl === false\n        ? { compact: true }\n        : options.attributionControl,",
+              "      // MapLibre accepts an options object while this Mapbox version expects a boolean.\n      // Preserve explicit false; every other common-runtime value keeps attribution enabled.\n      attributionControl: options.attributionControl !== false,",
+          )
+
+          # Pest store: optional chain inside nested callbacks (TS narrowing does not cross them).
+          patch('src/components/PestStoreScreen.tsx', 'analysis.bkuLookup.usageSource', 'analysis.bkuLookup?.usageSource')
+
+          # Admin DOM traversal: keep child type explicit.
+          patch(
+              'src/features/admin-mode/InAppAdminMode.tsx',
+              "    const parent = current.parentElement;\n    if (parent) {\n      const sameTag = Array.from(parent.children).filter((child) => child.tagName === current?.tagName);",
+              "    const parent: Element | null = current.parentElement;\n    if (parent) {\n      const sameTag = Array.from(parent.children).filter((child: Element) => child.tagName === current?.tagName);",
+          )
+
+          # Nullable decision status is valid; includes() needs a concrete string.
+          patch(
+              'src/features/decision/hooks/useHomeDecisionEngine.ts',
+              "        ['improving', 'not_visible'].includes(decisionStatus) && !signal.dueForPhoto",
+              "        ['improving', 'not_visible'].includes(decisionStatus ?? '') && !signal.dueForPhoto",
+          )
+
+          # Observation location reference type exists in the feature type module; import it.
+          patch(
+              'src/features/field-observations/services/fieldObservation.service.ts',
+              "  ObservationUploadResult,\n  UploadObservationPhotosInput,",
+              "  ObservationUploadResult,\n  ObservationPhotoLocationReference,\n  UploadObservationPhotosInput,",
+          )
+
+          # DSSAT is already an active readiness caller; include it in the engine contract.
+          patch(
+              'src/services/modelReadiness.service.ts',
+              "  | 'pcse'\n  | 'aquacrop';",
+              "  | 'pcse'\n  | 'aquacrop'\n  | 'dssat';",
+          )
+
+          # Supabase query builders are PromiseLike, not guaranteed native Promise with catch().
+          patch(
+              'src/features/field-operations/services/fieldOperation.service.ts',
+              "function syncIrrigationAmountTaskBestEffort(fieldId: string) {\n  void supabase\n    .rpc('tp_sync_irrigation_amount_task', { p_field_id: fieldId })\n    .then(({ error }) => {\n      if (error) {\n        console.warn('[field-operation] Sulama miktarı görevi senkronize edilemedi:', error.message);\n      }\n    })\n    .catch((error: unknown) => {\n      console.warn('[field-operation] Sulama miktarı görevi senkronize edilemedi:', error);\n    });\n}",
+              "function syncIrrigationAmountTaskBestEffort(fieldId: string) {\n  void (async () => {\n    try {\n      const { error } = await supabase.rpc('tp_sync_irrigation_amount_task', { p_field_id: fieldId });\n      if (error) {\n        console.warn('[field-operation] Sulama miktarı görevi senkronize edilemedi:', error.message);\n      }\n    } catch (error) {\n      console.warn('[field-operation] Sulama miktarı görevi senkronize edilemedi:', error);\n    }\n  })();\n}",
+          )
+
+          # AgriFM pilot uses the application Supabase client.
+          patch(
+              'src/features/satellite/services/agrifmPilotEvidence.service.ts',
+              "import { supabase } from '../../../lib/supabase';",
+              "import { supabase } from '../../../supabaseClient';",
+          )
+
+          # Button handler must not receive React's MouseEvent as the optional report result.
+          patch(
+              'src/pages/AiAnalysis/AiAnalysisScreen.tsx',
+              '                      onClick={createSynthesisPdf}',
+              '                      onClick={() => createSynthesisPdf()}',
+          )
+
+          # Restore the intended multi-photo diagnosis contract in the active field-activity hook.
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "  const [aiAnalysis, setAiAnalysis] = useState<AiFieldAnalysis | null>(null);\n  const [aiAnalyzing, setAiAnalyzing] = useState(false);",
+              "  const [aiAnalysis, setAiAnalysis] = useState<AiFieldAnalysis | null>(null);\n  const [diagnosisSequenceNo, setDiagnosisSequenceNo] = useState(1);\n  const [diagnosisNeedsMoreEvidence, setDiagnosisNeedsMoreEvidence] = useState(false);\n  const [diagnosisRequestedEvidence, setDiagnosisRequestedEvidence] = useState('');\n  const [aiAnalyzing, setAiAnalyzing] = useState(false);",
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "    setAiAnalysis(null);\n    setAiAnalysisError('');\n    setAiHistorySaveStatus('idle');",
+              "    setAiAnalysis(null);\n    setAiAnalysisError('');\n    setDiagnosisSequenceNo(1);\n    setDiagnosisNeedsMoreEvidence(false);\n    setDiagnosisRequestedEvidence('');\n    setAiHistorySaveStatus('idle');",
+              1,
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "  const handleAiAnalyzeActivityPhoto = async () => {\n    if (!selectedField || !activityPhoto) {\n      setAiAnalysisError('Önce analiz edilecek bir fotoğraf seç.');\n      return;\n    }",
+              "  const handleAiAnalyzeActivityPhoto = async (fileOverride?: File) => {\n    const analysisPhoto = fileOverride ?? activityPhoto;\n    if (!selectedField || !analysisPhoto) {\n      setAiAnalysisError('Önce analiz edilecek bir fotoğraf seç.');\n      return;\n    }",
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              '      const compressedPhoto = await compressActivityPhoto(activityPhoto);',
+              '      const compressedPhoto = await compressActivityPhoto(analysisPhoto);',
+              1,
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "      let photoRewardHash = `${activityPhoto.name}:${activityPhoto.size}:${activityPhoto.lastModified}`;",
+              "      let photoRewardHash = `${analysisPhoto.name}:${analysisPhoto.size}:${analysisPhoto.lastModified}`;",
+              1,
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "      setAiAnalysis(normalizedAnalysis);\n\n      const observationPointId = String(",
+              "      setAiAnalysis(normalizedAnalysis);\n      setDiagnosisNeedsMoreEvidence(Boolean(normalizedAnalysis.needsMoreEvidence));\n      setDiagnosisRequestedEvidence(normalizedAnalysis.followUpPhoto ?? '');\n\n      const observationPointId = String(",
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "  const resetActivityForm = (type = 'Saha Kontrolü') => {",
+              "  const handleDiagnosisFollowUpPhoto = async (file?: File) => {\n    if (!file) return;\n    handleActivityPhotoChange(file);\n    setDiagnosisSequenceNo((current) => Math.max(1, current) + 1);\n    setDiagnosisNeedsMoreEvidence(false);\n    setDiagnosisRequestedEvidence('');\n    await handleAiAnalyzeActivityPhoto(file);\n  };\n\n  const resetActivityForm = (type = 'Saha Kontrolü') => {",
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "    aiAnalysis,\n    aiAnalyzing,",
+              "    aiAnalysis,\n    diagnosisSequenceNo,\n    diagnosisNeedsMoreEvidence,\n    diagnosisRequestedEvidence,\n    aiAnalyzing,",
+              1,
+          )
+          patch(
+              'src/features/field-detail/hooks/useFieldActivities.ts',
+              "    handleAiAnalyzeActivityPhoto,\n    resetActivityForm,",
+              "    handleAiAnalyzeActivityPhoto,\n    handleDiagnosisFollowUpPhoto,\n    resetActivityForm,",
+              1,
+          )
+
+      - name: Commit stabilization batch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src
+          git diff --cached --check
+          git commit -m "fix: repair active runtime contracts" || exit 0
+          git push origin HEAD:stabilize/2026-09-23
