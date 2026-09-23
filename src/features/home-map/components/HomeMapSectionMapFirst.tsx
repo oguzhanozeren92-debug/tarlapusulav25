@@ -3158,12 +3158,12 @@ export default function HomeMapSectionMapFirst(
             type="button"
             className="tp-mf-quick-action tp-mf-quick-notifications"
             onClick={() => props.onOpenNotifications?.()}
-            aria-label={`Bildirimler${props.notificationCount > 0 ? `, ${props.notificationCount} yeni gelişme` : ''}`}
+            aria-label={`Bildirimler${(props.notificationCount ?? 0) > 0 ? `, ${props.notificationCount} yeni gelişme` : ''}`}
             aria-haspopup="dialog"
             title="Bildirimler"
           >
             <Bell size={19} strokeWidth={1.9} aria-hidden="true" />
-            {props.notificationCount > 0 && <span className="tp-mf-notification-dot" aria-hidden="true" />}
+            {(props.notificationCount ?? 0) > 0 && <span className="tp-mf-notification-dot" aria-hidden="true" />}
           </button>
         </>,
         fieldToolbar,

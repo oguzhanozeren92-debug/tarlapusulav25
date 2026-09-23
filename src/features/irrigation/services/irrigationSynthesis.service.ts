@@ -21,7 +21,7 @@ function lowerConfidence(
   return value;
 }
 
-async function loadFieldForPhenology(fieldId: string) {
+async function loadFieldForPhenology(fieldId: string): Promise<Record<string, any>> {
   const { data: userResult, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!userResult.user) throw new Error('Sulama sentezi için oturum bulunamadı.');

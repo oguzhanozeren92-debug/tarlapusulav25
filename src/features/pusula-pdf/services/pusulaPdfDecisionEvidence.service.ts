@@ -54,7 +54,7 @@ async function requirePdfUser() {
   return userId;
 }
 
-async function loadFieldRecord(fieldId: string, userId: string) {
+async function loadFieldRecord(fieldId: string, userId: string): Promise<Record<string, any>> {
   const { data, error } = await supabase
     .from('fields')
     .select([

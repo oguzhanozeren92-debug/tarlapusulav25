@@ -667,15 +667,15 @@ async function loadExtendedContext(
           ...worldCerealResult.value,
           sourceEvidence: worldCerealResult.value.evidence ?? [],
           evidence: {
-            source: 'ESA WorldCereal 10 m 2021 v100',
+            source: 'ESA WorldCereal RDM',
             priority: 'model_context',
-            state: worldCerealResult.value.aez.matched ? 'partial' : 'partial',
-            observedAt: null,
-            confidence: 'low',
+            state: worldCerealResult.value.status === 'ready' ? 'ready' : worldCerealResult.value.status === 'partial' ? 'partial' : 'unavailable',
+            observedAt: worldCerealResult.value.latestValidityDate,
+            confidence: worldCerealResult.value.sampleCount > 0 ? 'medium' : 'low',
             notes: [
-              '2021 tarihli tarihsel ürün/AEZ referansıdır; güncel ürün kimliği veya güncel sulama kanıtı değildir.',
-              'Bu aşamada WorldCereal 10 m rasterı parsel üzerinde örneklenmez; yalnız AEZ ve ürün uygunluğu bağlamı kullanılır.',
-              worldCerealResult.value.crop.note,
+              'WorldCereal RDM yakın saha referans örnekleri tarihsel/model bağlamıdır; güncel ürün kimliği veya sulama kanıtı değildir.',
+              `${worldCerealResult.value.collectionsQueried} koleksiyon sorgulandı; ${worldCerealResult.value.sampleCount} yakın referans örneği kullanılabildi.`,
+              worldCerealResult.value.productCatalog.note,
               ...worldCerealResult.value.warnings.slice(0, 2),
             ],
           },
@@ -687,22 +687,21 @@ async function loadExtendedContext(
       ? {
           ...phenologyResult.value,
           evidence: {
-            source: 'NASA Harvest / Agmatix crop-stage-detection',
+            source: 'NASA Harvest crop-stage-detection uyarlaması',
             priority: 'current_remote',
             state:
-              phenologyResult.value.status === 'ready'
+              phenologyResult.value.status === 'usable'
                 ? 'ready'
-                : phenologyResult.value.status === 'unavailable'
-                  ? 'unavailable'
-                  : 'partial',
-            observedAt: phenologyResult.value.lastDate,
+                : phenologyResult.value.observationCount > 0
+                  ? 'partial'
+                  : 'unavailable',
+            observedAt: phenologyResult.value.latestDate,
             confidence: phenologyResult.value.confidence ?? 'low',
             notes: [
-              '150 günlük Sentinel-2 NDVI eğrisinden ürün-agnostik A-E gelişim konumu tahminidir.',
+              '180 güne kadar gerçek Sentinel-2 NDVI gözlemlerinden ürün-agnostik A-E gelişim konumu tahminidir.',
               'A-E sınıfı ürün-spesifik BBCH/fizyolojik evre değildir; çiçeklenme, başaklanma veya dane dolumu gibi evreleri tek başına kanıtlamaz.',
-              phenologyResult.value.applicable
-                ? `Genel evre: ${phenologyResult.value.stage ?? 'veri yetersiz'}${phenologyResult.value.stageDescriptionTr ? ` · ${phenologyResult.value.stageDescriptionTr}` : ''}.`
-                : 'Çok yıllık/bahçe ürünü için bu genel eğri modeli uygulanmadı.',
+              `Genel evre: ${phenologyResult.value.stageLabel} · ${phenologyResult.value.stageDescription}.`,
+              ...phenologyResult.value.basis.slice(0, 2),
               ...phenologyResult.value.warnings.slice(0, 2),
             ],
           },

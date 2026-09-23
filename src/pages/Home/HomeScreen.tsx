@@ -1179,7 +1179,6 @@ export default function HomeScreen(props: HomeScreenProps) {
               satelliteData={sat}
               resolvedSatelliteDate={resolvedHomeSatelliteDate}
               onSpatialSummary={setHomeLayerSpatialSummary}
-              ndviStats={homeNdviStats}
               onNdviStats={setHomeNdviStats}
             />
 
