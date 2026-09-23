@@ -27,6 +27,30 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Parse internal model comparison edge function
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const ts = require('typescript');
+          const file = 'supabase/functions/model-shadow-comparison/index.ts';
+          const source = fs.readFileSync(file, 'utf8');
+          const out = ts.transpileModule(source, {
+            compilerOptions: {
+              target: ts.ScriptTarget.ES2022,
+              module: ts.ModuleKind.ESNext,
+            },
+            reportDiagnostics: true,
+          });
+          const errors = (out.diagnostics || []).filter(
+            (d) => d.category === ts.DiagnosticCategory.Error,
+          );
+          if (errors.length) {
+            console.error(errors.map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n')).join('\n'));
+            process.exit(1);
+          }
+          console.log('OK', file);
+          NODE
+
       # The repository already has a large pre-existing TypeScript error
       # baseline. Keep surfacing that debt without making every main commit
       # permanently red; tests and the production build remain hard gates.
