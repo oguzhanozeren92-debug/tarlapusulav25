@@ -1,0 +1,338 @@
+--- a/src/features/tasks/services/fieldTasks.service.ts
++++ b/src/features/tasks/services/fieldTasks.service.ts
+@@ -1,6 +1,8 @@
+ import { supabase } from '../../../supabaseClient';
+ import type { IrrigationDecisionSynthesis } from '../../irrigation/types/irrigationDecision';
+ 
++const TASK_NOTIFICATION_STORAGE_KEY = 'tp_system_notifications_v1';
++
+ export type FieldTask = {
+   id: string;
+   fieldId: string;
+@@ -45,24 +47,108 @@
+   return metadata as Record<string, unknown>;
+ }
+ 
+-function rewardPoints(metadata: unknown) {
+-  const value = Number(metadataObject(metadata).rewardPoints ?? 0);
+-  return Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
++export function resolveTaskRewardPoints(input: {
++  taskKey?: unknown;
++  source?: unknown;
++  actionTarget?: unknown;
++  title?: unknown;
++  metadata?: unknown;
++}) {
++  const metadata = metadataObject(input.metadata);
++  const explicit = Number(metadata.rewardPoints ?? metadata.reward_points ?? 0);
++
++  if (Number.isFinite(explicit) && explicit > 0) {
++    return Math.max(1, Math.round(explicit));
++  }
++
++  const taskKey = text(input.taskKey).toLocaleLowerCase('tr-TR');
++  const source = text(input.source).toLocaleLowerCase('tr-TR');
++  const actionTarget = text(input.actionTarget).toLocaleLowerCase('tr-TR');
++  const title = text(input.title).toLocaleLowerCase('tr-TR');
++
++  if (taskKey === 'irrigation-status') return 20;
++  if (taskKey === 'canopy-development') return 15;
++  if (taskKey === 'canopy-height') return 15;
++  if (taskKey === 'model-planting-date') return 10;
++  if (taskKey === 'model-crop-variety') return 5;
++  if (taskKey === 'model-last-irrigation') return 10;
++
++  if (taskKey === 'irrigation-method') return 15;
++  if (taskKey === 'model-surface-water-measurement') return 30;
++  if (taskKey.startsWith('model-growth-stage-observation:')) return 20;
++  if (taskKey === 'model-last-irrigation-amount') return 15;
++  if (taskKey === 'irrigation-synthesis-field-check') return 25;
++
++  if (taskKey === 'notification:soil-analysis') return 150;
++  if (taskKey.startsWith('pusula-field-check:')) return 30;
++  if (actionTarget === 'field-photo') return 30;
++
++  if (title.includes('toprak analizi')) return 150;
++  if (title.includes('fotoğraf')) return 30;
++  if (title.includes('nem')) return 25;
++  if (title.includes('sulama')) return 15;
++  if (title.includes('gelişim evresi')) return 20;
++
++  if (source === 'irrigation_synthesis') return 25;
++  if (source === 'model-readiness') return 15;
++  if (source === 'field-readiness') return 15;
++  if (source === 'pusula' || source === 'notification-task') return 20;
++
++  // Görevlerim ekranına düşen gerçek bir görev asla puansız kalmaz.
++  return 10;
++}
++
++export function taskNotificationTitle(task: Pick<FieldTask, 'title'>) {
++  return text(task.title) || 'Yeni görev';
++}
++
++export function taskNotificationMessage(
++  task: Pick<FieldTask, 'description' | 'rewardPoints'>,
++) {
++  const summary = text(task.description)
++    .replace(/\s+/g, ' ')
++    .split(/(?<=[.!?])\s+/)[0]
++    ?.trim();
++
++  const shortSummary =
++    summary && summary.length > 86
++      ? `${summary.slice(0, 83).trimEnd()}…`
++      : summary;
++
++  return `Yeni görev tanımlandı · +${task.rewardPoints} Pusula Puanı${
++    shortSummary ? ` · ${shortSummary}` : ''
++  }`;
+ }
+ 
+ function normalizeTask(row: RawFieldTask): FieldTask {
++  const metadata = metadataObject(row.metadata);
++  const taskKey = text(row.task_key) || null;
++  const source = text(row.source) || 'user';
++  const actionTarget = text(row.action_target) || null;
++  const title = text(row.title) || 'Görev';
++  const points = resolveTaskRewardPoints({
++    taskKey,
++    source,
++    actionTarget,
++    title,
++    metadata,
++  });
++
+   return {
+     id: text(row.id),
+     fieldId: text(row.field_id),
+-    title: text(row.title) || 'Görev',
++    title,
+     description: text(row.description) || null,
+-    source: text(row.source) || 'user',
+-    actionTarget: text(row.action_target) || null,
++    source,
++    actionTarget,
+     priority: Number.isFinite(Number(row.priority)) ? Number(row.priority) : 0,
+-    rewardPoints: rewardPoints(row.metadata),
++    rewardPoints: points,
+     dueDate: text(row.due_date) || null,
+-    taskKey: text(row.task_key) || null,
+-    metadata: metadataObject(row.metadata),
++    taskKey,
++    metadata: {
++      ...metadata,
++      rewardPoints: points,
++    },
+     completed: Boolean(row.completed),
+     createdAt: text(row.created_at) || null,
+   };
+@@ -78,6 +164,133 @@
+   );
+ }
+ 
++function linkedTaskId(item: any) {
++  const direct = text(item?.task?.id);
++  if (direct) return direct;
++
++  const id = text(item?.id);
++  if (id.startsWith('task-defined:')) return id.slice('task-defined:'.length);
++  if (id.startsWith('task-notice:')) return id.slice('task-notice:'.length);
++
++  return '';
++}
++
++function removeTaskNotification(taskIdInput: string) {
++  if (typeof window === 'undefined') return;
++
++  const taskId = text(taskIdInput);
++  if (!taskId) return;
++
++  try {
++    const raw = window.localStorage.getItem(TASK_NOTIFICATION_STORAGE_KEY);
++    const parsed = raw ? JSON.parse(raw) : [];
++    const previous = Array.isArray(parsed) ? parsed : [];
++
++    const next = previous.filter((item: any) => {
++      if (!item || typeof item !== 'object') return false;
++      return linkedTaskId(item) !== taskId;
++    });
++
++    window.localStorage.setItem(
++      TASK_NOTIFICATION_STORAGE_KEY,
++      JSON.stringify(next),
++    );
++    window.dispatchEvent(
++      new CustomEvent('tp:notifications-updated', {
++        detail: { notifications: next },
++      }),
++    );
++  } catch {
++    // Bildirim temizliği başarısız olsa bile görev akışı devam eder.
++  }
++}
++
++function publishTaskNotifications(tasks: FieldTask[]) {
++  if (typeof window === 'undefined') return;
++
++  try {
++    const raw = window.localStorage.getItem(TASK_NOTIFICATION_STORAGE_KEY);
++    const parsed = raw ? JSON.parse(raw) : [];
++    const previous = Array.isArray(parsed) ? parsed : [];
++    const byId = new Map<string, any>();
++
++    /*
++     * Görev bildirimleri field_todos'taki aktif görevlerden yeniden kurulur.
++     * Böylece bitmiş/gizlenmiş/eski görevin bildirimi listede asılı kalmaz.
++     */
++    previous.forEach((item: any) => {
++      if (!item?.id || item.kind === 'task') return;
++
++      const taskId = linkedTaskId(item);
++      const isTaskNotification =
++        Boolean(taskId) ||
++        item.source === 'task-system' ||
++        String(item.id).startsWith('task-defined:') ||
++        String(item.id).startsWith('task-notice:');
++
++      if (isTaskNotification) return;
++      byId.set(String(item.id), item);
++    });
++
++    const nowIso = new Date().toISOString();
++
++    tasks.forEach((task) => {
++      if (!task.id) return;
++
++      const notificationId = `task-defined:${task.id}`;
++      const existing = previous.find(
++        (item: any) => String(item?.id ?? '') === notificationId,
++      );
++      const createdAt = task.createdAt || existing?.createdAt || nowIso;
++
++      byId.set(notificationId, {
++        id: notificationId,
++        fieldId: task.fieldId,
++        fieldName: existing?.fieldName ?? null,
++        source: 'task-system',
++        severity: task.priority >= 90 ? 'warning' : 'info',
++        title: taskNotificationTitle(task),
++        message: taskNotificationMessage(task),
++        iconKey: 'task',
++        target: 'tasks',
++        priority: task.priority,
++        kind: 'notification',
++        task: {
++          id: task.id,
++          task_key: task.taskKey,
++          action_target: task.actionTarget,
++          title: task.title,
++          status: 'open',
++          reward_points: task.rewardPoints,
++        },
++        isRead: existing?.isRead ?? false,
++        createdAt: existing?.createdAt ?? createdAt,
++        updatedAt: nowIso,
++      });
++    });
++
++    const next = Array.from(byId.values())
++      .sort((a: any, b: any) => {
++        const at = new Date(a.updatedAt ?? a.createdAt ?? 0).getTime();
++        const bt = new Date(b.updatedAt ?? b.createdAt ?? 0).getTime();
++        return bt - at;
++      })
++      .slice(0, 160);
++
++    window.localStorage.setItem(
++      TASK_NOTIFICATION_STORAGE_KEY,
++      JSON.stringify(next),
++    );
++    window.dispatchEvent(
++      new CustomEvent('tp:notifications-updated', {
++        detail: { notifications: next },
++      }),
++    );
++  } catch (error) {
++    console.warn('[tasks] Yeni görev bildirimi kaydedilemedi:', error);
++  }
++}
++
+ export function syncIrrigationSynthesisVerificationTaskBestEffort(
+   fieldIdInput: string,
+   synthesis: IrrigationDecisionSynthesis | null | undefined,
+@@ -159,6 +372,7 @@
+         warnings: (synthesis?.warnings ?? []).slice(0, 3),
+         productionAuthority: false,
+         verificationReason: 'model_divergence',
++        rewardPoints: 25,
+       },
+       updated_at: now,
+     };
+@@ -271,17 +485,21 @@
+ 
+   const now = Date.now();
+ 
+-  return (data ?? [])
++  const tasks = (data ?? [])
+     .map((row) => normalizeTask(row as RawFieldTask))
+     .filter((task) => {
+       const snoozedUntil = text(task.metadata.snoozedUntil);
+ 
+-      if (!snoozedUntil) return true;
+-
+-      const until = new Date(snoozedUntil).getTime();
++      if (snoozedUntil) {
++        const until = new Date(snoozedUntil).getTime();
++        if (Number.isFinite(until) && until > now) return false;
++      }
+ 
+-      return !Number.isFinite(until) || until <= now;
++      return true;
+     });
++
++  publishTaskNotifications(tasks);
++  return tasks;
+ }
+ 
+ /**
+@@ -345,6 +563,7 @@
+     throw new Error('Görev bulunamadı veya güncellenemedi.');
+   }
+ 
++  removeTaskNotification(taskId);
+   emitTasksChanged(text(data.field_id) || task.fieldId);
+ 
+   return {
+@@ -409,6 +628,7 @@
+     throw new Error('Görev bulunamadı veya güncellenemedi.');
+   }
+ 
++  removeTaskNotification(taskId);
+   emitTasksChanged(text(data.field_id) || task.fieldId);
+ 
+   return {
+@@ -457,6 +677,7 @@
+     throw new Error('Görev bulunamadı veya güncellenemedi.');
+   }
+ 
++  removeTaskNotification(taskId);
+   emitTasksChanged(text(data.field_id) || task.fieldId);
+ 
+   return {
+@@ -503,6 +724,7 @@
+       };
+     }
+ 
++    removeTaskNotification(task.id);
+     emitTasksChanged(task.fieldId);
+ 
+     const awardedPoints = Number(
+@@ -530,6 +752,7 @@
+ 
+   if (error) throw error;
+ 
++  removeTaskNotification(task.id);
+   emitTasksChanged(task.fieldId);
+ 
+   return {

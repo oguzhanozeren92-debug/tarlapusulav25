@@ -1,9 +1,8 @@
-name: Sync StackBlitz Project
+name: Apply TarlaPusula Task Patch
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - '.github/workflows/sync-stackblitz.yml'
   workflow_dispatch:
@@ -12,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  sync:
+  apply-task-patch:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,37 +19,82 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Clone latest StackBlitz snapshot
+      - name: Detect pending patches
+        id: detect
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/stackblitz-project
-          npx --yes stackblitz-clone \
-            'https://stackblitz.com/edit/vitejs-vite-p9bhjmpv' \
-            /tmp/stackblitz-project
-          test -f /tmp/stackblitz-project/package.json
-          test -f /tmp/stackblitz-project/src/App.tsx
+          if compgen -G '.github/task-patches/*.patch' > /dev/null; then
+            echo 'has_patches=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'has_patches=false' >> "$GITHUB_OUTPUT"
+            echo 'No pending TarlaPusula patches.'
+          fi
 
-      - name: Replace repository with StackBlitz snapshot
+      - name: Restore verified small files
+        if: steps.detect.outputs.has_patches == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
-          cp .github/workflows/sync-stackblitz.yml /tmp/sync-stackblitz.yml
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-          cp -a /tmp/stackblitz-project/. .
-          mkdir -p .github/workflows
-          cp /tmp/sync-stackblitz.yml .github/workflows/sync-stackblitz.yml
 
-      - name: Commit synchronized project
+          fetch_blob() {
+            local sha="$1"
+            local target="$2"
+            mkdir -p "$(dirname "$target")"
+            curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | jq -r '.content' \
+              | tr -d '\n' \
+              | base64 --decode > "$target"
+          }
+
+          fetch_blob f4874f7d4d976b644323954ee0cdb2b9597b426a src/features/admin-mode/AppNotificationBridge.tsx
+          fetch_blob abb469cde5e967e17c690ffbff9f9ff151cc92ad src/features/notifications/services/notificationQueue.ts
+          fetch_blob 7874541c1fa94611fb72057bec15307422b73f7c src/features/tasks/components/HomeTasksSheet.tsx
+          fetch_blob 69d57f30a8684c2be5425f2c2ab854f69980bda4 src/features/tasks/components/HomeTasksSheet.css
+          fetch_blob b966ebe6c92f448e374b39989cb5919487fcf681 supabase/migrations/20260923164500_task_rewards_for_generated_tasks.sql
+
+      - name: Apply task and notification patches
+        if: steps.detect.outputs.has_patches == 'true'
         shell: bash
         run: |
           set -euo pipefail
+          sed -i 's/\r$//' src/pages/Notifications/NotificationsHubScreen.tsx
+          for patch_file in \
+            .github/task-patches/fieldTasks.service.ts.patch \
+            .github/task-patches/HomeQuickSheets.tsx.patch \
+            .github/task-patches/NotificationsHubScreen.tsx.patch
+          do
+            echo "Checking ${patch_file}"
+            git apply --check "$patch_file"
+            git apply --whitespace=nowarn "$patch_file"
+          done
+
+      - name: Install dependencies
+        if: steps.detect.outputs.has_patches == 'true'
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        if: steps.detect.outputs.has_patches == 'true'
+        run: npm run build
+
+      - name: Commit verified task update
+        if: steps.detect.outputs.has_patches == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/task-patches
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           if git diff --cached --quiet; then
-            echo 'StackBlitz snapshot already matches the repository.'
+            echo 'No changes to commit.'
             exit 0
           fi
-          git commit -m 'sync: import latest StackBlitz vitejs-vite-p9bhjmpv'
+          git commit -m 'feat(tasks): separate tasks and notifications with rewards'
           git push origin HEAD:main
