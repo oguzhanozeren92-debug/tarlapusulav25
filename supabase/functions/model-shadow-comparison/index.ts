@@ -1,6 +1,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.112.4';
 import { buildShadowComparison } from './comparison-core.mjs';
+import { buildCalibrationState } from './calibration-core.mjs';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +12,8 @@ const corsHeaders = {
 const COMPLETE_FRESHNESS_HOURS = 24;
 const INCOMPLETE_FRESHNESS_HOURS = 1;
 const ENGINE_TIMEOUT_MS = 80_000;
-const FUNCTION_VERSION = 2;
+const FUNCTION_VERSION = 3;
+const CALIBRATION_VERSION = 1;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -158,6 +160,68 @@ async function persistComparison(
   if (error) throw new Error(`Shadow comparison persistence failed: ${error.message}`);
 }
 
+async function refreshCalibrationState(
+  serviceClient: any,
+  userId: string,
+  fieldId: string,
+  seasonKey: string,
+) {
+  const { data, error } = await serviceClient
+    .from('model_shadow_comparisons')
+    .select('comparison_day,season_key,status,severity,engines,normalized,divergences')
+    .eq('user_id', userId)
+    .eq('field_id', fieldId)
+    .eq('season_key', seasonKey)
+    .order('comparison_day', { ascending: false })
+    .limit(500);
+
+  if (error) throw new Error(`Shadow calibration history failed: ${error.message}`);
+
+  const calibration = buildCalibrationState({
+    seasonKey,
+    rows: Array.isArray(data) ? data : [],
+  });
+  const now = new Date().toISOString();
+
+  const { error: persistError } = await serviceClient
+    .from('model_shadow_calibration_states')
+    .upsert({
+      user_id: userId,
+      field_id: fieldId,
+      season_key: calibration.season_key,
+      status: calibration.status,
+      review_eligible: calibration.review_eligible,
+      required_clean_phenology_days: calibration.required_clean_phenology_days,
+      phenology_comparable_days: calibration.phenology_comparable_days,
+      phenology_clean_streak: calibration.phenology_clean_streak,
+      phenology_watch_days: calibration.phenology_watch_days,
+      phenology_high_days: calibration.phenology_high_days,
+      aquacrop_completed_days: calibration.aquacrop_completed_days,
+      required_aquacrop_evidence_days: calibration.required_aquacrop_evidence_days,
+      water_evidence_state: calibration.water_evidence_state,
+      latest_comparison_day: calibration.latest_comparison_day,
+      latest_comparison_status: calibration.latest_comparison_status,
+      latest_phenology_comparable: calibration.latest_phenology_comparable,
+      latest_agronomic_severity: calibration.latest_agronomic_severity,
+      last_divergence_day: calibration.last_divergence_day,
+      distinct_days: calibration.distinct_days,
+      evidence: {
+        ...calibration.evidence,
+        calibration_version: CALIBRATION_VERSION,
+      },
+      production_authority: false,
+      user_visible: false,
+      updated_at: now,
+    }, {
+      onConflict: 'user_id,field_id,season_key',
+    });
+
+  if (persistError) {
+    throw new Error(`Shadow calibration persistence failed: ${persistError.message}`);
+  }
+  return calibration;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return json({ ok: false, error: 'Yalnız POST desteklenir.' }, 405);
@@ -169,7 +233,7 @@ Deno.serve(async (req: Request) => {
 
     const forbidden = [
       'crop', 'planting_date', 'weather', 'soil', 'parameters', 'available_inputs',
-      'pcse', 'aquacrop', 'cropforge', 'force', 'severity', 'thresholds',
+      'pcse', 'aquacrop', 'cropforge', 'force', 'severity', 'thresholds', 'calibration',
     ];
     if (forbidden.some((key) => key in body)) {
       return json({
@@ -191,6 +255,12 @@ Deno.serve(async (req: Request) => {
 
     const cached = await loadFreshComparison(serviceClient, user.id, fieldId);
     if (cached) {
+      const calibration = await refreshCalibrationState(
+        serviceClient,
+        user.id,
+        fieldId,
+        String(cached.season_key ?? 'unknown'),
+      );
       return json({
         ok: true,
         cached: true,
@@ -200,6 +270,10 @@ Deno.serve(async (req: Request) => {
         comparison_day: cached.comparison_day,
         comparison_as_of: cached.comparison_as_of,
         season_key: cached.season_key,
+        calibration_status: calibration.status,
+        calibration_review_eligible: calibration.review_eligible,
+        phenology_clean_streak: calibration.phenology_clean_streak,
+        water_evidence_state: calibration.water_evidence_state,
         production_authority: false,
         user_visible: false,
         internal_only: true,
@@ -226,6 +300,12 @@ Deno.serve(async (req: Request) => {
     });
 
     await persistComparison(serviceClient, user.id, fieldId, comparison, fingerprint);
+    const calibration = await refreshCalibrationState(
+      serviceClient,
+      user.id,
+      fieldId,
+      String(comparison.season_key ?? 'unknown'),
+    );
 
     return json({
       ok: true,
@@ -240,10 +320,14 @@ Deno.serve(async (req: Request) => {
         Object.entries(comparison.engines).map(([key, value]: [string, any]) => [key, value.status]),
       ),
       divergence_count: comparison.divergences.length,
+      calibration_status: calibration.status,
+      calibration_review_eligible: calibration.review_eligible,
+      phenology_clean_streak: calibration.phenology_clean_streak,
+      water_evidence_state: calibration.water_evidence_state,
       production_authority: false,
       user_visible: false,
       internal_only: true,
-      note: 'Scope-aware shadow comparison persisted for internal calibration only. No farmer-facing decision was changed.',
+      note: 'Repeated-day shadow calibration updated for internal review only. No model was promoted and no farmer-facing decision was changed.',
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Shadow model karşılaştırması başarısız oldu.';
