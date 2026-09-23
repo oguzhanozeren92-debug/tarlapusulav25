@@ -1,0 +1,187 @@
+name: Apply stabilization batch 4
+
+on:
+  push:
+    branches:
+      - 'stabilize/2026-09-23'
+    paths:
+      - '.github/workflows/apply-stabilization-batch4.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: stabilize/2026-09-23
+          fetch-depth: 0
+
+      - name: Apply batch 4
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def patch(path, old, new, count=None):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              found = text.count(old)
+              if found == 0:
+                  raise SystemExit(f'Patch target not found in {path}: {old[:120]!r}')
+              if count is not None and found < count:
+                  raise SystemExit(f'Expected {count} matches in {path}, found {found}')
+              text = text.replace(old, new) if count is None else text.replace(old, new, count)
+              p.write_text(text, encoding='utf-8')
+
+          # Optional notification count is rendered as zero when absent.
+          patch(
+              'src/features/home-map/components/HomeMapSectionMapFirst.tsx',
+              'props.notificationCount > 0',
+              '(props.notificationCount ?? 0) > 0',
+          )
+
+          # ndviStats is state owned by HomeScreen and refreshed through onNdviStats;
+          # the map component does not consume a separate input copy.
+          patch(
+              'src/pages/Home/HomeScreen.tsx',
+              '              ndviStats={homeNdviStats}\n              onNdviStats={setHomeNdviStats}',
+              '              onNdviStats={setHomeNdviStats}',
+              1,
+          )
+
+          # These functions intentionally cross an ungenerated Supabase schema boundary.
+          # Give their returned records an index signature so selected raw columns stay available.
+          patch(
+              'src/features/irrigation/services/irrigationSynthesis.service.ts',
+              'async function loadFieldForPhenology(fieldId: string) {',
+              'async function loadFieldForPhenology(fieldId: string): Promise<Record<string, any>> {',
+          )
+          patch(
+              'src/features/pusula-pdf/services/pusulaPdfDecisionEvidence.service.ts',
+              'async function loadFieldRecord(fieldId: string, userId: string) {',
+              'async function loadFieldRecord(fieldId: string, userId: string): Promise<Record<string, any>> {',
+          )
+
+          # WorldCereal adapter now uses RDM reference context instead of the removed AEZ adapter.
+          p = Path('src/lib/pusulaFieldContext.ts')
+          text = p.read_text(encoding='utf-8')
+          old = """  const worldCereal: PusulaFieldContext['cropReference'] =
+    worldCerealResult.status === 'fulfilled'
+      ? {
+          ...worldCerealResult.value,
+          sourceEvidence: worldCerealResult.value.evidence ?? [],
+          evidence: {
+            source: 'ESA WorldCereal 10 m 2021 v100',
+            priority: 'model_context',
+            state: worldCerealResult.value.aez.matched ? 'partial' : 'partial',
+            observedAt: null,
+            confidence: 'low',
+            notes: [
+              '2021 tarihli tarihsel ürün/AEZ referansıdır; güncel ürün kimliği veya güncel sulama kanıtı değildir.',
+              'Bu aşamada WorldCereal 10 m rasterı parsel üzerinde örneklenmez; yalnız AEZ ve ürün uygunluğu bağlamı kullanılır.',
+              worldCerealResult.value.crop.note,
+              ...worldCerealResult.value.warnings.slice(0, 2),
+            ],
+          },
+        }
+      : null;
+"""
+          new = """  const worldCereal: PusulaFieldContext['cropReference'] =
+    worldCerealResult.status === 'fulfilled'
+      ? {
+          ...worldCerealResult.value,
+          sourceEvidence: worldCerealResult.value.evidence ?? [],
+          evidence: {
+            source: 'ESA WorldCereal RDM',
+            priority: 'model_context',
+            state:
+              worldCerealResult.value.status === 'ready'
+                ? 'ready'
+                : worldCerealResult.value.status === 'partial'
+                  ? 'partial'
+                  : 'unavailable',
+            observedAt: worldCerealResult.value.latestValidityDate,
+            confidence: worldCerealResult.value.sampleCount > 0 ? 'medium' : 'low',
+            notes: [
+              'WorldCereal RDM yakın saha referans örnekleri tarihsel/model bağlamıdır; güncel ürün kimliği veya sulama kanıtı değildir.',
+              `${worldCerealResult.value.collectionsQueried} koleksiyon sorgulandı; ${worldCerealResult.value.sampleCount} yakın referans örneği kullanılabildi.`,
+              worldCerealResult.value.productCatalog.note,
+              ...worldCerealResult.value.warnings.slice(0, 2),
+            ],
+          },
+        }
+      : null;
+"""
+          if old not in text:
+              raise SystemExit('WorldCereal legacy mapping block not found')
+          text = text.replace(old, new, 1)
+
+          old = """  const phenology: PusulaFieldContext['phenology'] =
+    phenologyResult.status === 'fulfilled' && phenologyResult.value
+      ? {
+          ...phenologyResult.value,
+          evidence: {
+            source: 'NASA Harvest / Agmatix crop-stage-detection',
+            priority: 'current_remote',
+            state:
+              phenologyResult.value.status === 'ready'
+                ? 'ready'
+                : phenologyResult.value.status === 'unavailable'
+                  ? 'unavailable'
+                  : 'partial',
+            observedAt: phenologyResult.value.lastDate,
+            confidence: phenologyResult.value.confidence ?? 'low',
+            notes: [
+              '150 günlük Sentinel-2 NDVI eğrisinden ürün-agnostik A-E gelişim konumu tahminidir.',
+              'A-E sınıfı ürün-spesifik BBCH/fizyolojik evre değildir; çiçeklenme, başaklanma veya dane dolumu gibi evreleri tek başına kanıtlamaz.',
+              phenologyResult.value.applicable
+                ? `Genel evre: ${phenologyResult.value.stage ?? 'veri yetersiz'}${phenologyResult.value.stageDescriptionTr ? ` · ${phenologyResult.value.stageDescriptionTr}` : ''}.`
+                : 'Çok yıllık/bahçe ürünü için bu genel eğri modeli uygulanmadı.',
+              ...phenologyResult.value.warnings.slice(0, 2),
+            ],
+          },
+        }
+      : null;
+"""
+          new = """  const phenology: PusulaFieldContext['phenology'] =
+    phenologyResult.status === 'fulfilled' && phenologyResult.value
+      ? {
+          ...phenologyResult.value,
+          evidence: {
+            source: 'NASA Harvest crop-stage-detection uyarlaması',
+            priority: 'current_remote',
+            state:
+              phenologyResult.value.status === 'usable'
+                ? 'ready'
+                : phenologyResult.value.observationCount > 0
+                  ? 'partial'
+                  : 'unavailable',
+            observedAt: phenologyResult.value.latestDate,
+            confidence: phenologyResult.value.confidence ?? 'low',
+            notes: [
+              '180 güne kadar gerçek Sentinel-2 NDVI gözlemlerinden ürün-agnostik A-E gelişim konumu tahminidir.',
+              'A-E sınıfı ürün-spesifik BBCH/fizyolojik evre değildir; çiçeklenme, başaklanma veya dane dolumu gibi evreleri tek başına kanıtlamaz.',
+              `Genel evre: ${phenologyResult.value.stageLabel} · ${phenologyResult.value.stageDescription}.`,
+              ...phenologyResult.value.basis.slice(0, 2),
+              ...phenologyResult.value.warnings.slice(0, 2),
+            ],
+          },
+        }
+      : null;
+"""
+          if old not in text:
+              raise SystemExit('NASA Harvest legacy mapping block not found')
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+
+      - name: Commit batch 4
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src
+          git diff --cached --check
+          git commit -m "fix: close remaining structural type contracts" || exit 0
+          git push origin HEAD:stabilize/2026-09-23
