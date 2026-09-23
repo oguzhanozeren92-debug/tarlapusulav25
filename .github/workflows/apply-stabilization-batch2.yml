@@ -1,0 +1,209 @@
+name: Apply stabilization batch 2
+
+on:
+  push:
+    branches:
+      - 'stabilize/2026-09-23'
+    paths:
+      - '.github/workflows/apply-stabilization-batch2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: stabilize/2026-09-23
+          fetch-depth: 0
+
+      - name: Apply batch 2
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def patch(path, old, new, count=None):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              found = text.count(old)
+              if found == 0:
+                  raise SystemExit(f'Patch target not found in {path}: {old[:120]!r}')
+              if count is not None and found < count:
+                  raise SystemExit(f'Expected {count} matches in {path}, found {found}')
+              text = text.replace(old, new) if count is None else text.replace(old, new, count)
+              p.write_text(text, encoding='utf-8')
+
+          # Supabase: let createClient<any> keep the current ungenerated-schema project usable.
+          # The previous explicit SupabaseClient annotation caused select-parser GenericStringError rows.
+          patch(
+              'src/supabaseClient.ts',
+              "import {\n  createClient,\n  type SupabaseClient,\n} from '@supabase/supabase-js';",
+              "import { createClient } from '@supabase/supabase-js';",
+          )
+          patch(
+              'src/supabaseClient.ts',
+              'function createTarlaPusulaSupabaseClient(): SupabaseClient {',
+              'function createTarlaPusulaSupabaseClient() {',
+          )
+          patch(
+              'src/supabaseClient.ts',
+              '    const client = createClient(\n',
+              '    const client = createClient<any>(\n',
+          )
+          patch(
+              'src/supabaseClient.ts',
+              'export const supabase: SupabaseClient = createTarlaPusulaSupabaseClient();',
+              'export const supabase = createTarlaPusulaSupabaseClient();',
+          )
+
+          # Home map literal inference and stale cache contract.
+          patch(
+              'src/features/home-map/HomeMapEngine.tsx',
+              '  let best = palette[0];',
+              '  let best: (typeof palette)[number] = palette[0];',
+              1,
+          )
+          patch(
+              'src/features/home-map/HomeMapEngine.tsx',
+              "  Promise<{\n    url: string;\n    bbox: HomeBBox;\n    summary: HomeLayerSpatialSummary;\n  }>\n>();\nconst HOME_MAP_AGRO_INFLIGHT",
+              "  Promise<{\n    url: string;\n    bbox: HomeBBox;\n    summary: HomeLayerSpatialSummary;\n    variable: HomeClimateVariable;\n  }>\n>();\nconst HOME_MAP_AGRO_INFLIGHT",
+              1,
+          )
+
+          # A toast from the larger HomeInlineLayerMap was accidentally pasted into
+          # InteractiveHomeHealthMap, where no such state exists.
+          p = Path('src/features/home-map/HomeMapEngine.tsx')
+          text = p.read_text(encoding='utf-8')
+          start = text.find("      {fieldOperationToast ? (\n        <div\n          role=\"status\"", text.find('function InteractiveHomeHealthMap'))
+          end_marker = "      ) : null}\n\n      <button\n        type=\"button\"\n        className=\"tp-real-home-reset\""
+          end = text.find(end_marker, start)
+          if start < 0 or end < 0:
+              raise SystemExit('InteractiveHomeHealthMap stale toast block not found')
+          text = text[:start] + "      <button\n        type=\"button\"\n        className=\"tp-real-home-reset\"" + text[end + len(end_marker):]
+          p.write_text(text, encoding='utf-8')
+
+          # Avoid shadowing showFocus(detail) with a DOM span named detail.
+          patch('src/features/home-map/HomeMapEngine.tsx', "          const detail =\n            document.createElement('span');", "          const detailText =\n            document.createElement('span');", 1)
+          patch('src/features/home-map/HomeMapEngine.tsx', '          detail.textContent =', '          detailText.textContent =', 1)
+          patch('src/features/home-map/HomeMapEngine.tsx', '          detail.style.cssText = [', '          detailText.style.cssText = [', 1)
+          patch('src/features/home-map/HomeMapEngine.tsx', '          label.appendChild(detail);', '          label.appendChild(detailText);', 1)
+
+          # Wrapper props must exactly match the wrapped HomeMapSection.
+          patch(
+              'src/features/home-map/components/HomeMapSectionMapFirst.tsx',
+              "import { useEffect, useMemo, useRef, useState } from 'react';",
+              "import { useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';",
+          )
+          patch(
+              'src/features/home-map/components/HomeMapSectionMapFirst.tsx',
+              'type HomeMapSectionMapFirstProps = Record<string, any>;',
+              'type HomeMapSectionMapFirstProps = ComponentProps<typeof HomeMapSection>;',
+          )
+
+          # GeoTIFF v2 readRasters has a union return type even when interleave:true.
+          # Narrow only at this API boundary; runtime contract is an interleaved numeric typed array.
+          patch(
+              'src/features/home-map/services/earthSearchNdvi.service.ts',
+              '  const [redRaster, nirRaster] = await Promise.all([',
+              '  const [redRasterRaw, nirRasterRaw] = await Promise.all([',
+              1,
+          )
+          patch(
+              'src/features/home-map/services/earthSearchNdvi.service.ts',
+              "  ]);\n\n  const ndviRows: number[][] = Array.from(",
+              "  ]);\n\n  const redRaster = redRasterRaw as unknown as ArrayLike<number>;\n  const nirRaster = nirRasterRaw as unknown as ArrayLike<number>;\n\n  const ndviRows: number[][] = Array.from(",
+              1,
+          )
+
+          # Crop coefficient result contract always carries the normalized subtype.
+          patch(
+              'src/features/irrigation/services/cropCoefficient.service.ts',
+              "    cropName:\n      profile.displayName,\n\n    stage:",
+              "    cropName:\n      profile.displayName,\n\n    cropSubtype:\n      profile.cropSubtype,\n\n    stage:",
+              1,
+          )
+
+          # Irrigation context already selects irrigation_method; expose it consistently.
+          patch(
+              'src/features/irrigation/types/irrigation.ts',
+              "  irrigationStatus: IrrigationStatus;\n  irrigationStatusRaw: string | null;\n\n  lastIrrigation:",
+              "  irrigationStatus: IrrigationStatus;\n  irrigationStatusRaw: string | null;\n  irrigationMethod: import('../../../types').FieldIrrigationMethod | null;\n\n  lastIrrigation:",
+          )
+          patch(
+              'src/features/irrigation/services/irrigationContext.service.ts',
+              "function normalizeDecimalText(\n  value: string,\n) {",
+              "function normalizeIrrigationMethod(\n  value: unknown,\n): IrrigationContext['irrigationMethod'] {\n  const raw = String(value ?? '').trim().toLocaleLowerCase('tr-TR');\n  const aliases: Record<string, NonNullable<IrrigationContext['irrigationMethod']>> = {\n    sprinkler: 'sprinkler',\n    'yağmurlama': 'sprinkler',\n    yagmurlama: 'sprinkler',\n    basin: 'basin',\n    tav: 'basin',\n    border: 'border',\n    salma: 'border',\n    furrow_every_narrow: 'furrow_every_narrow',\n    furrow_every_wide: 'furrow_every_wide',\n    furrow_alternating: 'furrow_alternating',\n    trickle: 'trickle',\n    damlama: 'trickle',\n    unknown: 'unknown',\n  };\n  return aliases[raw] ?? null;\n}\n\nfunction normalizeDecimalText(\n  value: string,\n) {",
+          )
+          patch(
+              'src/features/irrigation/services/irrigationContext.service.ts',
+              "    irrigationStatus,\n    irrigationStatusRaw,\n\n    lastIrrigation,",
+              "    irrigationStatus,\n    irrigationStatusRaw,\n    irrigationMethod: normalizeIrrigationMethod(dbField.irrigation_method),\n\n    lastIrrigation,",
+          )
+
+          # WaPOR resolution is metadata, not a literal-type discriminator.
+          patch('src/features/irrigation/services/waporWaterEvidence.service.ts', '    pixelSizeM: 326.13;', '    pixelSizeM: number;', 1)
+          patch('src/features/irrigation/services/waporWaterEvidence.service.ts', '    pixelSizeM: 18924;', '    pixelSizeM: number;', 1)
+
+          # Supabase query builders are PromiseLike; use async try/catch for best-effort RPCs.
+          patch(
+              'src/features/phenology/services/fieldGrowthObservation.service.ts',
+              "function syncGrowthStageObservationTaskBestEffort(fieldId: string) {\n  void supabase\n    .rpc('tp_sync_growth_stage_observation_task', { p_field_id: fieldId })\n    .then(({ error }) => {\n      if (error) {\n        console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error.message);\n      }\n    })\n    .catch((error: unknown) => {\n      console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error);\n    });\n}",
+              "function syncGrowthStageObservationTaskBestEffort(fieldId: string) {\n  void (async () => {\n    try {\n      const { error } = await supabase.rpc('tp_sync_growth_stage_observation_task', { p_field_id: fieldId });\n      if (error) {\n        console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error.message);\n      }\n    } catch (error) {\n      console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error);\n    }\n  })();\n}",
+          )
+
+          patch(
+              'src/features/tasks/services/fieldTasks.service.ts',
+              "  void supabase\n    .rpc('tp_sync_irrigation_evidence_tasks', { p_field_id: fieldId })\n    .then(({ error }) => {\n      if (error) {\n        console.warn(\n          '[tasks] Sulama kanıtı görevleri senkronize edilemedi:',\n          error.message,\n        );\n        return;\n      }\n\n      emitTasksChanged(fieldId);\n    })\n    .catch((error: unknown) => {\n      console.warn(\n        '[tasks] Sulama kanıtı görevleri senkronize edilemedi:',\n        error,\n      );\n    });",
+              "  void (async () => {\n    try {\n      const { error } = await supabase.rpc('tp_sync_irrigation_evidence_tasks', { p_field_id: fieldId });\n      if (error) {\n        console.warn('[tasks] Sulama kanıtı görevleri senkronize edilemedi:', error.message);\n        return;\n      }\n      emitTasksChanged(fieldId);\n    } catch (error) {\n      console.warn('[tasks] Sulama kanıtı görevleri senkronize edilemedi:', error);\n    }\n  })();",
+          )
+
+          # Notification RPC: same PromiseLike rule, plus cancellation-safe async wrapper.
+          p = Path('src/features/notifications/hooks/usePhenologyStageChangeNotification.ts')
+          text = p.read_text(encoding='utf-8')
+          old_start = "    void supabase\n      .rpc('tp_sync_phenology_stage_notification', {"
+          start = text.find(old_start)
+          if start < 0:
+              raise SystemExit('phenology notification PromiseLike block start not found')
+          end_marker = "\n\n    return () => {\n      cancelled = true;\n    };"
+          end = text.find(end_marker, start)
+          if end < 0:
+              raise SystemExit('phenology notification PromiseLike block end not found')
+          body = text[start:end]
+          # Preserve the existing then body by extracting callback contents with a targeted transformation.
+          rpc_start = body.find(".rpc('")
+          # Simpler explicit block; behavior remains identical.
+          replacement = """    void (async () => {\n      try {\n        const { data, error } = await supabase.rpc('tp_sync_phenology_stage_notification', {\n          p_field_id: fieldId,\n          p_stage: stage,\n          p_confidence: confidence,\n          p_source: sourceForPhenology(phenology),\n        });\n        if (cancelled) return;\n        if (error) throw error;\n\n        const result =\n          data && typeof data === 'object' && !Array.isArray(data)\n            ? (data as Record<string, unknown>)\n            : {};\n\n        if (result.changed !== true) {\n          setNotification(null);\n          return;\n        }\n\n        const id = String(\n          result.notification_id ??\n            `phenology:${fieldId}:${result.previous_stage ?? 'previous'}:${stage}`,\n        );\n        const title = String(\n          result.notification_title ??\n            `${fieldName || 'Tarlan'} gelişim dönemi değişti`,\n        );\n        const notificationDetail = String(\n          result.notification_message ??\n            `${result.previous_stage_label ?? 'Önceki dönem'} → ${\n              result.current_stage_label ?? phenology.stageLabel\n            }`,\n        );\n\n        setNotification({\n          id: `phenology-stage-change:${id}`,\n          priority: 82,\n          severity: 'info',\n          source: 'phenology',\n          title,\n          detail: notificationDetail,\n          iconKey: 'leaf',\n          iconTone: 'green',\n          dotTone: 'info',\n          target: 'field_growth',\n        });\n      } catch (error) {\n        if (cancelled) return;\n        signatureRef.current = '';\n        console.warn('[phenology-notification] Gelişim dönemi bildirimi senkronize edilemedi:', error);\n      }\n    })();"""
+          text = text[:start] + replacement + text[end:]
+          p.write_text(text, encoding='utf-8')
+
+          # Null-safe phenology fusion.
+          patch(
+              'src/features/phenology/hooks/useHomePhenologyInsight.ts',
+              "  const nasaFusedPhenology = useMemo(\n    () => fusePhenologyWithNasaHarvest(basePhenology, nasaHarvestStage),",
+              "  const nasaFusedPhenology = useMemo(\n    () => basePhenology ? fusePhenologyWithNasaHarvest(basePhenology, nasaHarvestStage) : null,",
+          )
+          patch(
+              'src/features/phenology/hooks/useHomePhenologyInsight.ts',
+              "  const phenology = useMemo(\n    () => fusePhenologyWithCopernicusHrvpp(nasaFusedPhenology, hrvppState.data),",
+              "  const phenology = useMemo(\n    () => nasaFusedPhenology ? fusePhenologyWithCopernicusHrvpp(nasaFusedPhenology, hrvppState.data) : null,",
+          )
+
+          # localStorage.key() can be null; only push verified string keys.
+          patch(
+              'src/features/phenology/services/fieldPhenologySnapshot.service.ts',
+              "          keys.push(\n            key,\n          );",
+              "          if (key) {\n            keys.push(key);\n          }",
+              1,
+          )
+
+      - name: Commit batch 2
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src
+          git diff --cached --check
+          git commit -m "fix: stabilize map irrigation and data contracts" || exit 0
+          git push origin HEAD:stabilize/2026-09-23
