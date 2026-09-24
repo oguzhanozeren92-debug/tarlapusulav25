@@ -27,28 +27,35 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Parse internal model comparison edge function
+      - name: Parse internal model edge functions
         run: |
           node - <<'NODE'
           const fs = require('fs');
           const ts = require('typescript');
-          const file = 'supabase/functions/model-shadow-comparison/index.ts';
-          const source = fs.readFileSync(file, 'utf8');
-          const out = ts.transpileModule(source, {
-            compilerOptions: {
-              target: ts.ScriptTarget.ES2022,
-              module: ts.ModuleKind.ESNext,
-            },
-            reportDiagnostics: true,
-          });
-          const errors = (out.diagnostics || []).filter(
-            (d) => d.category === ts.DiagnosticCategory.Error,
-          );
-          if (errors.length) {
-            console.error(errors.map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n')).join('\n'));
-            process.exit(1);
+          const files = [
+            'supabase/functions/model-shadow-comparison/index.ts',
+            'supabase/functions/pusula-experiment-evaluate/index.ts',
+          ];
+
+          for (const file of files) {
+            const source = fs.readFileSync(file, 'utf8');
+            const out = ts.transpileModule(source, {
+              compilerOptions: {
+                target: ts.ScriptTarget.ES2022,
+                module: ts.ModuleKind.ESNext,
+              },
+              reportDiagnostics: true,
+            });
+            const errors = (out.diagnostics || []).filter(
+              (d) => d.category === ts.DiagnosticCategory.Error,
+            );
+            if (errors.length) {
+              console.error(file);
+              console.error(errors.map((d) => ts.flattenDiagnosticMessageText(d.messageText, '\n')).join('\n'));
+              process.exit(1);
+            }
+            console.log('OK', file);
           }
-          console.log('OK', file);
           NODE
 
       # The repository already has a large pre-existing TypeScript error

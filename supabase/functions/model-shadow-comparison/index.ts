@@ -12,7 +12,8 @@ const corsHeaders = {
 const COMPLETE_FRESHNESS_HOURS = 24;
 const INCOMPLETE_FRESHNESS_HOURS = 1;
 const ENGINE_TIMEOUT_MS = 80_000;
-const FUNCTION_VERSION = 3;
+const EXPERIMENT_TIMEOUT_MS = 30_000;
+const FUNCTION_VERSION = 4;
 const CALIBRATION_VERSION = 1;
 
 function json(body: unknown, status = 200) {
@@ -94,6 +95,42 @@ async function callEngine(
       error: error instanceof Error ? error.message : `${slug} çağrısı başarısız oldu.`,
       production_authority: false,
     };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function callPusulaExperimentBestEffort(
+  supabaseUrl: string,
+  anonKey: string,
+  authorization: string,
+  fieldId: string,
+) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), EXPERIMENT_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/pusula-experiment-evaluate`, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        Authorization: authorization,
+        apikey: anonKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ field_id: fieldId }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok || !payload || typeof payload !== 'object') {
+      console.warn('[model-shadow-comparison] Pusula Deneyi güncellenemedi', response.status);
+      return null;
+    }
+    return payload;
+  } catch (error) {
+    console.warn(
+      '[model-shadow-comparison] Pusula Deneyi güncellenemedi',
+      error instanceof Error ? error.message : error,
+    );
+    return null;
   } finally {
     clearTimeout(timeout);
   }
@@ -234,6 +271,7 @@ Deno.serve(async (req: Request) => {
     const forbidden = [
       'crop', 'planting_date', 'weather', 'soil', 'parameters', 'available_inputs',
       'pcse', 'aquacrop', 'cropforge', 'force', 'severity', 'thresholds', 'calibration',
+      'experiment', 'field_observations', 'satellite', 'ndvi',
     ];
     if (forbidden.some((key) => key in body)) {
       return json({
@@ -261,6 +299,9 @@ Deno.serve(async (req: Request) => {
         fieldId,
         String(cached.season_key ?? 'unknown'),
       );
+      const experiment = calibration.review_eligible
+        ? await callPusulaExperimentBestEffort(supabaseUrl, anonKey, authorization, fieldId)
+        : null;
       return json({
         ok: true,
         cached: true,
@@ -274,6 +315,8 @@ Deno.serve(async (req: Request) => {
         calibration_review_eligible: calibration.review_eligible,
         phenology_clean_streak: calibration.phenology_clean_streak,
         water_evidence_state: calibration.water_evidence_state,
+        experiment_status: experiment?.status ?? null,
+        experiment_review_ready: experiment?.review_ready === true,
         production_authority: false,
         user_visible: false,
         internal_only: true,
@@ -306,6 +349,9 @@ Deno.serve(async (req: Request) => {
       fieldId,
       String(comparison.season_key ?? 'unknown'),
     );
+    const experiment = calibration.review_eligible
+      ? await callPusulaExperimentBestEffort(supabaseUrl, anonKey, authorization, fieldId)
+      : null;
 
     return json({
       ok: true,
@@ -324,10 +370,12 @@ Deno.serve(async (req: Request) => {
       calibration_review_eligible: calibration.review_eligible,
       phenology_clean_streak: calibration.phenology_clean_streak,
       water_evidence_state: calibration.water_evidence_state,
+      experiment_status: experiment?.status ?? null,
+      experiment_review_ready: experiment?.review_ready === true,
       production_authority: false,
       user_visible: false,
       internal_only: true,
-      note: 'Repeated-day shadow calibration updated for internal review only. No model was promoted and no farmer-facing decision was changed.',
+      note: 'Repeated-day shadow calibration updated for internal review only. Pusula Deneyi runs only after calibration review eligibility and cannot promote a model or change farmer-facing decisions.',
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Shadow model karşılaştırması başarısız oldu.';
