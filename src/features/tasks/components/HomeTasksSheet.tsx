@@ -24,6 +24,8 @@ type Props = {
 const WATER_MEASUREMENT_FOCUS_KEY = 'tp_focus_field_water_measurement';
 
 function sourceLabel(source: string) {
+  if (source === 'pusula-experiment') return 'PUSULA DENEYİ';
+
   if (
     source === 'field-readiness' ||
     source === 'model-readiness' ||
@@ -43,7 +45,16 @@ function priorityLabel(priority: number) {
   return null;
 }
 
+function isGrowthStageObservationTask(task: FieldTask) {
+  return (
+    task.actionTarget === 'field-growth' ||
+    String(task.taskKey ?? '').startsWith('pusula-experiment-growth-stage:')
+  );
+}
+
 function isPhotoCheckTask(task: FieldTask) {
+  if (isGrowthStageObservationTask(task)) return false;
+
   const haystack = `${task.title} ${task.description ?? ''} ${task.actionTarget ?? ''}`
     .toLocaleLowerCase('tr-TR');
 
@@ -88,6 +99,7 @@ function taskTitle(task: FieldTask) {
 function actionLabel(task: FieldTask) {
   if (isIrrigationMethodTask(task)) return "Pusula'ya cevap ver";
   if (isSurfaceWaterMeasurementTask(task)) return 'Ölçümü ekle';
+  if (isGrowthStageObservationTask(task)) return 'Gözlemi kaydet';
   return isPhotoCheckTask(task) ? 'Kontrol et ve fotoğraf yükle' : 'Göreve git';
 }
 
