@@ -17,6 +17,10 @@ SL2P_COMMIT = "71ac9e0453a58610d73283fb6a1ad15e19dbae89"
 RSCM_REPO = "RS-iCM/RSCM"
 RSCM_COMMIT = "7c48c6c93d758c72aceb99e9923181a77b7c51cb"
 
+# Upstream dictionariesSL2P.make_collection_options() eagerly constructs every
+# collection option, even when TarlaPusula runs only S2_L2A 20 m. Therefore the
+# V0 runtime must have the 20 m, 10 m, Landsat-8 and Landsat-9 network pickles
+# present or SL2P fails before it reaches the requested Sentinel-2 collection.
 SL2P_FILES = [
     "License",
     "tools/SL2P.py",
@@ -24,11 +28,36 @@ SL2P_FILES = [
     "tools/SL2PV1.py",
     "tools/dictionariesSL2P.py",
     "tools/toolsNets.py",
+
+    # Sentinel-2 20 m (TarlaPusula production input contract)
     "nets/s2_20m_sl2p.pkl",
     "nets/s2_20m_sl2p_error.pkl",
     "nets/s2_20m_sl2p_domain.pkl",
     "nets/s2_20m_sl2p_legend.pkl",
     "nets/s2_20m_sl2p_parameter_file.pkl",
+
+    # Sentinel-2 10 m (required by upstream eager collection construction)
+    "nets/s2_10m_sl2p.pkl",
+    "nets/s2_10m_sl2p_error.pkl",
+    "nets/s2_10m_sl2p_domain.pkl",
+    "nets/s2_10m_sl2p_legend.pkl",
+    "nets/s2_10m_sl2p_parameter_file.pkl",
+
+    # Landsat-8 (required by upstream eager collection construction)
+    "nets/l8_sl2p.pkl",
+    "nets/l8_sl2p_error.pkl",
+    "nets/l8_sl2p_domain.pkl",
+    "nets/l8_sl2p_legend.pkl",
+    "nets/l8_sl2p_parameter_file.pkl",
+
+    # Landsat-9 (required by upstream eager collection construction)
+    "nets/l9_sl2p.pkl",
+    "nets/l9_sl2p_error.pkl",
+    "nets/l9_sl2p_domain.pkl",
+    "nets/l9_sl2p_legend.pkl",
+    "nets/l9_sl2p_parameter_file.pkl",
+
+    # Pinned CCRS assets are retained for the future verified land-cover gate.
     "nets/s2_20m_sl2pccrs.pkl",
     "nets/s2_20m_sl2pccrs_error.pkl",
     "nets/s2_20m_sl2pccrs_domain.pkl",
