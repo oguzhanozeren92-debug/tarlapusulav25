@@ -10,3 +10,6 @@ plantcv==4.11.3  # quantitative photo phenotyping evidence; no diagnostic author
 onnxruntime>=1.19,<2  # CPU-only independent PlantVillage shadow classifier
 Pillow>=10.4,<13  # deterministic RGB resize/crop preprocessing for ONNX vision
 cropforge==1.0.1  # real CropForge core shadow runtime; no production authority
+numpy>=1.26,<3  # explicit numerical runtime for SL2P, RSCM and harmonization adapters
+scipy>=1.11,<2  # RSCM upstream gaussian_filter1d/runtime dependency
+matplotlib>=3.8,<4  # imported by pinned RSCM upstream module; headless runner does not render plots
