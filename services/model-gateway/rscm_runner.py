@@ -22,7 +22,7 @@ _LOCK = threading.Lock()
 
 CROP_PROFILES: dict[str, dict[str, Any]] = {
     "wheat": {
-        "cpara": {"Tbase": 0.0, "k": 0.65, "RUE": 2.01, "SLA": 0.016, "beta1": 0.45, "eGDDB": 0.0, "pd": 5},
+        "cpara": {"Tbase": 0.0, "k": 0.65, "RUE": 2.01, "SLA": 0.016, "beta1": 0.45, "eGDD": 0.0, "pd": 5},
         "para0": [0.1, 0.00125, 0.00125, 0.02, 550.0],
         "fmLAI": 10.0,
         "source": "RUN_Python_Wheat_v1.ipynb",
@@ -66,12 +66,12 @@ class RSCMLAIObservation(StrictModel):
     quality: Literal["high", "medium", "low"] = "medium"
 
 
-class RSCLMAssimilationRequest(StrictModel):
+class RSCMAssimilationRequest(StrictModel):
     field_id: str = Field(min_length=1, max_length=128)
     crop_key: Literal["wheat", "maize", "rice"]
     planting_date: date
     weather: list[RSCMWeatherDay] = Field(min_length=14, max_length=370)
-    lai_observations: list[RSCLMLAIObservation] = Field(min_length=4, max_length=40)
+    lai_observations: list[RSCMLAIObservation] = Field(min_length=4, max_length=40)
     bayesian: bool = False
 
     @model_validator(mode="after")
@@ -98,13 +98,14 @@ class RSCLMAssimilationRequest(StrictModel):
         return self
 
 
+
 def rscm_runtime_status() -> dict[str, Any]:
     missing = [str(path.relative_to(VENDOR_ROOT)) for path in [RSCM_PY, RSCM_SO] if not path.exists()]
     return {
         "available": not missing,
         "version": UPSTREAM_COMMIT[:12] if not missing else None,
         "missing": missing,
-        "supported_crops": sorted(CROP_PROFILES)
+        "supported_crops": sorted(CROP_PROFILES),
     }
 
 
@@ -144,7 +145,7 @@ def run_rscm_assimilation(payload: RSCMAssimilationRequest) -> dict[str, Any]:
     if not runtime["available"]:
         raise RuntimeError("RSCM vendor runtime is not bootstrapped")
 
-    profile = CROP_PROFILES[ payload.crop_key ]
+    profile = CROP_PROFILES[payload.crop_key]
     weather = np.ascontiguousarray(
         [
             [
