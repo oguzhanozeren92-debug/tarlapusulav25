@@ -75,31 +75,41 @@ function validateInput(input: CreateFieldGrowthObservationInput) {
 }
 
 function syncGrowthStageObservationTaskBestEffort(fieldId: string) {
-  void supabase
-    .rpc('tp_sync_growth_stage_observation_task', { p_field_id: fieldId })
-    .then(({ error }) => {
+  void (async () => {
+    try {
+      const { error } = await supabase.rpc(
+        'tp_sync_growth_stage_observation_task',
+        { p_field_id: fieldId },
+      );
       if (error) {
-        console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error.message);
+        console.warn(
+          '[growth-observation] Görev senkronizasyonu yapılamadı:',
+          error.message,
+        );
       }
-    })
-    .catch((error: unknown) => {
+    } catch (error) {
       console.warn('[growth-observation] Görev senkronizasyonu yapılamadı:', error);
-    });
+    }
+  })();
 }
 
 function refreshPusulaExperimentBestEffort(fieldId: string) {
-  void supabase.functions
-    .invoke('pusula-experiment-evaluate', {
-      body: { field_id: fieldId },
-    })
-    .then(({ error }) => {
+  void (async () => {
+    try {
+      const { error } = await supabase.functions.invoke(
+        'pusula-experiment-evaluate',
+        { body: { field_id: fieldId } },
+      );
       if (error) {
-        console.warn('[growth-observation] Pusula Deneyi yenilenemedi:', error.message);
+        console.warn(
+          '[growth-observation] Pusula Deneyi yenilenemedi:',
+          error.message,
+        );
       }
-    })
-    .catch((error: unknown) => {
+    } catch (error) {
       console.warn('[growth-observation] Pusula Deneyi yenilenemedi:', error);
-    });
+    }
+  })();
 }
 
 function refreshGrowthModels(fieldId: string) {
