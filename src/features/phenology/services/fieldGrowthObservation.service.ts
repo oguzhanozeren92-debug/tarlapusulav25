@@ -87,10 +87,26 @@ function syncGrowthStageObservationTaskBestEffort(fieldId: string) {
     });
 }
 
+function refreshPusulaExperimentBestEffort(fieldId: string) {
+  void supabase.functions
+    .invoke('pusula-experiment-evaluate', {
+      body: { field_id: fieldId },
+    })
+    .then(({ error }) => {
+      if (error) {
+        console.warn('[growth-observation] Pusula Deneyi yenilenemedi:', error.message);
+      }
+    })
+    .catch((error: unknown) => {
+      console.warn('[growth-observation] Pusula Deneyi yenilenemedi:', error);
+    });
+}
+
 function refreshGrowthModels(fieldId: string) {
   refreshPyFao56ReadinessBestEffort(fieldId);
   runDualKcShadowEvidenceBestEffort(fieldId);
   syncGrowthStageObservationTaskBestEffort(fieldId);
+  refreshPusulaExperimentBestEffort(fieldId);
 }
 
 export async function recordFieldGrowthObservation(
