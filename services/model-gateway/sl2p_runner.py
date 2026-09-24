@@ -99,7 +99,7 @@ def _upstream_context():
         os.chdir(VENDOR_ROOT)
         yield
     finally:
-        os.chdir(cold_cwd)
+        os.chdir(old_cwd)
         if inserted:
             try:
                 sys.path.remove(tools)
@@ -128,7 +128,7 @@ def _decode_scene(scene: SL2PScene) -> tuple[pd.DataFrame, dict[str, Any]]:
     valid_mask = matrix[:, -1] >= 0.5
     reflectance = matrix[:, 3:11]
     reflectance_range = ((reflectance >= -0.05) & (reflectance <= 1.5)).all(axis=1)
-    cosine_range = ((matrix[[], 0:] >= -1.0001) & (matrix[[], 0:] <= 1.0001)).all(axis=1)
+    cosine_range = ((matrix[:, 0:3] >= -1.0001) & (matrix[:, 0:3] <= 1.0001)).all(axis=1)
     keep = finite & valid_mask & reflectance_range & cosine_range
     valid = matrix[keep, :-1]
 
@@ -239,4 +239,13 @@ def run_sl2p_batch(payload: SL2PBatchRequest) -> dict[str, Any]:
         "mode": "pilot",
         "field_id": payload.field_id,
         "algorithm": payload.algorithm,
-        "collection": COLLECTION,(€€€€€€€€‰ÍÁ…Ñ¥…±}É•Í½±ÕÑ¥½¹}´ˆè€ÈÀ°(€€€€€€€€‰•¹¥¹•}Ù•ÉÍ¥½¸ˆèUAMQI5}=55%P°(€€€€€€€€‰…‘…ÁÑ•É}Ù•ÉÍ¥½¸ˆèIU99I}YIM%=8°(€€€€€€€€‰ÁÉ½‘ÕÑ¥½¹}…ÕÑ¡½É¥Ñäˆè…±Í”°(€€€€€€€€‰‘¥…¹½ÍÑ¥}…ÕÑ¡½É¥Ñäˆè…±Í”°(€€€€€€€€‰¥¹ÁÕÑ}…ÕÑ¡½É¥Ñäˆè€‰Í•ÉÙ•Èµ‘•É¥Ù•µ½¹±äˆ°(€€€€€€€€‰Ù…É¥…‰±•ÌˆèYI%	1L°(€€€€€€€€‰Í•¹•ÌˆèÍ•¹•}É•ÍÕ±ÑÌ°(€€€ô(
+        "collection": COLLECTION,
+        "spatial_resolution_m": 20,
+        "engine_version": UPSTREAM_COMMIT,
+        "adapter_version": RUNNER_VERSION,
+        "production_authority": False,
+        "diagnostic_authority": False,
+        "input_authority": "server-derived-only",
+        "variables": VARIABLES,
+        "scenes": scene_results,
+    }
