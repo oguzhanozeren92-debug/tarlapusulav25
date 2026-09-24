@@ -30,7 +30,7 @@ test('requests stage and photo evidence when experiment is eligible but ground t
   assert.equal(plan.tasks.length, 2);
   assert.equal(plan.tasks[0].kind, 'growth_stage');
   assert.equal(plan.tasks[0].reward_points, 20);
-  assert.equal(plan.tasks[0].action_target, 'field-growth-observation');
+  assert.equal(plan.tasks[0].action_target, 'field-growth');
   assert.equal(plan.tasks[1].kind, 'field_photo');
   assert.equal(plan.tasks[1].reward_points, 30);
   assert.equal(plan.tasks[1].reward_rule_key, 'FIELD_OBSERVATION_PHOTO');
