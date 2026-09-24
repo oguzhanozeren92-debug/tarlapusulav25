@@ -55,7 +55,7 @@ export function buildExperimentEvidenceTaskPlan({ state, season, today }) {
       title: 'Bugünkü gelişim evresini kontrol et',
       description:
         'Pusula Deneyi model çıktısını gerçek tarla gözlemiyle doğrulamak için bugünkü gelişim evresini kaydet. Bu görev tamamlandığında +20 Pusula Puanı kazanırsın.',
-      action_target: 'field-growth-observation',
+      action_target: 'field-growth',
       priority: 75,
       due_date: day,
       reward_rule_key: 'TASK_PUSULA_EXPERIMENT_STAGE',
