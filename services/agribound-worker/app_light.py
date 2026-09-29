@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 app = FastAPI(
     title="TarlaPusula FTW Boundary Worker",
-    version="1.3.0",
+    version="1.4.0",
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
@@ -29,7 +29,7 @@ FTW_TR_PREFIX = (
 )
 SOURCE_COOP_ROOT = "https://data.source.coop/ftw/global-data/"
 LIST_CACHE_TTL_SECONDS = 6 * 60 * 60
-MAX_REMOTE_FILES = 12
+MAX_REMOTE_FILES = 2
 
 _cached_parquet_urls: tuple[float, list[str]] | None = None
 
@@ -149,7 +149,7 @@ def _s3_list_urls() -> list[str]:
                 endpoint,
                 headers={"Accept": "application/xml", "User-Agent": "TarlaPusula/1.0"},
             )
-            with urllib.request.urlopen(req, timeout=20) as response:
+            with urllib.request.urlopen(req, timeout=12) as response:
                 raw = response.read()
             root = ET.fromstring(raw)
             namespace = ""
@@ -166,6 +166,8 @@ def _s3_list_urls() -> list[str]:
             last_error = exc
 
     if not keys:
+        # Turkey is a single-country partition in the published FTW collection.
+        # Keep a few name fallbacks, but fail quickly instead of scanning a country-wide glob.
         fallback_names = ["Turkey.parquet", "Türkiye.parquet", "Turkiye.parquet"]
         urls = [
             SOURCE_COOP_ROOT
@@ -176,7 +178,7 @@ def _s3_list_urls() -> list[str]:
             for name in fallback_names
         ]
         if last_error:
-            print(f"[ftw-worker] S3 listing failed; trying known Turkey filenames: {last_error}")
+            print(f"[ftw-worker] S3 listing failed; using Turkey filename fallbacks: {last_error}")
         _cached_parquet_urls = (now, urls)
         return urls
 
@@ -225,16 +227,51 @@ def _wkb_to_geojson(value: Any) -> dict[str, Any] | None:
         return None
 
 
+def _observed_year(value: Any) -> int | None:
+    if value is None:
+        return None
+    if hasattr(value, "year"):
+        try:
+            return int(value.year)
+        except Exception:
+            pass
+    text = str(value).strip()
+    if len(text) >= 4 and text[:4].isdigit():
+        return int(text[:4])
+    return None
+
+
 def _query_one_file(
     url: str,
+    anchor_lng: float,
+    anchor_lat: float,
     bbox: tuple[float, float, float, float],
-    year: int,
     limit: int,
-) -> list[dict[str, Any]]:
+    *,
+    anchor_only: bool,
+) -> list[tuple[Any, ...]]:
     import duckdb
 
-    min_lng, min_lat, max_lng, max_lat = bbox
     escaped_url = url.replace("'", "''")
+    min_lng, min_lat, max_lng, max_lat = bbox
+
+    # IMPORTANT: keep this remote query pushdown-friendly. Do not ORDER BY and do not
+    # cast/extract determination:datetime here: either operation can force a scan of the
+    # whole country file before LIMIT. BBox columns are GeoParquet covering columns and
+    # can be used for row-group pruning.
+    if anchor_only:
+        where = """
+            bbox.xmax >= ? AND bbox.xmin <= ?
+            AND bbox.ymax >= ? AND bbox.ymin <= ?
+        """
+        params: list[Any] = [anchor_lng, anchor_lng, anchor_lat, anchor_lat, limit]
+    else:
+        where = """
+            bbox.xmax >= ? AND bbox.xmin <= ?
+            AND bbox.ymax >= ? AND bbox.ymin <= ?
+        """
+        params = [min_lng, max_lng, min_lat, max_lat, limit]
+
     sql = f'''
         SELECT
             id,
@@ -243,80 +280,142 @@ def _query_one_file(
             "determination:datetime" AS observed_at,
             geometry
         FROM read_parquet('{escaped_url}')
-        WHERE bbox.xmax >= ?
-          AND bbox.xmin <= ?
-          AND bbox.ymax >= ?
-          AND bbox.ymin <= ?
-          AND EXTRACT(year FROM TRY_CAST("determination:datetime" AS TIMESTAMP)) = ?
-        ORDER BY confidence DESC NULLS LAST
+        WHERE {where}
         LIMIT ?
     '''
 
     con = duckdb.connect(database=":memory:")
     try:
-        rows = con.execute(
-            sql,
-            [min_lng, max_lng, min_lat, max_lat, year, limit],
-        ).fetchall()
+        return con.execute(sql, params).fetchall()
     finally:
         con.close()
 
-    results: list[dict[str, Any]] = []
+
+def _rows_to_features(
+    rows: list[tuple[Any, ...]],
+    requested_year: int,
+    max_candidates: int,
+) -> list[dict[str, Any]]:
+    preferred: list[dict[str, Any]] = []
+    fallback: list[dict[str, Any]] = []
+
     for field_id, confidence, area_m2, observed_at, geometry_raw in rows:
         geometry = _wkb_to_geojson(geometry_raw)
         if not geometry:
             continue
-        results.append(
-            {
-                "type": "Feature",
+
+        observed_year = _observed_year(observed_at)
+        feature = {
+            "type": "Feature",
+            "id": str(field_id),
+            "properties": {
                 "id": str(field_id),
-                "properties": {
-                    "id": str(field_id),
-                    "confidence": float(confidence) if confidence is not None else None,
-                    "metrics:area": float(area_m2) if area_m2 is not None else None,
-                    "determination:datetime": (
-                        observed_at.isoformat()
-                        if hasattr(observed_at, "isoformat")
-                        else str(observed_at or "")
-                    ),
-                    "admin:country_code": "TR",
-                    "agribound:engine": "ftw-duckdb-http",
-                    "agribound:dataset": "Fields of The World global predictions",
-                },
-                "geometry": geometry,
-            }
-        )
-    return results
+                "confidence": float(confidence) if confidence is not None else None,
+                "metrics:area": float(area_m2) if area_m2 is not None else None,
+                "determination:datetime": (
+                    observed_at.isoformat()
+                    if hasattr(observed_at, "isoformat")
+                    else str(observed_at or "")
+                ),
+                "determination:year": observed_year,
+                "admin:country_code": "TR",
+                "agribound:engine": "ftw-duckdb-point-query",
+                "agribound:dataset": "Fields of The World global predictions",
+            },
+            "geometry": geometry,
+        }
+        if observed_year == requested_year:
+            preferred.append(feature)
+        else:
+            fallback.append(feature)
+
+    def confidence_key(feature: dict[str, Any]) -> float:
+        value = (feature.get("properties") or {}).get("confidence")
+        try:
+            return float(value) if value is not None else -1.0
+        except Exception:
+            return -1.0
+
+    preferred.sort(key=confidence_key, reverse=True)
+    fallback.sort(key=confidence_key, reverse=True)
+
+    # Prefer the configured year, but do not return an empty answer simply because the
+    # nearby published polygon is from the other FTW prediction year. The year remains
+    # explicit on every candidate so the caller never mistakes it for current cadastral data.
+    ordered = preferred + fallback
+    return ordered[:max_candidates]
 
 
 def _query_turkey(
+    anchor_lng: float,
+    anchor_lat: float,
     bbox: tuple[float, float, float, float],
     year: int,
     max_candidates: int,
 ) -> list[dict[str, Any]]:
+    started = time.perf_counter()
     urls = _s3_list_urls()
     errors: list[str] = []
-    features: list[dict[str, Any]] = []
-    per_file_limit = max(24, min(240, max_candidates * 4))
+    rows: list[tuple[Any, ...]] = []
+    fetch_limit = max(32, min(160, max_candidates * 10))
 
-    for url in urls:
+    # First pass: the user explicitly taps inside the field. Query only polygons whose
+    # stored bbox contains that point. This is much cheaper than sorting/scanning every
+    # field near the point and is exactly aligned with this UX.
+    for url in urls[:MAX_REMOTE_FILES]:
         try:
-            features.extend(_query_one_file(url, bbox, year, per_file_limit))
-            if len(features) >= max_candidates * 3:
+            rows.extend(
+                _query_one_file(
+                    url,
+                    anchor_lng,
+                    anchor_lat,
+                    bbox,
+                    fetch_limit,
+                    anchor_only=True,
+                )
+            )
+            if rows:
                 break
         except Exception as exc:
             errors.append(f"{url.rsplit('/', 1)[-1]}: {exc}")
-            print(f"[ftw-worker] parquet query failed for {url}: {exc}")
+            print(f"[ftw-worker] point query failed for {url}: {exc}")
 
-    if not features and errors:
+    # Only if the exact point has no bbox hit, use the small server-generated search box.
+    if not rows:
+        for url in urls[:MAX_REMOTE_FILES]:
+            try:
+                rows.extend(
+                    _query_one_file(
+                        url,
+                        anchor_lng,
+                        anchor_lat,
+                        bbox,
+                        fetch_limit,
+                        anchor_only=False,
+                    )
+                )
+                if rows:
+                    break
+            except Exception as exc:
+                errors.append(f"{url.rsplit('/', 1)[-1]}: {exc}")
+                print(f"[ftw-worker] bbox fallback failed for {url}: {exc}")
+
+    if not rows and errors:
         detail = errors[0][:700]
         raise RuntimeError(f"FTW Turkey GeoParquet query failed: {detail}")
 
+    features = _rows_to_features(rows, year, max_candidates)
     deduped: dict[str, dict[str, Any]] = {}
     for feature in features:
         feature_id = str(feature.get("id") or "")
         if feature_id and feature_id not in deduped:
             deduped[feature_id] = feature
+
+    elapsed_ms = round((time.perf_counter() - started) * 1000)
+    print(
+        f"[ftw-worker] point lookup completed in {elapsed_ms} ms; "
+        f"rows={len(rows)} candidates={len(deduped)}"
+    )
     return list(deduped.values())[:max_candidates]
 
 
@@ -339,7 +438,8 @@ def health() -> dict[str, Any]:
     return {
         "ok": runtime_ok and bool(_supabase_url()) and bool(_supabase_anon_key()),
         "service": "agribound-worker",
-        "engine": "ftw-duckdb-http",
+        "engine": "ftw-duckdb-point-query",
+        "version": "1.4.0",
         "duckdb_version": duckdb_version,
         "shapely_version": shapely_version,
         "supabase_auth_configured": bool(_supabase_url()) and bool(_supabase_anon_key()),
@@ -363,7 +463,13 @@ def boundary_candidates(
     year = max(2024, min(year, 2025))
 
     try:
-        features = _query_turkey(bbox, year, request.policy.max_candidates)
+        features = _query_turkey(
+            request.anchor.longitude,
+            request.anchor.latitude,
+            bbox,
+            year,
+            request.policy.max_candidates,
+        )
     except HTTPException:
         raise
     except Exception as exc:
@@ -372,8 +478,8 @@ def boundary_candidates(
 
     return {
         "ok": True,
-        "engine": "ftw-duckdb-http",
-        "version": "1.3.0",
+        "engine": "ftw-duckdb-point-query",
+        "version": "1.4.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "dataset_year": year,
         "source": "Fields of The World global predictions · Source Cooperative",
