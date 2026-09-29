@@ -2,31 +2,36 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.error
+import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
-from importlib.metadata import distribution, version
-from importlib.util import module_from_spec, spec_from_file_location
-from typing import Any, Callable
+from typing import Any
 
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 app = FastAPI(
     title="TarlaPusula FTW Boundary Worker",
-    version="1.2.1",
+    version="1.3.0",
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
 )
 
-FTW_TURKEY_SOURCE = (
-    "s3://us-west-2.opendata.source.coop/tge-labs/ftw-global-data/"
-    "predictions/vectors/alpha/results-by-admin-conf/"
-    "admin:country_code=TR/*.parquet"
+S3_BUCKET = "us-west-2.opendata.source.coop"
+S3_REGION = "us-west-2"
+FTW_TR_PREFIX = (
+    "tge-labs/ftw-global-data/predictions/vectors/alpha/"
+    "results-by-admin-conf/admin:country_code=TR/"
 )
+SOURCE_COOP_ROOT = "https://data.source.coop/ftw/global-data/"
+LIST_CACHE_TTL_SECONDS = 6 * 60 * 60
+MAX_REMOTE_FILES = 12
 
-_query_ftw_arrow: Callable[..., Any] | None = None
+_cached_parquet_urls: tuple[float, list[str]] | None = None
 
 
 class StrictModel(BaseModel):
@@ -115,24 +120,6 @@ def _verify_supabase_user(authorization: str | None) -> dict[str, Any]:
     return user
 
 
-def _load_query_ftw_arrow() -> Callable[..., Any]:
-    global _query_ftw_arrow
-    if _query_ftw_arrow is not None:
-        return _query_ftw_arrow
-
-    try:
-        module_path = distribution("agribound").locate_file("agribound/ftw_arrow.py")
-        spec = spec_from_file_location("_tarlapusula_ftw_arrow", module_path)
-        if spec is None or spec.loader is None:
-            raise RuntimeError("Agribound FTW query module could not be loaded")
-        module = module_from_spec(spec)
-        spec.loader.exec_module(module)
-        _query_ftw_arrow = module.query_ftw_arrow
-        return _query_ftw_arrow
-    except Exception as exc:
-        raise RuntimeError(f"Lightweight FTW query loader failed: {exc}") from exc
-
-
 def _validated_bbox(
     bbox: tuple[float, float, float, float],
 ) -> tuple[float, float, float, float]:
@@ -142,51 +129,219 @@ def _validated_bbox(
     return min_lng, min_lat, max_lng, max_lat
 
 
-def _features(gdf: Any, limit: int) -> list[dict[str, Any]]:
-    if gdf is None or getattr(gdf, "empty", True):
-        return []
+def _s3_list_urls() -> list[str]:
+    global _cached_parquet_urls
+    now = time.time()
+    if _cached_parquet_urls and now - _cached_parquet_urls[0] < LIST_CACHE_TTL_SECONDS:
+        return list(_cached_parquet_urls[1])
 
-    payload = json.loads(gdf.head(limit).to_json())
-    output: list[dict[str, Any]] = []
-    for index, feature in enumerate(payload.get("features") or []):
-        geometry = feature.get("geometry")
-        if not isinstance(geometry, dict):
+    query = urllib.parse.urlencode({"list-type": "2", "prefix": FTW_TR_PREFIX})
+    endpoints = [
+        f"https://{S3_BUCKET}.s3.{S3_REGION}.amazonaws.com/?{query}",
+        f"https://s3.{S3_REGION}.amazonaws.com/{S3_BUCKET}/?{query}",
+    ]
+    last_error: Exception | None = None
+    keys: list[str] = []
+
+    for endpoint in endpoints:
+        try:
+            req = urllib.request.Request(
+                endpoint,
+                headers={"Accept": "application/xml", "User-Agent": "TarlaPusula/1.0"},
+            )
+            with urllib.request.urlopen(req, timeout=20) as response:
+                raw = response.read()
+            root = ET.fromstring(raw)
+            namespace = ""
+            if root.tag.startswith("{"):
+                namespace = root.tag.split("}", 1)[0] + "}"
+            keys = [
+                (node.text or "").strip()
+                for node in root.findall(f".//{namespace}Contents/{namespace}Key")
+                if (node.text or "").strip().lower().endswith(".parquet")
+            ]
+            if keys:
+                break
+        except Exception as exc:
+            last_error = exc
+
+    if not keys:
+        fallback_names = ["Turkey.parquet", "Türkiye.parquet", "Turkiye.parquet"]
+        urls = [
+            SOURCE_COOP_ROOT
+            + urllib.parse.quote(
+                FTW_TR_PREFIX.removeprefix("tge-labs/ftw-global-data/") + name,
+                safe="/:=._-",
+            )
+            for name in fallback_names
+        ]
+        if last_error:
+            print(f"[ftw-worker] S3 listing failed; trying known Turkey filenames: {last_error}")
+        _cached_parquet_urls = (now, urls)
+        return urls
+
+    urls = [
+        SOURCE_COOP_ROOT
+        + urllib.parse.quote(
+            key.removeprefix("tge-labs/ftw-global-data/"),
+            safe="/:=._-",
+        )
+        for key in keys[:MAX_REMOTE_FILES]
+    ]
+    _cached_parquet_urls = (now, urls)
+    print(f"[ftw-worker] discovered {len(urls)} Turkey GeoParquet file(s)")
+    return urls
+
+
+def _wkb_to_geojson(value: Any) -> dict[str, Any] | None:
+    if value is None:
+        return None
+
+    try:
+        from shapely import from_wkb, from_wkt
+        from shapely.geometry import mapping
+
+        if isinstance(value, memoryview):
+            value = value.tobytes()
+        if isinstance(value, bytearray):
+            value = bytes(value)
+
+        if isinstance(value, bytes):
+            geometry = from_wkb(value)
+        elif isinstance(value, str):
+            text = value.strip()
+            try:
+                geometry = from_wkb(bytes.fromhex(text))
+            except Exception:
+                geometry = from_wkt(text)
+        else:
+            return None
+
+        if geometry.is_empty or geometry.geom_type not in {"Polygon", "MultiPolygon"}:
+            return None
+        return mapping(geometry)
+    except Exception as exc:
+        print(f"[ftw-worker] geometry decode skipped: {exc}")
+        return None
+
+
+def _query_one_file(
+    url: str,
+    bbox: tuple[float, float, float, float],
+    year: int,
+    limit: int,
+) -> list[dict[str, Any]]:
+    import duckdb
+
+    min_lng, min_lat, max_lng, max_lat = bbox
+    escaped_url = url.replace("'", "''")
+    sql = f'''
+        SELECT
+            id,
+            confidence,
+            "metrics:area" AS area_m2,
+            "determination:datetime" AS observed_at,
+            geometry
+        FROM read_parquet('{escaped_url}')
+        WHERE bbox.xmax >= ?
+          AND bbox.xmin <= ?
+          AND bbox.ymax >= ?
+          AND bbox.ymin <= ?
+          AND EXTRACT(year FROM TRY_CAST("determination:datetime" AS TIMESTAMP)) = ?
+        ORDER BY confidence DESC NULLS LAST
+        LIMIT ?
+    '''
+
+    con = duckdb.connect(database=":memory:")
+    try:
+        rows = con.execute(
+            sql,
+            [min_lng, max_lng, min_lat, max_lat, year, limit],
+        ).fetchall()
+    finally:
+        con.close()
+
+    results: list[dict[str, Any]] = []
+    for field_id, confidence, area_m2, observed_at, geometry_raw in rows:
+        geometry = _wkb_to_geojson(geometry_raw)
+        if not geometry:
             continue
-        if geometry.get("type") not in {"Polygon", "MultiPolygon"}:
-            continue
-
-        props = feature.get("properties") or {}
-        props["agribound:engine"] = "published-ftw-country-query"
-        props["agribound:dataset"] = "Fields of The World global predictions"
-        props["admin:country_code"] = "TR"
-
-        output.append(
+        results.append(
             {
                 "type": "Feature",
-                "id": feature.get("id", index),
-                "properties": props,
+                "id": str(field_id),
+                "properties": {
+                    "id": str(field_id),
+                    "confidence": float(confidence) if confidence is not None else None,
+                    "metrics:area": float(area_m2) if area_m2 is not None else None,
+                    "determination:datetime": (
+                        observed_at.isoformat()
+                        if hasattr(observed_at, "isoformat")
+                        else str(observed_at or "")
+                    ),
+                    "admin:country_code": "TR",
+                    "agribound:engine": "ftw-duckdb-http",
+                    "agribound:dataset": "Fields of The World global predictions",
+                },
                 "geometry": geometry,
             }
         )
-    return output
+    return results
+
+
+def _query_turkey(
+    bbox: tuple[float, float, float, float],
+    year: int,
+    max_candidates: int,
+) -> list[dict[str, Any]]:
+    urls = _s3_list_urls()
+    errors: list[str] = []
+    features: list[dict[str, Any]] = []
+    per_file_limit = max(24, min(240, max_candidates * 4))
+
+    for url in urls:
+        try:
+            features.extend(_query_one_file(url, bbox, year, per_file_limit))
+            if len(features) >= max_candidates * 3:
+                break
+        except Exception as exc:
+            errors.append(f"{url.rsplit('/', 1)[-1]}: {exc}")
+            print(f"[ftw-worker] parquet query failed for {url}: {exc}")
+
+    if not features and errors:
+        detail = errors[0][:700]
+        raise RuntimeError(f"FTW Turkey GeoParquet query failed: {detail}")
+
+    deduped: dict[str, dict[str, Any]] = {}
+    for feature in features:
+        feature_id = str(feature.get("id") or "")
+        if feature_id and feature_id not in deduped:
+            deduped[feature_id] = feature
+    return list(deduped.values())[:max_candidates]
 
 
 @app.get("/health")
 def health() -> dict[str, Any]:
     try:
-        package_version = version("agribound")
+        import duckdb
+        import shapely
+
         runtime_ok = True
         runtime_error = None
+        duckdb_version = getattr(duckdb, "__version__", None)
+        shapely_version = getattr(shapely, "__version__", None)
     except Exception as exc:
-        package_version = None
         runtime_ok = False
         runtime_error = str(exc)
+        duckdb_version = None
+        shapely_version = None
 
     return {
         "ok": runtime_ok and bool(_supabase_url()) and bool(_supabase_anon_key()),
         "service": "agribound-worker",
-        "engine": "published-ftw-country-query",
-        "agribound_version": package_version,
+        "engine": "ftw-duckdb-http",
+        "duckdb_version": duckdb_version,
+        "shapely_version": shapely_version,
         "supabase_auth_configured": bool(_supabase_url()) and bool(_supabase_anon_key()),
         "error": runtime_error,
     }
@@ -208,28 +363,17 @@ def boundary_candidates(
     year = max(2024, min(year, 2025))
 
     try:
-        query_ftw_arrow = _load_query_ftw_arrow()
-        gdf = query_ftw_arrow(
-            study_area_bounds=bbox,
-            source_url=FTW_TURKEY_SOURCE,
-            year=year,
-            label="field",
-            columns=["id", "confidence", "metrics:area", "determination:datetime"],
-            max_features=max(64, min(800, request.policy.max_candidates * 8)),
-        )
-        features = _features(gdf, request.policy.max_candidates)
+        features = _query_turkey(bbox, year, request.policy.max_candidates)
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Published FTW Turkey query failed: {exc}",
-        ) from exc
+        print(f"[ftw-worker] boundary query error: {exc}")
+        raise HTTPException(status_code=502, detail=str(exc)[:900]) from exc
 
     return {
         "ok": True,
-        "engine": "published-ftw-country-query",
-        "version": "1.2.1",
+        "engine": "ftw-duckdb-http",
+        "version": "1.3.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "dataset_year": year,
         "source": "Fields of The World global predictions · Source Cooperative",
