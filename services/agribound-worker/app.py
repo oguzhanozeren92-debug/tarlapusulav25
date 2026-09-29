@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import hmac
 import importlib
 import json
 import os
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -14,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 app = FastAPI(
     title="TarlaPusula Agribound Worker",
-    version="1.0.0",
+    version="1.1.0",
     docs_url=None,
     redoc_url=None,
     openapi_url=None,
@@ -66,22 +67,49 @@ class BoundaryRequest(StrictModel):
     policy: Policy = Field(default_factory=Policy)
 
 
-def _expected_token() -> str:
-    return os.getenv("AGRIBOUND_WORKER_TOKEN", "").strip()
+def _supabase_url() -> str:
+    return os.getenv("SUPABASE_URL", "").strip().rstrip("/")
 
 
-def _authorize(authorization: str | None) -> None:
-    expected = _expected_token()
-    if not expected:
-        raise HTTPException(status_code=503, detail="Worker shared token is not configured")
+def _supabase_anon_key() -> str:
+    return os.getenv("SUPABASE_ANON_KEY", "").strip()
 
-    supplied = (authorization or "").strip()
-    prefix = "Bearer "
-    if supplied.startswith(prefix):
-        supplied = supplied[len(prefix):].strip()
 
-    if not supplied or not hmac.compare_digest(supplied, expected):
-        raise HTTPException(status_code=401, detail="Agribound worker authorization failed")
+def _verify_supabase_user(authorization: str | None) -> dict[str, Any]:
+    supabase_url = _supabase_url()
+    anon_key = _supabase_anon_key()
+    auth_header = (authorization or "").strip()
+
+    if not supabase_url or not anon_key:
+        raise HTTPException(status_code=503, detail="Supabase auth verifier is not configured")
+
+    if not auth_header.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Valid Supabase user session required")
+
+    request = urllib.request.Request(
+        f"{supabase_url}/auth/v1/user",
+        method="GET",
+        headers={
+            "Authorization": auth_header,
+            "apikey": anon_key,
+            "Accept": "application/json",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            raw = response.read().decode("utf-8")
+            user = json.loads(raw)
+    except urllib.error.HTTPError as exc:
+        raise HTTPException(status_code=401, detail="Supabase user session rejected") from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Supabase auth verification failed: {exc}") from exc
+
+    user_id = str(user.get("id") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Supabase user session has no user id")
+
+    return user
 
 
 def _runtime_status() -> dict[str, Any]:
@@ -159,11 +187,11 @@ def _feature_payload(gdf: Any, max_candidates: int) -> list[dict[str, Any]]:
 def health() -> dict[str, Any]:
     status = _runtime_status()
     return {
-        "ok": status["available"],
+        "ok": status["available"] and bool(_supabase_url()) and bool(_supabase_anon_key()),
         "service": "agribound-worker",
         "engine": "query-ftw",
         "agribound": status,
-        "token_configured": bool(_expected_token()),
+        "supabase_auth_configured": bool(_supabase_url()) and bool(_supabase_anon_key()),
     }
 
 
@@ -172,7 +200,11 @@ def boundary_candidates(
     request: BoundaryRequest,
     authorization: str | None = Header(default=None),
 ) -> dict[str, Any]:
-    _authorize(authorization)
+    user = _verify_supabase_user(authorization)
+    verified_user_id = str(user.get("id") or "").strip()
+
+    if verified_user_id != request.user_context.user_id:
+        raise HTTPException(status_code=403, detail="User context does not match authenticated user")
 
     if not request.policy.candidate_only:
         raise HTTPException(status_code=422, detail="Only candidate-only mode is supported")
